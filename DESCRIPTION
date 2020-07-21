@@ -34,4 +34,4 @@ Imports: crayon (>= 1.3.4),
   glmnet (>= 4.0.2),
   randomForest (>= 4.6.14),
   generalizeRdata
-Remotes: /katiecoburn/generalizeRdata
+Remotes: katiecoburn/generalizeRdata
