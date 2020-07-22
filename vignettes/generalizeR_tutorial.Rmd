@@ -76,9 +76,11 @@ The researcher can then run:
 stratify(data = inference_pop)
 ```
 
-They are greeted with the following text:
+They are greeted with the following:
 
-```{r echo=FALSE}
+<img src="fig_1.png" width="550"/>
+
+```{r include=FALSE, eval=FALSE}
 cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
 
 cat("Your chosen inference population is the '", deparse(substitute(inference_pop)), "' dataset.", sep = "")
@@ -90,7 +92,9 @@ idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: "
 
 At the prompt, they enter the column name that contains the NCES school IDs in the CCD database -- "ncessch":
 
-```{r echo=FALSE}
+<img src="fig_2.png" width="550"/>
+
+```{r include=FALSE, echo=FALSE}
 cat("If you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use dplyr::filter(), and \nreturn.\n")
 ```
 
@@ -103,11 +107,11 @@ id <- data %>% select(all_of(idnum))
 data <- data %>% select(-all_of(idnum))
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
 ```
 
-![](/Users/katiecoburn/Dropbox/Screenshots/Screenshot 2020-07-22 17.03.13.png)
+<img src="fig_3.png" width="550"/>
 
 ## Step 2: Recruit
 
