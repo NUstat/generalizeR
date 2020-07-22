@@ -113,6 +113,8 @@ cat("\nYou're now ready to select your stratification variables. \nThe following
 
 <img src="fig_3.png" width="550"/>
 
+The second example is someone who wants all locations for a survey and includes at least one categorical stratifying variable. Big sample size.
+
 ## Step 2: Recruit
 
 ## Step 3: Assess
