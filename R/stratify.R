@@ -48,7 +48,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     if(!idnum %in% names(data))
     stop(simpleError("We could not find that variable. Please make sure your \ndataset contains an ID variable."))
 
-    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use " %+% blue$bold("dplyr::filter()") %+% " or " %+% blue$bold("set_percentile_limits()") %+% ", and \nreturn.\n")
+    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use " %+% blue$bold("dplyr::filter()") %+% ", and \nreturn.\n")
 
     if(menu(choices = c("Yes", "No"), title = cat("\nDo you wish to proceed?")) == 1){
 
