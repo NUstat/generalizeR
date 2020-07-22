@@ -96,7 +96,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       select_if(is.factor)
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
-      cat_data_plot <- data.frame(cat_data)
+      cat_data_plot <- data.frame(cat_data) %>%
+        na.omit()
       cat("Please review the descriptive statistics of your \ncategorical variables (factors). Note that these will \nautomatically be converted to dummy variables for analysis.\n")
       for(i in 1:(ncol(cat_data_plot))){
         var_name <- cat_data_vars[i]
@@ -118,6 +119,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cont_data_vars <- names(cont_data)
     if(dim(cont_data)[2] >= 1){
       sumstats <- cont_data %>%
+        na.omit() %>%
         map_df(function(x){
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
         }) %>%
@@ -129,7 +131,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       cat("Please review the descriptive statistics of your \ncontinuous variables.\n\n")
       print(sumstats, row.names = FALSE)
       for(i in 1:ncol(cont_data)){
-        cont_data_plot <- cont_data %>% data.frame()
+        cont_data_plot <- cont_data %>% na.omit() %>% data.frame()
         suppressWarnings(
           suppressMessages(
             hist <- ggplot(data = cont_data_plot, aes(x = cont_data_plot[,i])) +
@@ -155,12 +157,16 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       cat("This might take a little while. Please bear with us.")
 
       if(dim(cat_data)[2] >= 1){
-        cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE)
-        data_full <- cbind(cat_data, cont_data) %>%
+        cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>% select_if(negate(is.factor))
+        data_full <- cbind(cat_data, cont_data, id) %>%
           na.omit()
+        id <- data_full %>% select(idnum)
+        data_full <- data_full %>% select(-idnum)
       }else{
-        data_full <- cont_data %>%
+        data_full <- cbind(cont_data, id) %>%
           na.omit()
+        id <- data_full %>% select(idnum)
+        data_full <- data_full %>% select(-idnum)
       }
 
       suppressWarnings(distance <- daisy(data_full, metric = "gower"))
@@ -240,7 +246,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           }) %>%
         bind_cols() %>% mutate(clusterID = summary_stats$clusterID) %>%
         select(clusterID, everything()) %>%
-        left_join((x2 %>% group_by(clusterID) %>% count())) %>%
+        left_join((x2 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
         mutate(clusterID = as.character(clusterID)) %>%
         add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
         data.frame()
@@ -267,13 +273,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       counts_tab <- summary_stats2 %>%
         select(clusterID, n)
 
-      heat_data <- left_join(mean_tab, sd_tab) %>%
-        left_join(counts_tab)
+      heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
+        left_join(counts_tab, by = "clusterID")
       temporary_df <- data.frame(variable = unique(heat_data$variable),
                         population_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn))) %>%
         mutate(population_mean = mn) %>%
         select(-mn)
-      heat_data <- heat_data %>% left_join(temporary_df) %>%
+      heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
         mutate(deviation = case_when((mn - population_mean)/population_mean >= 0.7 ~ 0.7,
                                      (mn - population_mean)/population_mean <= -0.7 ~ -0.7,
                                      TRUE ~ (mn - population_mean)/population_mean))
@@ -355,7 +361,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       select_if(is.factor)
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
-      cat_data_plot <- data.frame(cat_data)
+      cat_data_plot <- data.frame(cat_data) %>%
+        na.omit()
       cat("Please review the descriptive statistics of your \ncategorical variables (factors). Note that these will \nautomatically be converted to dummy variables for analysis.\n")
       for(i in 1:(ncol(cat_data_plot))){
         var_name <- cat_data_vars[i]
@@ -371,11 +378,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
+
     cont_data <- data %>%
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
     if(dim(cont_data)[2] >= 1){
       sumstats <- cont_data %>%
+        na.omit() %>%
         map_df(function(x){
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
         }) %>%
@@ -404,12 +413,17 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat("This might take a little while. Please bear with us.")
 
     if(dim(cat_data)[2] >= 1){
-      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE)
-      data_full <- cbind(cat_data, cont_data) %>%
+      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>%
+        select_if(negate(is.factor))
+      data_full <- cbind(cat_data, cont_data, id) %>%
         na.omit()
+      id <- data_full %>% select(idnum)
+      data_full <- data_full %>% select(-idnum)
     }else{
-      data_full <- cont_data %>%
+      data_full <- cbind(cont_data, id) %>%
         na.omit()
+      id <- data_full %>% select(idnum)
+      data_full <- data_full %>% select(-idnum)
     }
 
     suppressWarnings(distance <- daisy(data_full, metric = "gower"))
@@ -487,7 +501,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }) %>%
       bind_cols() %>% mutate(clusterID = summary_stats$clusterID) %>%
       select(clusterID, everything()) %>%
-      left_join((x2 %>% group_by(clusterID) %>% count())) %>%
+      left_join((x2 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
       mutate(clusterID = as.character(clusterID)) %>%
       add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
       data.frame()
@@ -514,13 +528,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     counts_tab <- summary_stats2 %>%
       select(clusterID, n)
 
-    heat_data <- left_join(mean_tab, sd_tab) %>%
-      left_join(counts_tab)
+    heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
+      left_join(counts_tab, by = "clusterID")
     temporary_df <- data.frame(variable = unique(heat_data$variable),
                                population_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn))) %>%
       mutate(population_mean = mn) %>%
       select(-mn)
-    heat_data <- heat_data %>% left_join(temporary_df) %>%
+    heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
       mutate(deviation = case_when((mn - population_mean)/population_mean >= 0.7 ~ 0.7,
                                    (mn - population_mean)/population_mean <= -0.7 ~ -0.7,
                                    TRUE ~ (mn - population_mean)/population_mean))
