@@ -148,12 +148,12 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
     par(ask = FALSE)
 
-    cat("Stratification will help you develop a recruitment plan so that your study will result in an unbiased estimate of the " %+% bold("average treatment effect (ATE)") %+% ". Without using strata, it is easy to end up with a sample that is very different from your inference population. \n\nGeneralization works best when strata are " %+% bold("homogeneous") %+% ". That means units within each stratum are almost identical in terms of relevant variables.\n\n")
+    cat("Stratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the \n" %+% bold("average treatment effect (ATE)") %+% ". Without using strata, \nit is easy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are " %+% bold("homogeneous") %+% ". \nThat means units within each stratum are almost identical \nin terms of relevant variables.\n\n")
 
     satisfied <- 0
 
     while(satisfied != 1){
-      cat("Enter a number of strata to divide your population into. Typically, \nthe " %+% bold("more strata") %+% ", the better; with fewer strata, units in each stratum are no longer identical. However, increasing the number of strata \nuses more resources, because you must sample a given number of units \nfrom each stratum. Try a few options and choose the 'best' one based on your goals and resources.")
+      cat("Enter a number of strata to divide your population into. \nTypically, the " %+% bold("more strata") %+% ", the better; with fewer strata, \nunits in each stratum are no longer identical. However, \nincreasing the number of strata uses more resources, because \nyou must sample a given number of units from each stratum. \n\nTry a few #s and choose the 'best' one for you.")
 
       n_strata <- as.numeric(readline(prompt = "# of strata: "))
       ## Add a catch here, similar to before: MUST enter a number
