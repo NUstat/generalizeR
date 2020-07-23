@@ -5,7 +5,7 @@ Authors@R:
     person(given = "Katie",
            family = "Coburn",
            role = c("aut", "cre"),
-           email = "kathleen.coburn@northwestern.edu",
+           email = "admin@thegeneralizer.org",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Installing this package will also install the sister package 'generalizeRdata' from GitHub. To access our CCD and IPEDS databases, please run 'library(generalizeRdata)'.
 License: GPL-3

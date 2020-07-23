@@ -123,6 +123,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         map_df(function(x){
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
         }) %>%
+        mutate_all(round, digits = 3) %>%
         mutate(variable = cont_data_vars) %>%
         select(variable, everything()) %>%
         clean_names() %>%
@@ -214,9 +215,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying variable for each stratum. \nThe bottom row, 'Population,' presents the average values for \nthe entire inference population. The last column, 'n,' lists the \ntotal number of units in the inference population that fall \nwithin each stratum.\n\n")
 
-      x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
+      # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
+      x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
 
-      population_summary_stats2 <- x2 %>% select(-c(all_of(idnum), clusterID)) %>%
+      population_summary_stats2 <- x3 %>% select(-c(clusterID)) %>%
         summarise_all(list(mean, sd)) %>%
         mutate_all(round, digits = 3)
 
@@ -228,10 +230,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         }) %>%
         bind_cols()
 
-      summary_stats <- x2 %>%
+      summary_stats <- x3 %>%
         group_by(clusterID) %>%
         summarize_if(is.numeric, mean) %>%
-        left_join((x2 %>% group_by(clusterID) %>% summarize_if(is.numeric, sd)),
+        left_join((x3 %>% group_by(clusterID) %>% summarize_if(is.numeric, sd)),
                   by = "clusterID", suffix = c("_fn1", "_fn2")) %>%
         mutate_all(round, digits = 3)
 
@@ -246,7 +248,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           }) %>%
         bind_cols() %>% mutate(clusterID = summary_stats$clusterID) %>%
         select(clusterID, everything()) %>%
-        left_join((x2 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
+        left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
         mutate(clusterID = as.character(clusterID)) %>%
         add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
         data.frame()
@@ -378,7 +380,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
-
     cont_data <- data %>%
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
@@ -388,6 +389,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         map_df(function(x){
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
         }) %>%
+        mutate_all(round, digits = 3) %>%
         mutate(variable = cont_data_vars) %>%
         select(variable, everything()) %>%
         clean_names() %>%
@@ -503,8 +505,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       select(clusterID, everything()) %>%
       left_join((x2 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
       mutate(clusterID = as.character(clusterID)) %>%
-      add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
-      data.frame()
+      add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1]))
 
     print(summary_stats2)
 
