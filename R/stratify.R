@@ -335,10 +335,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     }
 
-    ## To add:
-    ## If you want to exit, do you want to save your output
-    ## (and if so, as what)?
-
   }else{
     par(ask = FALSE)
 
@@ -583,7 +579,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
   class(overall_output) <- c("generalizer_output")
 
   return(invisible(overall_output))
-  # Note to self; you CAN store plots in list of output!
 
 }
 
