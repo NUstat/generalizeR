@@ -148,10 +148,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
     par(ask = FALSE)
 
+    cat("Stratification will help you develop a recruitment plan so that your study will result in an unbiased estimate of the average treatment effect (ATE). Without using strata, it is easy to end up with a sample that is very different from your inference population. \n\nGeneralization works best when strata are homogeneous. That means units within each stratum are almost identical in terms of the relevant variables.\n\n")
+
     satisfied <- 0
 
     while(satisfied != 1){
-      cat("Enter a number of strata to divide your population into. Typically, \nthe more strata, the better. However, increasing the number of strata \nuses more resources, because you must sample a given number of units \nfrom each stratum. Therefore, choose a larger number if possible, and \nonly if you have the resources to accommodate it. Otherwise, \nchoose a smaller number.")
+      cat("Enter a number of strata to divide your population into. Typically, \nthe more strata, the better; with fewer strata, units in each stratum are no longer identical. However, increasing the number of strata \nuses more resources, because you must sample a given number of units \nfrom each stratum. Try a few options and choose the 'best' one based on your goals and resources.")
+
       n_strata <- as.numeric(readline(prompt = "# of strata: "))
       ## Add a catch here, similar to before: MUST enter a number
 
@@ -187,10 +190,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         mu <- dat4 %>% map_dbl(mean)
         v <- var(dat4)
         a <- diag(v)
-
-        ## Note: pct_female and pct_white work, but other combos throw an error
-        ## at the next line. Hunch is that pct_female and pct_white might not
-        ## have NA values and NAs might be what are messing it up. To investigate.
 
         if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
         cov.dat <- diag(a)
@@ -445,10 +444,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       mu <- dat4 %>% map_dbl(mean)
       v <- var(dat4)
       a <- diag(v)
-
-      ## Note: pct_female and pct_white work, but other combos throw an error
-      ## at the next line. Hunch is that pct_female and pct_white might not
-      ## have NA values and NAs might be what are messing it up. To investigate.
 
       if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
       cov.dat <- diag(a)
