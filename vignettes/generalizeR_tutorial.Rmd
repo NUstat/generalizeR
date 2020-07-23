@@ -40,7 +40,7 @@ Users who are running stratify() multiple times, who are familiar with R, or who
 
 This tutorial will follow two hypothetical examples. 
 
-The first is of an education researcher who wants to test the . The researcher has somewhat limited resources, so they plan on a sample size of 40 schools. They want to estimate the average effect of their intervention in Texas charter schools. Thus, their **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so the researcher selects a few **stratifying variables** -- *percentage female, percentage black, and percentage free and reduced lunch*. The researcher also thinks school size might result in treatment differences, so they include the *total school size* as well.
+The first is of an education researcher who wants to test the . The researcher has somewhat limited resources, so they plan on a sample size of 40 schools. They want to estimate the average effect of their intervention in Texas charter high schools. Thus, their **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so the researcher selects a few **stratifying variables** -- *percentage female, percentage black, and percentage free and reduced lunch*. The researcher also thinks school size might result in treatment differences, so they include the *total school size* as well.
 
 Since this researcher is working with high schools, they can use the Common Core database we provide in 'generalizeRdata'. For information on each of the columns and the source of the data, run '?cc'.
 
@@ -73,12 +73,12 @@ The size of our inference population has dropped from over 98,000 schools to abo
 The researcher can then run:
 
 ```{r eval=FALSE}
-stratify(data = inference_pop)
+output <- stratify(data = inference_pop)
 ```
 
 They are greeted with the following:
 
-<img src="fig_1.png" width="550"/>
+<img src="sec_1_ex_1_fig_1.png" width="550"/>
 
 ```{r include=FALSE, eval=FALSE}
 cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
@@ -92,7 +92,7 @@ idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: "
 
 At the prompt, they enter the column name that contains the NCES school IDs in the CCD database -- "ncessch":
 
-<img src="fig_2.png" width="550"/>
+<img src="sec_1_ex_1_fig_2.png" width="550"/>
 
 ```{r include=FALSE, echo=FALSE}
 cat("If you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use dplyr::filter(), and \nreturn.\n")
@@ -111,14 +111,36 @@ data <- data %>% select(-all_of(idnum))
 cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
 ```
 
-<img src="fig_3.png" width="700"/>
+<img src="sec_1_ex_1_fig_3.png" width="700"/>
 
 The researcher now selects the variables that represent their stratifying variables of interest -- 'pct_female', 'pct_black_or_african_american', 'pct_free_and_reduced_lunch', and 'total'. They enter: '29 32 38 42'.
 
+<img src="sec_1_ex_1_fig_4.png" width="550"/>
 
+<img src="sec_1_ex_1_fig_5.png" width="550"/>
+
+<img src="sec_1_ex_1_fig_6.png" width="550"/>
+
+<img src="sec_1_ex_1_fig_7.png" width="550"/>
+
+<img src="sec_1_ex_1_fig_8.png" width="550"/>
+
+<img src="sec_1_ex_1_fig_9.png" width="550"/>
 
 The second example is someone who wants all locations for a survey and includes at least one categorical stratifying variable. Big sample size.
 
 ## Step 2: Recruit
+
+In each of these examples, our researchers have successfully stratified their inference populations into 4 and 6 clusters, respectively. Their goal is now to sample units from each cluster in such a way that their overall sample will be representative of their entire inference population. The 'recruit()' function is their next step.
+
+Like the 'stratify()' function, 'recruit()' is guided by default; users can simply set 'guided = FALSE' to turn this option off if they choose, but (again) they must specify values for the other function arguments instead.
+
+Since the results of 'stratify()' were saved to an object, that object can be read into 'recruit()', which automatically learns information about the stratification process:
+
+```{r eval=FALSE}
+recruit(output)
+```
+
+<img src="sec_2_ex_1_fig_1.png" width="550"/>
 
 ## Step 3: Assess
