@@ -94,6 +94,8 @@ cat("\n")
 idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
 ```
 
+It's important to note that the user can hit the 'Escape' key here to stop the function if they have forgotten to store their results -- that is, to use the assignment operator '<-' to set their results to an object (here, called 'output').
+
 At the prompt, they enter the column name that contains the NCES school IDs in the CCD database -- "ncessch":
 
 <img src="sec_1_ex_1_fig_2.png" width="550"/>
@@ -215,8 +217,9 @@ inference_pop
 ```
 
 ```{r, eval=FALSE}
-output <- stratify(inference_pop, guided = FALSE, n_strata = 8, 
-                   variables = c("pct_female", "pct_pell"), 
+output <- stratify(inference_pop, guided = FALSE, n_strata = 6, 
+                   variables = c("control_level", "pct_female",
+                                 "remedial_services"), 
                    idnum = "unitid")
 ```
 

@@ -341,7 +341,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     # This is where all the non-guided stuff goes
 
     cat("Your chosen inference population is the '",
-        deparse(substitute(data)), "' dataset.\n\n", sep = "")
+        deparse(substitute(data)), "' dataset.\n", sep = "")
     cat("\n")
 
     id <- data %>% select(all_of(idnum))
@@ -360,7 +360,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     if(dim(cat_data)[2] >= 1){
       cat_data_plot <- data.frame(cat_data) %>%
         na.omit()
-      cat("Please review the descriptive statistics of your \ncategorical variables (factors). Note that these will \nautomatically be converted to dummy variables for analysis.\n")
+      cat(bold("Please review the descriptive statistics of your \ncategorical variables (factors).") %+% "Note that these will \nautomatically be converted to dummy variables for analysis.\n")
       for(i in 1:(ncol(cat_data_plot))){
         var_name <- cat_data_vars[i]
         cat("\nNumber of Observations in Levels of Factor ", paste(blue$bold(var_name)), ":\n", sep = "")
@@ -407,7 +407,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
-    cat("This might take a little while. Please bear with us.")
+    cat("\n\nThis might take a little while. Please bear with us.")
 
     if(dim(cat_data)[2] >= 1){
       cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>%
