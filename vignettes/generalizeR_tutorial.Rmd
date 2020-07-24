@@ -13,6 +13,12 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
+
+# Note:
+#  changing back to this (below)
+#   rmarkdown::html_vignette
+# would probably make the vignette smaller.
+
 knitr::opts_chunk$set(echo = TRUE)
 library(crayon)
 ```
