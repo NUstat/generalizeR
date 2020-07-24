@@ -341,7 +341,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     # This is where all the non-guided stuff goes
 
     cat("Your chosen inference population is the '",
-        deparse(substitute(data)), "' dataset.", sep = "")
+        deparse(substitute(data)), "' dataset.\n\n", sep = "")
     cat("\n")
 
     id <- data %>% select(all_of(idnum))
