@@ -2,7 +2,10 @@
 title: "generalizeR Tutorial"
 author: "Katie Coburn"
 date: "7/22/2020"
-output: rmarkdown::html_vignette
+output: 
+  html_document:
+    toc: true
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{generalizeR Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
@@ -230,12 +233,20 @@ In each of these examples, our researchers have successfully stratified their in
 
 Like the 'stratify()' function, 'recruit()' is guided by default; users can simply set 'guided = FALSE' to turn this option off if they choose, but (again) they must specify values for the other function arguments instead.
 
-Since the results of 'stratify()' were saved to an object, that object can be read into 'recruit()', which automatically learns information about the stratification process:
+Since the results of 'stratify()' were saved to an object, that object can be read into 'recruit()', which automatically learns information about the stratification process.
+
+### Example One
 
 ```{r eval=FALSE}
 recruit(output)
 ```
 
 <img src="sec_2_ex_1_fig_1.png" width="550"/>
+
+### Example Two
+
+```{r eval=FALSE}
+recruit(output)
+```
 
 ## Step 3: Assess
