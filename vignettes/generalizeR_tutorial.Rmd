@@ -29,15 +29,15 @@ Note that it is possible to use the package at either end of the sampling proces
 
 ```{r, warning=FALSE, message=FALSE}
 # install.packages('devtools')
-# install_github('katiecoburn/generalizeRdata')
-# install_github('katiecoburn/generalizeR')
-# install.packages("usmap")
 library(devtools)
 library(tidyverse)
+# install_github('katiecoburn/generalizeRdata')
+# install_github('katiecoburn/generalizeR')
 library(generalizeRdata)
 library(generalizeR)
 library(ggthemes)
 library(gridExtra)
+# install.packages("usmap")
 library(usmap)
 ```
 
@@ -378,7 +378,7 @@ g_overview <- g_overview %>% mutate(g_index = case_when(
 A G-index above 0.90 means that the sample is equivalent to a randomized trial. A G-index between 0.50 and 0.90 means that the sample is not quite a miniature of the population, but statistical adjustments to reweight the sample may make generalization possible. Finally, a G-index below 0.50 means that generalization (based upon the selected covariates) is completely unwarranted, and statistical adjustment cannot help.
 
 ```{r, fig.height = 5, fig.width = 7.5, warning=FALSE, message=FALSE}
-plot_usmap(data = g_overview, values = "g_index") +
+plot_usmap(data = g_overview, values = "g_index", labels = TRUE) +
    labs(title = "US States",
        subtitle = "Generalizability Index") +
   theme(panel.background = element_rect(color = "black"), 
@@ -386,6 +386,15 @@ plot_usmap(data = g_overview, values = "g_index") +
   scale_fill_grey()
 ```
 
+This map tells the researcher a few things. 
+
+Their results are equivalent to a randomized controlled trial for generalizations to charter high schools in California and Texas. Texas is to be expected here, since their entire sample came from Texas. California most likely has a charter high school population that is very similar to Texas in terms of the stratifying variables (pct_female, pct_black_or_african_american, pct_free_and_reduced_lunch, and total number of students). 
+
+With statistical adjustments, they could make generalizations to the populations of charter high schools in: Washington, Nevada, Utah, Arizona, Colorado, Kansas, Oklahoma, Minnesota, Indiana, Wisconsin, Michigan, Ohio, Pennsylvania, New York, Connecticut, North and South Carolina, Georgia, Florida, and Arkansas. 
+
+Generalizations to the remaining states would be completely unwarranted; in some cases this is because there are no charter high schools in the state (labeled 'NA').
+
+This researcher had a sample size of only 40, but based on careful, stratified sampling (and with some adjustment), they should be able to generalize their intervention results to the populations of 22 US states.
 
 ### Example Two
 
@@ -439,7 +448,7 @@ g_overview <- g_overview %>% mutate(g_index = case_when(
 Then they map it.
 
 ```{r, fig.height = 5, fig.width = 7.5, warning=FALSE, message=FALSE}
-plot_usmap(data = g_overview, values = "g_index") +
+plot_usmap(data = g_overview, values = "g_index", labels = TRUE) +
    labs(title = "US States",
        subtitle = "Generalizability Index") +
   theme(panel.background = element_rect(color = "black"), 
