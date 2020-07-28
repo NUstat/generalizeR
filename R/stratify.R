@@ -148,6 +148,19 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
     par(ask = FALSE)
 
+    if(dim(cat_data)[2] >= 1){
+      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>% select_if(negate(is.factor))
+      data_full <- cbind(cat_data, cont_data, id) %>%
+        na.omit()
+      id <- data_full %>% select(idnum)
+      data_full <- data_full %>% select(-idnum)
+    }else{
+      data_full <- cbind(cont_data, id) %>%
+        na.omit()
+      id <- data_full %>% select(idnum)
+      data_full <- data_full %>% select(-idnum)
+    }
+
     cat("Stratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the \n" %+% bold("average treatment effect (ATE)") %+% ". Without using strata, \nit is easy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are " %+% bold("homogeneous") %+% ". \nThat means units within each stratum are almost identical \nin terms of relevant variables.\n\n")
 
     satisfied <- 0
@@ -159,19 +172,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       ## Add a catch here, similar to before: MUST enter a number
 
       cat("This might take a little while. Please bear with us.")
-
-      if(dim(cat_data)[2] >= 1){
-        cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>% select_if(negate(is.factor))
-        data_full <- cbind(cat_data, cont_data, id) %>%
-          na.omit()
-        id <- data_full %>% select(idnum)
-        data_full <- data_full %>% select(-idnum)
-      }else{
-        data_full <- cbind(cont_data, id) %>%
-          na.omit()
-        id <- data_full %>% select(idnum)
-        data_full <- data_full %>% select(-idnum)
-      }
 
       suppressWarnings(distance <- daisy(data_full, metric = "gower"))
       cat("\n1: Calculated distance matrix.")

@@ -15,7 +15,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: knitr,
   rmarkdown,
-  tidyverse
+  tidyverse,
+  generalizeRdata,
+  gridExtra,
+  usmap
 Imports: crayon (>= 1.3.4),
   janitor (>= 2.0.1),
   ggplot2 (>= 3.3.2),
