@@ -11,7 +11,8 @@
 #' @param is_data_disjoint logical. If TRUE, then trial and population data are considered independent.  This affects calculation of the weights - see details for more information.
 #' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of trial covariates.
 #' @param seed numeric. By default, the seed is set to 12222, otherwise can be specified (such as for simulation purposes).
-#' @return \code{assess} returns an object of the class "generalize_assess"
+#' @export
+
 
 assess <- function(trial, selection_covariates, data, selection_method = "lr",
                   is_data_disjoint = TRUE, trim_pop = FALSE, seed = 12222){
@@ -20,9 +21,9 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
   selection_method = tolower(selection_method)
 
   ##### CHECKS #####
-  if (!is.data.frame(data)) {
-    stop("Data must be a data.frame.", call. = FALSE)
-  }
+  # if (!is.data.frame(data)) {
+  #   stop("Data must be a data.frame.", call. = FALSE)
+  # }
 
   if(anyNA(match(selection_covariates,names(data)))){
     stop("Not all covariates listed are variables in the data provided!",call. = FALSE)

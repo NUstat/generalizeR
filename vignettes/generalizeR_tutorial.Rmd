@@ -3,9 +3,7 @@ title: "generalizeR Tutorial"
 author: "Katie Coburn"
 date: "7/22/2020"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{generalizeR Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
@@ -33,12 +31,14 @@ Note that it is possible to use the package at either end of the sampling proces
 # install.packages('devtools')
 # install_github('katiecoburn/generalizeRdata')
 # install_github('katiecoburn/generalizeR')
+# install.packages("usmap")
 library(devtools)
 library(tidyverse)
 library(generalizeRdata)
 library(generalizeR)
 library(ggthemes)
 library(gridExtra)
+library(usmap)
 ```
 
 Soon the generalizeR package will be on CRAN and can be installed with 'install.packages'. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
@@ -189,7 +189,7 @@ The function also provides a table of the within-cluster means and standard devi
 <img src="sec_1_ex_1_fig_8.png" width="550"/>
 
 ```{r, echo=FALSE, include=FALSE}
-test <- (stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch")))
+test <- (stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch"))
 ```
 
 It prints a heat map:
@@ -225,13 +225,51 @@ inference_pop <- ipeds %>%
 inference_pop
 ```
 
-```{r, eval=FALSE}
+```{r, include=FALSE, echo=FALSE}
 output <- stratify(inference_pop, guided = FALSE, n_strata = 6, 
                    variables = c("control_level", "pct_female",
                                  "remedial_services"), 
                    idnum = "unitid")
 ```
 
+<img src="sec_1_ex_2_fig_1.png" width="550"/>
+
+```{r, fig.height = 3, fig.width = 7.5, echo=FALSE, warning=FALSE}
+par(mar = c(4, 4, .1, .1))
+plot1 <- inference_pop %>% 
+  ggplot(aes(x = control_level)) + geom_bar() +
+  theme_base() + 
+  xlab("control_level") +
+  labs(title = "Histogram of control_level")
+
+plot2 <- inference_pop %>% 
+  ggplot(aes(x = remedial_services)) + geom_bar() +
+  theme_base() + 
+  xlab("remedial_services") +
+  labs(title = "Histogram of remedial_services")
+
+grid.arrange(plot1, plot2, ncol = 2)
+```
+
+<img src="sec_1_ex_2_fig_2.png" width="550"/>
+
+```{r, fig.height = 3, fig.width = 3.5, echo=FALSE, warning=FALSE}
+par(mar = c(4, 4, .1, .1))
+plot1 <- inference_pop %>% 
+  ggplot(aes(x = pct_female)) + geom_histogram(bins = 30) +
+  theme_base() + 
+  xlab("pct_female") +
+  labs(title = "Histogram of pct_female")
+plot1
+```
+
+<img src="sec_1_ex_2_fig_3.png" width="550"/>
+
+<img src="sec_1_ex_2_fig_4.png" width="550"/>
+
+```{r, fig.height = 5, fig.width = 7.5, echo=FALSE}
+output$heat_plot_final
+```
 
 ## Step 2: Recruit
 
@@ -249,10 +287,102 @@ recruit(output)
 
 <img src="sec_2_ex_1_fig_1.png" width="550"/>
 
+<img src="sec_2_ex_1_fig_2.png" width="550"/>
+
+<img src="sec_2_ex_1_fig_3.png" width="550"/>
+
 ### Example Two
 
 ```{r eval=FALSE}
 recruit(output)
 ```
 
+<img src="sec_2_ex_2_fig_1.png" width="550"/>
+
+<img src="sec_2_ex_2_fig_2.png" width="550"/>
+
+<img src="sec_2_ex_2_fig_3.png" width="550"/>
+
 ## Step 3: Assess
+
+### Example One
+
+The researcher in this example has taken their four recruitment lists and successfully recruited the desired number of units from each stratum -- 20, 4, 6, and 11 units from strata 1, 2, 3, and 4, respectively. They have completed their study and are interested in whether their results are generalizable to other states in the US.
+
+Recall that their inference population consisted of Texas charter high schools. Therefore, they most likely want to know whether their sample can generalize to other charter high schools in the US.
+
+First the researcher specifies the variables that they hope are generalizable:
+
+```{r}
+selection_vars <- c("pct_female", "pct_black_or_african_american", "pct_free_and_reduced_lunch", "total")
+```
+
+Then they read in their sample. The way they do this may differ -- for example, they might have their four separate recruitment lists, or one large file, or their original stratify() object. The important thing is to create a data frame with a column that consists of the sample IDs.
+
+```{r, echo=FALSE, include=FALSE}
+output <- test
+```
+
+```{r}
+sample <- tibble(ncessch = c(output$recruitment_lists[[1]]$ncessch[1:20],
+                output$recruitment_lists[[2]]$ncessch[1:4],
+                output$recruitment_lists[[3]]$ncessch[1:6],
+                output$recruitment_lists[[4]]$ncessch[1:11]))
+```
+
+They specify their inference population again -- this time a data frame including all charter high schools. The data frame should include unit IDs, variables of interest, and (if applicable) a grouping variable; since the researcher wants to generalize to US states, the grouping variable is 'st' (state).
+
+```{r}
+inference_pop <- cc %>% 
+  filter(charter == 1) %>%
+  filter(g_10_offered == "Yes") %>%
+  select(ncessch, all_of(selection_vars), st)
+```
+
+Finally, they feed their sample and populatiuon data frames, the name of the ID variable, and the name of the grouping variable to 'assess_wrap()' -- a wrapper of the included 'assess()' function for ease of use.
+
+```{r}
+gen_results <- assess_wrap(sample = sample, population = inference_pop,
+            join_var = "ncessch", grouping_var = "st")
+```
+  
+They can view a table of their results across states. This code extracts the 'st' variable as a factor and retains unique values, one row per state:
+
+```{r}
+state <- inference_pop %>% 
+  na.omit() %>% 
+  select(st) %>% 
+  transmute(state = factor(st)) %>% 
+  unique()
+g_indexes <- gen_results[[2]]
+```
+
+Then that information is bound together with the generalizability indexes:
+
+```{r}
+g_overview <- tibble(state, g_index = g_indexes)
+g_overview
+```
+
+However, the information is easier to assess in the form of a map. There are many mapping tools in R. First, we use the tidyverse to turn the generalizability index values into a categorical variable representing the three levels of generalizability.
+
+```{r}
+g_overview <- g_overview %>% mutate(g_index = case_when(
+  g_index >= 0.90 ~ "best",
+  (g_index < 0.90 & g_index >= 0.50) ~ "okay",
+  g_index < 0.50 ~ "impossible",
+  is.na(g_index) ~ "impossible"
+))
+```
+
+A G-index above 0.90 means that the sample is equivalent to a randomized trial. A G-index between 0.50 and 0.90 means that the sample is not quite a miniature of the population, but statistical adjustments to reweight the sample may make generalization possible. Finally, a G-index below 0.50 means that generalization (based upon the selected covariates) is completely unwarranted, and statistical adjustment cannot help.
+
+```{r, fig.height = 5, fig.width = 7.5, warning=FALSE, message=FALSE}
+plot_usmap(data = g_overview, values = "g_index") +
+   labs(title = "US States",
+       subtitle = "Generalizability Index") +
+  theme(panel.background = element_rect(color = "black"), 
+        legend.position = "right") + 
+  scale_fill_grey()
+```
+

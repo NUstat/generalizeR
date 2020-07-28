@@ -199,7 +199,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           # distance (so the top N schools in each data frame are the "best," etc.)
           arrange(distance) %>%
           mutate(rank = seq.int(nrow(final_dat4))) %>%
-          select(rank, idnum)
+          select(rank, all_of(idnum))
   }
 
       cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
@@ -360,7 +360,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     if(dim(cat_data)[2] >= 1){
       cat_data_plot <- data.frame(cat_data) %>%
         na.omit()
-      cat(bold("Please review the descriptive statistics of your \ncategorical variables (factors).") %+% "Note that these will \nautomatically be converted to dummy variables for analysis.\n")
+      cat("Please review the descriptive statistics of your \n" %+% bold("categorical variables (factors).") %+% "Note that these will \nautomatically be converted to dummy variables for analysis.\n")
       for(i in 1:(ncol(cat_data_plot))){
         var_name <- cat_data_vars[i]
         cat("\nNumber of Observations in Levels of Factor ", paste(blue$bold(var_name)), ":\n", sep = "")
@@ -390,7 +390,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         clean_names() %>%
         data.frame()
 
-      cat("Please review the descriptive statistics of your \ncontinuous variables.\n\n")
+      cat("Please review the descriptive statistics of your \n" %+% bold("continuous variables") %+% ".\n\n")
       print(sumstats, row.names = FALSE)
       for(i in 1:ncol(cont_data)){
         cont_data_plot <- cont_data %>% data.frame()
@@ -449,7 +449,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         # distance (so the top N schools in each data frame are the "best," etc.)
         arrange(distance) %>%
         mutate(rank = seq.int(nrow(final_dat4))) %>%
-        select(rank, idnum)
+        select(rank, all_of(idnum))
     }
 
     cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
@@ -477,9 +477,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       bind_cols()
 
     summary_stats <- x2 %>%
+      select(-all_of(idnum)) %>%
       group_by(clusterID) %>%
       summarize_if(is.numeric, mean) %>%
-      left_join((x2 %>% group_by(clusterID) %>% summarize_if(is.numeric, sd)),
+      left_join((x2 %>% select(-all_of(idnum)) %>% group_by(clusterID) %>% summarize_if(is.numeric, sd)),
                 by = "clusterID", suffix = c("_fn1", "_fn2")) %>%
       mutate_all(round, digits = 3)
 

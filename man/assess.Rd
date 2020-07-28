@@ -29,9 +29,6 @@ assess(
 
 \item{seed}{numeric. By default, the seed is set to 12222, otherwise can be specified (such as for simulation purposes).}
 }
-\value{
-\code{assess} returns an object of the class "generalize_assess"
-}
 \description{
 This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.
 }
