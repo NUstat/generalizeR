@@ -27,7 +27,7 @@ Note that it is possible to use the package at either end of the sampling proces
 
 ### Setup
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # install.packages('devtools')
 # install_github('katiecoburn/generalizeRdata')
 # install_github('katiecoburn/generalizeR')
@@ -370,8 +370,8 @@ However, the information is easier to assess in the form of a map. There are man
 g_overview <- g_overview %>% mutate(g_index = case_when(
   g_index >= 0.90 ~ "best",
   (g_index < 0.90 & g_index >= 0.50) ~ "okay",
-  g_index < 0.50 ~ "impossible",
-  is.na(g_index) ~ "impossible"
+  g_index < 0.50 ~ "worst",
+  is.na(g_index) ~ "worst"
 ))
 ```
 
@@ -386,3 +386,63 @@ plot_usmap(data = g_overview, values = "g_index") +
   scale_fill_grey()
 ```
 
+
+### Example Two
+
+The researcher in this example conducted a survey of higher education institutions in California, New York, and Florida. They intended to have a sample size of 500. They ended up having more resources than originally expected, so they recruited a larger sample from one of the strata; instead of 74 units from cluster 4, they recruited 200, for a total sample size of 626.
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+inference_pop <- ipeds %>% 
+  filter(state == "CA" | state == "FL" | state == "NY")
+output <- stratify(inference_pop, guided = FALSE, n_strata = 6, 
+                   variables = c("control_level", "pct_female",
+                                 "remedial_services"), 
+                   idnum = "unitid")
+```
+
+Most of their assessment process is the same as the previous example; they specify the variables that they want to generalize on, read in their sample data, and create their inference population:
+
+```{r, warning=FALSE, message=FALSE}
+selection_vars <- c("control_level", "remedial_services", "pct_female")
+sample <- tibble(unitid = c(output$recruitment_lists[[1]]$unitid[1:16],
+                output$recruitment_lists[[2]]$unitid[1:160],
+                output$recruitment_lists[[3]]$unitid[1:74],
+                output$recruitment_lists[[4]]$unitid[1:200],
+                output$recruitment_lists[[5]]$unitid[1:64],
+                output$recruitment_lists[[6]]$unitid[1:112]))
+
+inference_pop <- ipeds %>% 
+  select(unitid, all_of(selection_vars), state)
+```
+
+They feed their sample and population to 'assess_wrap()' and prepare the generalizability indexes for mapping:
+
+```{r, warning=FALSE, message=FALSE}
+gen_results <- assess_wrap(sample = sample, population = inference_pop,
+            join_var = "unitid", grouping_var = "state")
+
+state <- inference_pop %>% 
+  na.omit() %>% 
+  select(state) %>% 
+  unique()
+g_indexes <- gen_results[[2]]
+g_overview <- tibble(state, g_index = g_indexes)
+g_overview
+g_overview <- g_overview %>% mutate(g_index = case_when(
+  g_index >= 0.90 ~ "best",
+  (g_index < 0.90 & g_index >= 0.50) ~ "okay",
+  g_index < 0.50 ~ "worst",
+  is.na(g_index) ~ "worst"
+))
+```
+
+Then they map it.
+
+```{r, fig.height = 5, fig.width = 7.5, warning=FALSE, message=FALSE}
+plot_usmap(data = g_overview, values = "g_index") +
+   labs(title = "US States",
+       subtitle = "Generalizability Index") +
+  theme(panel.background = element_rect(color = "black"), 
+        legend.position = "right") + 
+  scale_fill_grey()
+```
