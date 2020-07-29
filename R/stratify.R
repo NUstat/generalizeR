@@ -36,6 +36,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
   if(guided == TRUE){
+
+    if(!is.null(n_strata) | !is.null(variables) | !is.null(idnum)){
+      stop(simpleError("Don't specify n_strata, variables, or idnum as arguments if you are running the guided version of this function."))
+    }
+
     cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
     cat("Your chosen inference population is the '",
         deparse(substitute(data)), "' dataset.", sep = "")
@@ -337,6 +342,18 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   }else{
     par(ask = FALSE)
+
+    if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
+      stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
+    }
+
+    if(!is.numeric(n_strata)){
+      stop(simpleError("The number of strata must be a number."))
+    }
+
+    if((is.numeric(n_strata) && (length(n_strata) > 1))){
+      stop(simpleError("Only specify one number of strata."))
+    }
 
     # This is where all the non-guided stuff goes
 
