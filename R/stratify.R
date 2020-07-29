@@ -351,8 +351,12 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       stop(simpleError("The number of strata must be a number."))
     }
 
-    if((is.numeric(n_strata) && (length(n_strata) > 1))){
+    if((length(n_strata) > 1)){
       stop(simpleError("Only specify one number of strata."))
+    }
+
+    if(!is.character(variables) | (anyNA(match(variables, names(data))))){
+      stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
     }
 
     # This is where all the non-guided stuff goes
