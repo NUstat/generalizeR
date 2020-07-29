@@ -23,3 +23,24 @@ A list of class "generalizer_output" that can be given to other functions in the
 \description{
 This function takes as input any data frame that you want to stratify into clusters. Typically, the goal of such stratification is sampling for generalizability. This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.
 }
+\details{
+Stuff!
+}
+\examples{
+\donttest{
+\dontrun{
+# To get sample data; must first be installed using install_github("katiecoburn/generalizeRdata")
+library(generalizeRdata)
+
+# Guided:
+stratify(ipeds)
+
+# Not guided:
+stratify(ipeds, guided = FALSE, n_strata = 4,
+   variables = c("pct_female", "pct_white"), idnum = "unitid")
+}
+}
+}
+\references{
+Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. \emph{Journal of Educational and Behavioral Statistics}, \emph{39}(6), 478-501.
+}

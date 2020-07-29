@@ -26,6 +26,24 @@
 #' @importFrom stringr str_sub
 #' @importFrom grid unit
 #' @importFrom tidyselect contains
+#' @details Stuff!
+#' @references
+#' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.
+#' @examples
+#' \donttest{
+#' \dontrun{
+#' # To get sample data; must first be installed using install_github("katiecoburn/generalizeRdata")
+#' library(generalizeRdata)
+#'
+#' # Guided:
+#' stratify(ipeds)
+#'
+#' # Not guided:
+#' stratify(ipeds, guided = FALSE, n_strata = 4,
+#'    variables = c("pct_female", "pct_white"), idnum = "unitid")
+#' }
+#' }
+#' @md
 
 stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                      idnum = NULL){
