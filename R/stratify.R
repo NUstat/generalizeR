@@ -37,6 +37,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   if(guided == TRUE){
 
+    ## Check ##
     if(!is.null(n_strata) | !is.null(variables) | !is.null(idnum)){
       stop(simpleError("Don't specify n_strata, variables, or idnum as arguments if you are running the guided version of this function."))
     }
@@ -50,6 +51,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
 
+    ## Check ##
     if(!idnum %in% names(data))
     stop(simpleError("We could not find that variable. Please make sure your \ndataset contains an ID variable."))
 
@@ -76,6 +78,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       data <- data %>%
         select(all_of(variables))
     }else{
+      ## Check ##
       stop("You have to select some stratifying variables.")
     }
 
@@ -173,8 +176,21 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     while(satisfied != 1){
       cat("Enter a number of strata to divide your population into. \nTypically, the " %+% bold("more strata") %+% ", the better; with fewer strata, \nunits in each stratum are no longer identical. However, \nincreasing the number of strata uses more resources, because \nyou must sample a given number of units from each stratum. \n\nTry a few #s and choose the 'best' one for you.")
 
-      n_strata <- as.numeric(readline(prompt = "# of strata: "))
-      ## Add a catch here, similar to before: MUST enter a number
+      n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
+
+      ## Catch ##
+      if(is.na(n_strata)){
+        stop(simpleError("The number of strata must be one number."))
+      }
+
+      ## Catch ##
+      if(n_strata <= 1){
+        stop(simpleError("The number of strata must be a positive number greater than one."))
+      }
+
+      if(n_strata%%1==0){
+        n_strata <- round(n_strata)
+      }
 
       cat("This might take a little while. Please bear with us.")
 
@@ -343,6 +359,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
   }else{
     par(ask = FALSE)
 
+    ###### Checks Begin Here ######
+
     if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
       stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
     }
@@ -355,9 +373,23 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       stop(simpleError("Only specify one number of strata."))
     }
 
+    if(n_strata <= 1){
+      stop(simpleError("The number of strata must be a positive number greater than 1."))
+    }
+
+    if(n_strata%%1==0){
+      n_strata <- round(n_strata)
+    }
+
     if(!is.character(variables) | (anyNA(match(variables, names(data))))){
       stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
     }
+
+    if(!is.character(idnum) | is.na(match(idnum, names(data)))){
+      stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
+    }
+
+    ###### Checks End Here ######
 
     # This is where all the non-guided stuff goes
 
@@ -368,12 +400,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     id <- data %>% select(all_of(idnum))
     data <- data %>% select(-all_of(idnum))
 
-    if(length(variables) >= 1){
-      data <- data %>%
-        select(all_of(variables))
-    }else{
-      stop("You have to select some stratifying variables.")
-    }
+    data <- data %>%
+      select(all_of(variables))
 
     cat_data <- data %>%
       select_if(is.factor)
