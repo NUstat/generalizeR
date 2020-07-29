@@ -9,6 +9,9 @@
 #' @return the generalizability index, a value between 0 and 1, where a higher score indicates greater similarity
 #' @export
 #' @importFrom stats dnorm integrate
+#' @references
+#' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.
+#' @md
 
 gen_index <- function(dat1B, dat2B) {
   ##Baklizi and Eidous (2006) estimator
