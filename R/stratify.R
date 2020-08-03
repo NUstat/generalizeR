@@ -18,7 +18,6 @@
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu select.list
 #' @importFrom crayon %+% blue bold
-#' @importFrom janitor clean_names
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
 #' @importFrom ggthemes theme_base
 #' @importFrom tidyr pivot_longer unite_
@@ -158,7 +157,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         mutate_all(round, digits = 3) %>%
         mutate(variable = cont_data_vars) %>%
         select(variable, everything()) %>%
-        clean_names() %>%
         data.frame()
 
       cat("Please review the descriptive statistics of your \ncontinuous variables.\n\n")
@@ -460,7 +458,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         mutate_all(round, digits = 3) %>%
         mutate(variable = cont_data_vars) %>%
         select(variable, everything()) %>%
-        clean_names() %>%
         data.frame()
 
       cat("Please review the descriptive statistics of your \n" %+% bold("continuous variables") %+% ".\n\n")

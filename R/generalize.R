@@ -13,6 +13,7 @@
 #' @param seed numeric. By default, the seed is set to 13783, otherwise can be specified (such as for simulation purposes).
 #' @return \code{generalize} returns an object of the class "generalize"
 #' @export
+#' @importFrom stats lm as.formula
 
 generalize <- function(outcome, treatment, trial, selection_covariates, data,
                        selection_method = "lr", is_data_disjoint = TRUE,
