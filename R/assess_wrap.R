@@ -21,10 +21,11 @@ assess_wrap <- function(sample, population, join_var = NULL, grouping_var = NULL
 
   # Ideally, want this to work if there are no ids common to both; an option to check where the stratifying variables just have ot be the same. add this.
   sample <- sample %>%
+    clean_names() %>%
     mutate(trial = rep(1))
 
   sample_and_pop <- sample %>%
-    full_join((population), by = join_var) %>%
+    full_join((population %>% clean_names()), by = join_var) %>%
     replace_na(list(trial = 0)) %>%
     unique() %>%
     na.omit()
