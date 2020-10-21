@@ -90,41 +90,49 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     id <- data %>% select(all_of(idnum))
     data <- data %>% select(-all_of(idnum))
 
-    cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
+    variables_are_correct <- 0
 
-    names <- names(data)
-    variables <- select.list(choices = names,
-                     title = cat("\nWhich key variables do you think may explain variation \nin your treatment effect?",
-                                 "Typically, studies include \nup to 10 variables for stratification.\n"),
-                     graphics = FALSE, multiple = TRUE)
+    while(variables_are_correct != 1){
+      cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
 
-    if(length(variables) >= 1){
-      data <- data %>%
-        select(all_of(variables))
-    }else{
-      ## Check ##
-      stop("You have to select some stratifying variables.")
+      names <- names(data)
+      variables <- select.list(choices = names,
+                       title = cat("\nWhich key variables do you think may explain variation \nin your treatment effect?",
+                                   "Typically, studies include \nup to 10 variables for stratification.\n"),
+                       graphics = FALSE, multiple = TRUE)
+
+      if(length(variables) >= 1){
+        data_subset <- data %>%
+          select(all_of(variables))
+      }else{
+        ## Check ##
+        stop("You have to select some stratifying variables.")
+      }
+
+      var_overview <- skimr::skim(data_subset) %>% tibble() %>%
+        distinct(skim_variable, skim_type) %>%
+        mutate(variable = skim_variable, type = skim_type) %>%
+        select(variable, type) %>%
+        data.frame()
+
+      colnames(var_overview) <- c("Variable", "Type")
+
+      cat("\nYou have selected the following stratifying variables: \n")
+      cat(paste(blue$bold(colnames(data_subset)), collapse = ", "), ".\n\n", sep = "")
+      print(var_overview, row.names = FALSE)
+
+      if(menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1){
+
+        variables_are_correct <- 1
+
+      }else{
+
+        variables_are_correct <- 0
+
+      }
     }
 
-    var_overview <- skimr::skim(data) %>% tibble() %>%
-      distinct(skim_variable, skim_type) %>%
-      mutate(variable = skim_variable, type = skim_type) %>%
-      select(variable, type) %>%
-      data.frame()
-
-    colnames(var_overview) <- c("Variable", "Type")
-
-    cat("\nYou have selected the following stratifying variables: \n")
-    cat(paste(blue$bold(colnames(data)), collapse = ", "), ".\n\n", sep = "")
-    print(var_overview, row.names = FALSE)
-
-    if(menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1){
-
-    }else{
-      stop(simpleError(blankMsg))
-    }
-
-    cat_data <- data %>%
+    cat_data <- data_subset %>%
       select_if(is.factor)
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
@@ -146,7 +154,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
-    cont_data <- data %>%
+    cont_data <- data_subset %>%
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
     if(dim(cont_data)[2] >= 1){

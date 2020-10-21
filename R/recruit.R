@@ -11,6 +11,7 @@
 #' @return A one-element list containing the table that includes the number of units to sample per stratum
 #' @export
 #' @importFrom readr write_csv
+#' @importFrom easycsv choose_dir
 
 recruit <- function(x, guided = TRUE, number = NULL,
                     save_as_csv = FALSE){
@@ -46,7 +47,8 @@ recruit <- function(x, guided = TRUE, number = NULL,
 
       cat("\nThe lists will be saved as 'recruitment_list_for_#', one for \neach stratum. ")
       cat("Where should they be saved?\n\n")
-      filepath <- readline(prompt = "Enter a file path (Example: /Users/xdfdf/Desktop/): ")
+      # filepath <- readline(prompt = "Enter a file path (Example: /Users/xdfdf/Desktop/): ")
+      filepath <- easycsv::choose_dir()
 
       for(i in 1:(x$n_strata)){
         filename <- paste(filepath, "recruitment_list_for_", i, ".csv", sep="")
