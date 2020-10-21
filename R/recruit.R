@@ -29,13 +29,32 @@ recruit <- function(x, guided = TRUE, number = NULL,
 
   if(guided == TRUE){
 
-    number <- as.numeric(readline(prompt = "# of units to recruit: "))
+    satisfied <- 0
+
+    while(satisfied == 0){
+      number <- as.numeric(readline(prompt = "# of units to recruit: "))
+
+      if(number >= (x$summary_stats2 %>% filter(clusterID == "Population") %>% select(n))){
+
+        satisfied <- 0
+        cat("You cannot specify a sample size that exceeds the total \nnumber of units in your population.")
+
+      }else{
+
+        satisfied <- 1
+
+      }
+    }
 
     new_table <- x$heat_data %>% select(clusterID, n) %>%
       distinct(clusterID, .keep_all = TRUE) %>%
-      mutate(proportion = round(n/(dim(x$x2)[1]), digits = 3)) %>%
-      mutate(to_recruit = round(number * proportion)) %>%
+      mutate(Proportion = round(n/(dim(x$x2)[1]), digits = 3)) %>%
+      mutate(To_Recruit = round(number * Proportion)) %>%
       filter(clusterID != "Population") %>%
+      mutate(Cluster_ID = clusterID,
+             Population_Units = n) %>%
+      select(-c(clusterID, n)) %>%
+      select(Cluster_ID, Population_Units, Proportion, To_Recruit) %>%
       data.frame()
 
     print(new_table, row.names = FALSE)
