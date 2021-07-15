@@ -66,7 +66,63 @@ assess_wrap <- function(sample, population, join_var = NULL, grouping_var = NULL
 
   }
 
-  # class(output) <- "generalizeAssess"
+  # class(output) <- "generalize_assess"
   return(output)
 
 }
+
+print.generalize_assess <- function(x,...){
+  cat("A generalize_assess object: \n")
+  cat(paste0(" - probability of trial participation method: ", x$selection_method, "\n"))
+  cat(paste0(" - common covariates included: ", paste(x$selection_covariates, collapse = ", "), "\n"))
+  cat(paste0(" - sample size of trial: ", x$n_trial, "\n"))
+  cat(paste0(" - size of population: ", x$n_pop, "\n"))
+  cat(paste0(" - was population trimmed according to trial covariate bounds?: ", ifelse(x$trim_pop == TRUE, "Yes", "No"), "\n"))
+  if(x$trim_pop == TRUE){
+    cat(paste0("    - number excluded from population data: ", x$n_excluded, "\n"))
+  }
+
+  invisible(x)
+}
+
+summary.generalize_assess <- function(object,...){
+  selection_method_name = c("Logistic Regression","Random Forests","Lasso")
+  selection_method = c("lr","rf","lasso")
+  prob_dist_table = rbind(summary(object$participation_probs$trial),
+                          summary(object$participation_probs$population))
+  row.names(prob_dist_table) = paste0(c("Trial","Population"), " (n = ", c(object$n_trial,object$n_pop),")")
+
+  selection_formula = paste0(object$trial_name," ~ ",paste(object$selection_covariates, collapse = " + "))
+
+  out = list(
+    selection_formula = selection_formula,
+    selection_method = selection_method_name[selection_method == object$selection_method],
+    g_index = round(object$g_index,3),
+    prob_dist_table = prob_dist_table,
+    covariate_table = round(object$covariate_table, 4),
+    weighted_covariate_table = round(object$weighted_covariate_table,4),
+    trim_pop = object$trim_pop,
+    n_excluded = object$n_excluded
+  )
+
+  class(out) = "summary.generalize_assess"
+  return(out)
+}
+
+print.summary.generalize_assess <- function(x,...){
+  cat("Probability of Trial Participation: \n \n")
+  cat(paste0("Selection Model: ",x$selection_formula," \n \n"))
+  print(x$prob_dist_table)
+  cat("\n")
+  cat(paste0("Estimated by ",x$selection_method, "\n"))
+  cat(paste0("Generalizability Index: ", round(x$g_index,3), "\n"))
+  cat("============================================ \n")
+  cat("Covariate Distributions: \n \n")
+  if(x$trim_pop == TRUE){
+    cat("Population data were trimmed for covariates to not exceed trial covariate bounds \n")
+    cat(paste0("Number excluded from population: ", x$n_excluded ,"\n \n"))
+  }
+  print(round(x$covariate_table,4))
+  invisible(x)
+}
+
