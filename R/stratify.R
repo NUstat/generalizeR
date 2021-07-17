@@ -304,13 +304,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
 
       ## Catch ##
-      if(is.na(n_strata)){
-        stop(simpleError("The number of strata must be one number."))
-      }
-
-      ## Catch ##
-      if(n_strata <= 1){
-        stop(simpleError("The number of strata must be a positive number greater than one."))
+      if(is.na(n_strata) || n_strata <= 1){
+        cat(red("The number of strata must be a single positive integer greater than 1.\n"))
+        next
       }
 
       if(n_strata%%1==0){
