@@ -202,24 +202,39 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
-    cat_data <- data_subset %>%
-      select_if(is.factor)
+    cat_data <- data_subset %>% select_if(is.factor)
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
-      cat_data_plot <- data.frame(cat_data) %>%
-        na.omit()
-      cat("Please review the descriptive statistics of your \ncategorical variables (factors). Note that these will \nautomatically be converted to dummy variables for analysis.\n")
-      for(i in 1:(ncol(cat_data_plot))){
+      cat_data_plot <- data.frame(cat_data) %>% na.omit()
+      cat("Please review the descriptive statistics of your \ncategorical variables (factors). Tables for each variable \nwill also be printed in the Viewer pane to the right. Note \nthat each categorical variable will automatically be \nconverted to a dummy variable for analysis.\n")
+
+      n_cat_vars <- ncol(cat_data_plot)
+      fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+      outline_colors_cat <- turbo(n_cat_vars) %>% sample()
+
+      for(i in 1:n_cat_vars){
         var_name <- cat_data_vars[i]
+        levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
         cat("\nNumber of Observations in Levels of Factor ", paste(blue$bold(var_name)), ":\n", sep = "")
-        print(table(cat_data_plot[,i]))
-        barfig <- ggplot(data = cat_data_plot, aes(x = cat_data_plot[,i])) +
-          geom_bar() +
-          theme_base() +
+        cat_data_table <- table(cat_data_plot[,i])
+        cat_data_table %>%
+          kbl(col.names = c("Level", "Frequency"),
+              caption = paste("Number of observations in levels of factor ", var_name),
+              align = "l") %>%
+          kable_material(c("striped", "hover")) %>%
+          print()
+        cat_data_table %>% print()
+        barfig <- cat_data_plot %>%
+          group_by(across(all_of(var_name))) %>%
+          summarise(count = n()) %>%
+          mutate(ordered_factor = fct_reorder(.[[var_name]], count)) %>%
+          ggplot(aes(x = ordered_factor, y = count)) +
+          geom_col(fill = fill_colors_cat[i],
+                   color = outline_colors_cat[i]) +
+          theme_minimal() +
           xlab(var_name) +
           labs(title = paste("Bar Chart of", var_name))
         print(barfig)
-        cat("\n")
         par(ask = TRUE)
       }
     }
@@ -239,15 +254,23 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         clean_names() %>%
         data.frame()
 
-      cat("Please review the descriptive statistics of your \ncontinuous variables.\n\n")
-      print(sumstats, row.names = FALSE)
-      for(i in 1:ncol(cont_data)){
+      cat("\nPlease review the descriptive statistics of your \ncontinuous variables. A table has also been printed \nin the Viewer pane to the right. \n\n")
+      sumstats %>% print(row.names = FALSE)
+      sumstats %>% kbl() %>% kable_material(c("striped", "hover")) %>% print()
+
+      n_cont_vars <- ncol(cont_data)
+      fill_colors_cont <- viridis(n_cont_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+      outline_colors_cont <- turbo(n_cont_vars) %>% sample()
+
+      for(i in 1:n_cont_vars){
         cont_data_plot <- cont_data %>% na.omit() %>% data.frame()
         suppressWarnings(
           suppressMessages(
             hist <- ggplot(data = cont_data_plot, aes(x = cont_data_plot[,i])) +
-              geom_histogram(bins = 30) +
-              theme_base() +
+              geom_histogram(bins = 30,
+                             fill = fill_colors_cont[i],
+                             color = outline_colors_cont[i]) +
+              theme_minimal() +
               xlab(cont_data_vars[i]) +
               labs(title = paste("Histogram of", cont_data_vars[i]))
           )
