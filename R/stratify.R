@@ -294,12 +294,12 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       data_full <- data_full %>% select(-idnum)
     }
 
-    cat("Stratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the \n" %+% bold("average treatment effect (ATE)") %+% ". Without using strata, \nit is easy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are " %+% bold("homogeneous") %+% ". \nThat means units within each stratum are almost identical \nin terms of relevant variables.\n\n")
+    cat("\nStratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the\n", bold("average treatment effect (ATE)"), ". Without using strata, it is \neasy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That \nmeans units within each stratum are almost identical in \nterms of relevant variables.\n\n", sep = "")
+    cat("Enter the number of strata in which you wish to divide your \npopulation. Typically, ", bold("the more strata"), ",", bold(" the better"), "; with \nfewer strata, units in each stratum are no longer identical. \nHowever, increasing the number of strata uses more resources, \nbecause you must sample a given number of units from each \nstratum. \n\nTry a few numbers and choose the 'best' one for you.", sep = "")
 
     satisfied <- 0
 
     while(satisfied != 1){
-      cat("Enter a number of strata to divide your population into. \nTypically, the " %+% bold("more strata") %+% ", the better; with fewer strata, \nunits in each stratum are no longer identical. However, \nincreasing the number of strata uses more resources, because \nyou must sample a given number of units from each stratum. \n\nTry a few #s and choose the 'best' one for you.")
 
       n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
 
