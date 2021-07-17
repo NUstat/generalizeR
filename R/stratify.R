@@ -17,10 +17,12 @@
 #' @importFrom graphics par
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu select.list
-#' @importFrom crayon %+% blue bold
+#' @importFrom crayon red yellow blue bold
 #' @importFrom janitor clean_names
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
 #' @importFrom ggthemes theme_base
+#' @importFrom viridis viridis turbo plasma
+#' @importFrom kableExtra kbl kable_material
 #' @importFrom tidyr pivot_longer unite_
 #' @importFrom dplyr count arrange filter mutate summarise_all summarize_if left_join group_by select select_if all_of mutate_all case_when bind_rows bind_cols distinct everything
 #' @importFrom tibble tibble_row add_row tibble
