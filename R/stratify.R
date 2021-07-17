@@ -134,13 +134,21 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat("\n")
     cat("\n")
 
-    idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
+    is_valid_variable_name <- FALSE
 
-    ## Check ##
-    if(!idnum %in% names(data))
-    stop(simpleError("We could not find that variable. Please make sure your \ndataset contains an ID variable."))
+    while(is_valid_variable_name == FALSE) {
+      idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
 
-    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use " %+% blue$bold("dplyr::filter()") %+% ", and \nreturn.\n")
+      ## Check ##
+      if(!idnum %in% names(data)) {
+        cat(red("We could not find that variable. Please make sure your \ndataset contains an ID variable."))
+        next
+      }
+
+      is_valid_variable_name <- TRUE
+    }
+
+    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ", blue$bold("dplyr::filter()"), ", and then return.\n", sep = "")
 
     if(menu(choices = c("Yes", "No"), title = cat("\nDo you wish to proceed?")) == 1){
 
