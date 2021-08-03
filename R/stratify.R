@@ -115,7 +115,7 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
 }
 
 stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
-                     idnum = NULL){
+                     idnum = NULL, seed = 7835){
 
   skim_variable <- skim_type <- variable <- NULL
   type <- clusterID <- n <- mn <- deviation <- NULL
@@ -317,6 +317,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       suppressWarnings(distance <- daisy(data_full, metric = "gower"))
       cat("\n1: Calculated distance matrix.")
+      set.seed(seed)
       solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = TRUE)
 
       x2 <- data.frame(id, data_full, clusterID = solution$clusters)
