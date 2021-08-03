@@ -162,7 +162,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
     id <- data %>% select(all_of(idnum))
-    data <- data %>% select(-all_of(idnum))
+    data <- data %>% select(-all_of(idnum)) %>% mutate_if(is_character, as_factor)
 
     variables_are_correct <- 0
 
@@ -306,7 +306,23 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
     cat("\nStratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the\n", bold("average treatment effect (ATE)"), ". Without using strata, it is \neasy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That \nmeans units within each stratum are almost identical in \nterms of relevant variables.\n\n", sep = "")
-    cat("Enter the number of strata in which you wish to divide your \npopulation. Typically, ", bold("the more strata"), ",", bold(" the better"), "; with \nfewer strata, units in each stratum are no longer identical. \nHowever, increasing the number of strata uses more resources, \nbecause you must sample a given number of units from each \nstratum. \n\nTry a few numbers and choose the 'best' one for you.", sep = "")
+    cat("\nStratification will help you develop a recruitment plan so \nthat your study will result ",
+        "in an unbiased estimate of the\n",
+        bold("average treatment effect (ATE)"),
+        ". Without using strata, it is \neasy to end up with a sample that is very different from ",
+        "\nyour inference population. \n\nGeneralization works best when strata are ",
+        bold("homogeneous"),
+        ". That \nmeans units within each stratum are almost identical in \nterms of relevant ",
+        "variables.\n\n",
+        sep = "")
+    cat("Enter the number of strata in which you wish to divide your \npopulation. Typically, ",
+        bold("the more strata"),
+        ",",
+        bold(" the better"),
+        "; with \nfewer strata, units in each stratum are no longer identical. \nHowever, increasing ",
+        "the number of strata uses more resources, \nbecause you must sample a given number of units ",
+        "from each \nstratum. Choosing 4-6 strata is common. \n\nTry a few numbers and choose the 'best' one for you.",
+        sep = "")
 
     satisfied <- 0
 
