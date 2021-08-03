@@ -287,7 +287,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cont_data <- data_subset %>%
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
-    if(dim(cont_data)[2] >= 1){
+    if(dim(cont_data)[2] >= 1L){
       sumstats <- cont_data %>%
         na.omit() %>%
         map_df(function(x){
