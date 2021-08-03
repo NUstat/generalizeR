@@ -166,7 +166,36 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     variables_are_correct <- 0
 
+    make_var_overview <- function(dataset, print_to_console = FALSE){
+
+      vars <- dataset %>% names()
+      type <- dataset %>% sapply(class)
+      num_levels <- dataset %>% sapply(nlevels)
+
+      var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
+      rownames(var_overview) <- NULL
+      colnames(var_overview) <- c("Variable", "Type", "Levels")
+
+      var_overview %>%
+        kbl(caption = "Variable Overview",
+            align = "l") %>%
+        kable_material(c("striped", "hover"), fixed_thead = TRUE) %>%
+        print()
+
+      if(print_to_console == TRUE){
+        print(var_overview, row.names = FALSE)
+      }
+    }
+
+    make_var_overview(data)
+
     while(variables_are_correct != 1){
+
+      cat("\nYou're now ready to select your stratification variables. \nIn the Viewer pane to the right you will find a table that \ndisplays each variable in your dataset along with its object \ntype and number of levels (only relevant for factor variables).\n",
+          yellow("Please note that any character variables that may have been"),
+          yellow("\npresent in your dataset have been automatically converted to \nfactor variables.\n"),
+          sep = "")
+
       cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
 
       names <- names(data)
@@ -184,13 +213,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         stop("You have to select some stratifying variables.")
       }
 
-      var_overview <- skimr::skim(data_subset) %>% tibble() %>%
-        distinct(skim_variable, skim_type) %>%
-        mutate(variable = skim_variable, type = skim_type) %>%
-        select(variable, type) %>%
-        data.frame()
 
-      colnames(var_overview) <- c("Variable", "Type")
 
       cat("\nYou have selected the following stratifying variables: \n")
       cat(paste(blue$bold(colnames(data_subset)), collapse = ", "), ".\n\n", sep = "")
