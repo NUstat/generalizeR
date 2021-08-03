@@ -150,7 +150,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       is_valid_variable_name <- TRUE
     }
 
-    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ", blue$bold("dplyr::filter()"), ", and then return.\n", sep = "")
+    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ",
+        blue$bold("dplyr::filter()"),
+        ", and then return.\n",
+        sep = "")
 
     if(menu(choices = c("Yes", "No"), title = cat("\nDo you wish to proceed?")) == 1){
 
@@ -168,13 +171,15 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       names <- names(data)
       variables <- select.list_CUSTOMIZED(choices = names,
-                       title = cat("\nWhich key variables do you think may explain variation \nin your treatment effect? Typically, studies include \n4-6 variables for stratification. Note that any \ncharacter variables chosen will automatically be converted \nto factors, and the maximum allowable number of levels in \na factor variable is 10.\n"),
+                       title = cat("\nWhich key variables do you think may explain variation \nin",
+                                   "your treatment effect? Typically, studies include \n4-6 variables",
+                                   "for stratification.\n"),
                        graphics = FALSE, multiple = TRUE)
 
-      if(length(variables) >= 1){
-        data_subset <- data %>%
-          select(all_of(variables))
-      }else{
+      if(length(variables) >= 1L){
+        data_subset <- data %>% select(all_of(variables))
+      }
+      else{
         ## Check ##
         stop("You have to select some stratifying variables.")
       }
@@ -209,13 +214,17 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       cat("Please review the descriptive statistics of your \ncategorical variables (factors). Tables for each variable \nwill also be printed in the Viewer pane to the right. Note \nthat each categorical variable will automatically be \nconverted to a dummy variable for analysis.\n")
 
       n_cat_vars <- ncol(cat_data_plot)
-      fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+      fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
+        sample()
       outline_colors_cat <- turbo(n_cat_vars) %>% sample()
 
       for(i in 1:n_cat_vars){
         var_name <- cat_data_vars[i]
         levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
-        cat("\nNumber of Observations in Levels of Factor ", paste(blue$bold(var_name)), ":\n", sep = "")
+        cat("\nNumber of Observations in Levels of Factor ",
+            paste(blue$bold(var_name)),
+            ":\n",
+            sep = "")
         cat_data_table <- table(cat_data_plot[,i])
         cat_data_table %>%
           kbl(col.names = c("Level", "Frequency"),
@@ -259,7 +268,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       sumstats %>% kbl() %>% kable_material(c("striped", "hover")) %>% print()
 
       n_cont_vars <- ncol(cont_data)
-      fill_colors_cont <- viridis(n_cont_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+      fill_colors_cont <- viridis(n_cont_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
+        sample()
       outline_colors_cont <- turbo(n_cont_vars) %>% sample()
 
       for(i in 1:n_cont_vars){
@@ -281,8 +291,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
     par(ask = FALSE)
 
-    if(dim(cat_data)[2] >= 1){
-      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>% select_if(negate(is.factor))
+    if(dim(cat_data)[2] >= 1L){
+      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>%
+        select_if(negate(is.factor))
       data_full <- cbind(cat_data, cont_data, id) %>%
         na.omit()
       id <- data_full %>% select(idnum)
