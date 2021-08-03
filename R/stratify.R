@@ -535,7 +535,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       print(heat_plot_final)
 
-      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? \nIf you specify 'No' the stratification process will end and you can \nproceed to use the output in 'recruit()' provided that it has been \nassigned to an object.")) == 2){
+      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of
+                                                    strata? \nIf you specify 'No' the stratification process will end
+                                                    and you can \nproceed to use the output in 'recruit()' provided
+                                                    that it has been \nassigned to an object.")) == 2){
 
         satisfied <- 1
 
