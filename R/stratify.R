@@ -507,6 +507,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                        label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
                    colour = "black", alpha = 0.7,
                    size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
+        annotate("text", label = "mean \n(sd)",
+                 x = n_strata + 1.25, y = ncol(data_full)) +
         geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
                    linetype = "dotted",
                    colour = "white") +
