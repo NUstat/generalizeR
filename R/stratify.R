@@ -214,6 +214,15 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         next
       }
 
+      factor_levels_over_2 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 2L) %>%
+        which() %>% names()
+
+      if(!is_empty(factor_levels_over_2)){
+        cat(yellow("WARNING: The following factor variables have more than 2 levels: "),
+            paste(blue$bold(factor_levels_over_2), collapse = ", "),
+            yellow("\nWe strongly recommend you exit out of this function (Press 'Esc') and re-code"),
+            yellow("\nthem as dummy variables.\n\n"), sep = "")
+      }
 
 
       cat("\nYou have selected the following stratifying variables: \n")
