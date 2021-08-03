@@ -164,6 +164,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     variables_are_correct <- 0
 
     while(variables_are_correct != 1){
+      cat("THIS IS A TEST")
       cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
 
       names <- names(data)
