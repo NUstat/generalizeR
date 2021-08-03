@@ -556,7 +556,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     ###### Checks Begin Here ######
 
     if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
-      stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
+      stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the
+                       non-guided version of this function."))
     }
 
     if(!is.numeric(n_strata)){
@@ -576,11 +577,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
     if(!is.character(variables) | (anyNA(match(variables, names(data))))){
-      stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
+      stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your
+                       inference population."))
     }
 
     if(!is.character(idnum) | is.na(match(idnum, names(data)))){
-      stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
+      stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.:
+                       'id'."))
     }
 
     ###### Checks End Here ######
