@@ -246,7 +246,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
       cat_data_plot <- data.frame(cat_data) %>% na.omit()
-      cat("Please review the descriptive statistics of your \ncategorical variables (factors). Tables for each variable \nwill also be printed in the Viewer pane to the right. Note \nthat each categorical variable will automatically be \nconverted to a dummy variable for analysis.\n")
+      cat("Please review the descriptive statistics of your \ncategorical variables (factors).",
+          "Tables for each variable \nwill also be printed in the Viewer pane to the right.\n")
 
       n_cat_vars <- ncol(cat_data_plot)
       fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
@@ -399,9 +400,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
         cov.dat <- diag(a)
         ma.s <- mahalanobis(dat4, mu, cov.dat)
-        final_dat4 <- data.frame(idvar, dat4, distance = ma.s, clusterID = dat3$clusterID) %>% tibble()
-        recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum, sorted by
-          # distance (so the top N schools in each data frame are the "best," etc.)
+        final_dat4 <- data.frame(idvar, dat4, distance = ma.s, clusterID = dat3$clusterID) %>%
+          tibble()
+        recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum,
+          # sorted by distance (so the top N schools in each data frame are the "best," etc.)
           arrange(distance) %>%
           mutate(rank = seq.int(nrow(final_dat4))) %>%
           select(rank, all_of(idnum))
@@ -417,7 +419,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
       cat(" of the total \nvariation in the population.")
 
-      cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying variable for each stratum. \nThe bottom row, 'Population,' presents the average values for \nthe entire inference population. The last column, 'n,' lists the \ntotal number of units in the inference population that fall \nwithin each stratum.\n\n")
+      cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying
+          variable for each stratum. \nThe bottom row, 'Population,' presents the average values for \nthe entire
+          inference population. The last column, 'n,' lists the \ntotal number of units in the inference population
+          that fall \nwithin each stratum.\n\n")
 
       # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
       x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
