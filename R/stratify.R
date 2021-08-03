@@ -229,9 +229,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           "\n\n",
           sep = "")
 
-      cat("\nYou have selected the following stratifying variables: \n")
-      cat(paste(blue$bold(colnames(data_subset)), collapse = ", "), ".\n\n", sep = "")
-      print(var_overview, row.names = FALSE)
+      make_var_overview(data_subset, print_to_console = TRUE)
 
       if(menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1){
 
