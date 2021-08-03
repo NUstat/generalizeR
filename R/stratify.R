@@ -224,6 +224,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
             yellow("\nthem as dummy variables.\n\n"), sep = "")
       }
 
+      cat("You have selected the following stratifying variables: ",
+          paste(blue$bold(colnames(data_subset)), collapse = ", "),
+          "\n\n",
+          sep = "")
 
       cat("\nYou have selected the following stratifying variables: \n")
       cat(paste(blue$bold(colnames(data_subset)), collapse = ", "), ".\n\n", sep = "")
