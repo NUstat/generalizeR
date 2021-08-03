@@ -190,7 +190,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     make_var_overview(data)
 
     while(variables_are_correct != 1){
-      cat("THIS IS A TEST")
       cat("\nYou're now ready to select your stratification variables. \nIn the Viewer pane to the right you will find a table that \ndisplays each variable in your dataset along with its object \ntype and number of levels (only relevant for factor variables).\n",
           yellow("Please note that any character variables that may have been"),
           yellow("\npresent in your dataset have been automatically converted to \nfactor variables.\n"),
