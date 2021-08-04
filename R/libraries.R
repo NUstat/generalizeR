@@ -1,0 +1,7 @@
+library(crayon)
+library(tidyverse)
+library(cluster)
+library(kableExtra)
+library(generalizeRdata)
+library(viridisLite)
+library(janitor)
