@@ -282,17 +282,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cont_data <- data_subset %>%
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
+
     if(dim(cont_data)[2] >= 1L){
-      sumstats <- cont_data %>%
-        na.omit() %>%
-        map_df(function(x){
-          tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
-        }) %>%
-        mutate_all(round, digits = 3) %>%
-        mutate(variable = cont_data_vars) %>%
-        select(variable, everything()) %>%
-        clean_names() %>%
-        data.frame()
 
       cat("\nPlease review the descriptive statistics of your \ncontinuous variables. A table has also been printed \nin the Viewer pane to the right. \n\n")
       sumstats %>% print(row.names = FALSE)
@@ -319,6 +310,20 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         print(hist)
         par(ask = TRUE)
       }
+
+      sumstats <- cont_data %>%
+        na.omit() %>%
+        map_df(function(x){
+          tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
+        }) %>%
+        mutate_all(round, digits = 3) %>%
+        mutate(variable = cont_data_vars) %>%
+        select(variable, everything()) %>%
+        clean_names() %>%
+        data.frame()
+
+      sumstats %>% print(row.names = FALSE)
+      sumstats %>% kbl() %>% kable_material(c("striped", "hover")) %>% print()
     }
     par(ask = FALSE)
 
