@@ -285,9 +285,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     if(dim(cont_data)[2] >= 1L){
 
-      cat("\nPlease review the descriptive statistics of your \ncontinuous variables. A table has also been printed \nin the Viewer pane to the right. \n\n")
-      sumstats %>% print(row.names = FALSE)
-      sumstats %>% kbl() %>% kable_material(c("striped", "hover")) %>% print()
+      cat("\nPlease review the descriptive statistics of your continuous variables. Histograms \nand tables for each variable will also be printed in the Plots and Viewer panes \nto the right. \n\n")
 
       n_cont_vars <- ncol(cont_data)
       fill_colors_cont <- viridis(n_cont_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
