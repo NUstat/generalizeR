@@ -330,8 +330,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         select_if(negate(is.factor))
       data_full <- cbind(cat_data, cont_data, id) %>%
         na.omit()
-      id <- data_full %>% select(idnum)
-      data_full <- data_full %>% select(-idnum)
+      id <- data_full %>% select(all_of(idnum))
+      data_full <- data_full %>% select(-all_of(idnum))
     }else{
       data_full <- cbind(cont_data, id) %>%
         na.omit()
