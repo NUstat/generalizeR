@@ -190,18 +190,14 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     make_var_overview(data)
 
     while(variables_are_correct != 1){
-      cat("\nYou're now ready to select your stratification variables. \nIn the Viewer pane to the right you will find a table that \ndisplays each variable in your dataset along with its object \ntype and number of levels (only relevant for factor variables).\n",
-          yellow("Please note that any character variables that may have been"),
-          yellow("\npresent in your dataset have been automatically converted to \nfactor variables.\n"),
+      cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables).\n",
+          yellow("Please note that any character variables that may have been present in"),
+          yellow("\nyour dataset have been automatically converted to factor variables.\n"),
           sep = "")
-
-      cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
 
       names <- names(data)
       variables <- select.list_CUSTOMIZED(choices = names,
-                       title = cat("\nWhich key variables do you think may explain variation \nin",
-                                   "your treatment effect? Typically, studies include \n4-6 variables",
-                                   "for stratification.\n"),
+                       title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.\n"),
                        graphics = FALSE, multiple = TRUE)
 
       if(length(variables) >= 1L){
@@ -217,13 +213,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         which() %>% names()
 
       if(!is_empty(factor_levels_over_2)){
-        cat(yellow("WARNING: The following factor variables have more than 2 levels: "),
+        cat(yellow("WARNING: The following factor variables have more than 2 levels:\n"),
             paste(blue$bold(factor_levels_over_2), collapse = ", "),
             yellow("\nWe strongly recommend you exit out of this function (Press 'Esc') and re-code"),
             yellow("\nthem as dummy variables.\n\n"), sep = "")
       }
 
-      cat("You have selected the following stratifying variables: ",
+      cat("You have selected the following stratifying variables:\n",
           paste(blue$bold(colnames(data_subset)), collapse = ", "),
           "\n\n",
           sep = "")
@@ -245,8 +241,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
       cat_data_plot <- data.frame(cat_data) %>% na.omit()
-      cat("Please review the descriptive statistics of your \ncategorical variables (factors).",
-          "Tables for each variable \nwill also be printed in the Viewer pane to the right.\n")
+      cat("Please review the descriptive statistics of your categorical variables (factors).\n",
+          "Bar charts and tables for each variable will also be printed in the Plots and \nViewer panes to the right.\n", sep = "")
 
       n_cat_vars <- ncol(cat_data_plot)
       fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
