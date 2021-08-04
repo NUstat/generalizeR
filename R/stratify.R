@@ -252,18 +252,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       for(i in 1:n_cat_vars){
         var_name <- cat_data_vars[i]
         levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
-        cat("\nNumber of Observations in Levels of Factor ",
-            paste(blue$bold(var_name)),
-            ":\n",
-            sep = "")
-        cat_data_table <- table(cat_data_plot[,i])
-        cat_data_table %>%
-          kbl(col.names = c("Level", "Frequency"),
-              caption = paste("Number of observations in levels of factor ", var_name),
-              align = "l") %>%
-          kable_material(c("striped", "hover")) %>%
-          print()
-        cat_data_table %>% print()
         barfig <- cat_data_plot %>%
           group_by(across(all_of(var_name))) %>%
           summarise(count = n()) %>%
@@ -276,6 +264,18 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           labs(title = paste("Bar Chart of", var_name))
         print(barfig)
         par(ask = TRUE)
+        cat("\nNumber of Observations in Levels of Factor ",
+            paste(blue$bold(var_name)),
+            ":\n",
+            sep = "")
+        cat_data_table <- table(cat_data_plot[,i])
+        cat_data_table %>% print()
+        cat_data_table %>%
+          kbl(col.names = c("Level", "Frequency"),
+              caption = paste("Number of Observations in Levels of Factor ", var_name),
+              align = "l") %>%
+          kable_material(c("striped", "hover")) %>%
+          print()
       }
     }
 
