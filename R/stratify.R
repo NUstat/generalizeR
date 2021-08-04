@@ -205,7 +205,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
       else{
         ## Check ##
-        cat(red("You must select at least one stratification variable.\n"))
+        cat(red("Invalid selection. You must select at least one stratification variable.\n"))
         next
       }
 
