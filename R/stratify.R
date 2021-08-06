@@ -22,7 +22,7 @@
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
 #' @importFrom ggthemes theme_base
 #' @importFrom viridis viridis turbo plasma
-#' @importFrom kableExtra kbl kable_material
+#' @importFrom kableExtra kbl kable_styling
 #' @importFrom tidyr pivot_longer unite_
 #' @importFrom dplyr count arrange filter mutate summarise_all summarize_if left_join group_by select select_if all_of mutate_all case_when bind_rows bind_cols distinct everything
 #' @importFrom tibble tibble_row add_row tibble
@@ -179,7 +179,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       var_overview %>%
         kbl(caption = "Variable Overview",
             align = "l") %>%
-        kable_material(c("striped", "hover"), fixed_thead = TRUE) %>%
+        kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
         print()
 
       if(print_to_console == TRUE){
@@ -274,7 +274,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           kbl(col.names = c("Level", "Frequency"),
               caption = paste("Number of Observations in Levels of Factor ", var_name),
               align = "l") %>%
-          kable_material(c("striped", "hover")) %>%
+          kable_styling(c("striped", "hover")) %>%
           print()
       }
     }
@@ -321,7 +321,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         data.frame()
 
       sumstats %>% print(row.names = FALSE)
-      sumstats %>% kbl() %>% kable_material(c("striped", "hover")) %>% print()
+      sumstats %>% kbl() %>% kable_styling(c("striped", "hover")) %>% print()
     }
     par(ask = FALSE)
 
