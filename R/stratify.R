@@ -339,15 +339,15 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       data_full <- data_full %>% select(-idnum)
     }
 
-    cat("\nStratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the\n", bold("average treatment effect (ATE)"), ". Without using strata, it is \neasy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That \nmeans units within each stratum are almost identical in \nterms of relevant variables.\n\n", sep = "")
+    cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
 
-    cat("Enter the number of strata in which you wish to divide your \npopulation. Typically, ",
-        bold("the more strata"),
+    cat("Enter the number of strata in which you wish to divide your population. Typically, ",
+        bold("\nthe more strata"),
         ",",
-        bold(" the better"),
-        "; with \nfewer strata, units in each stratum are no longer identical. \nHowever, increasing ",
-        "the number of strata uses more resources, \nbecause you must sample a given number of units ",
-        "from each \nstratum. Choosing 4-6 strata is common. \n\nTry a few numbers and choose the 'best' one for you.",
+        bold("the better"),
+        "; with fewer strata, units in each stratum are no longer \nidentical. However, increasing ",
+        "the number of strata uses more resources, because \nyou must sample a given number of units ",
+        "from each stratum. Choosing 4-6 strata is \ncommon. \n\nTry a few numbers and choose the 'best' one for you.",
         sep = "")
 
     satisfied <- 0
@@ -407,9 +407,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       cat(bold(n_strata))
       cat(" strata, which explain ")
       cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-      cat(" of the total \nvariation in the population.")
+      cat(" of the total variation in the \npopulation.")
 
-      cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying variable for each stratum. \nThe bottom row, 'Population', presents the average values for \nthe entire inference population. The last column, 'n', lists the \ntotal number of units in the inference population that fall \nwithin each stratum.\n\n")
+      cat("\n\nThe following table presents the mean and standard deviation (mean / sd) of each \nstratifying variable for each stratum. The bottom row, 'Population', presents the \naverage values for the entire inference population. The last column, 'n', lists \nthe total number of units in the inference population that fall within each stratum. \nA table has also been printed in the Viewer pane to the right.\n\n")
 
       # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
       x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
@@ -528,10 +528,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       print(heat_plot_final)
 
-      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of
-                                                    strata? \nIf you specify 'No' the stratification process will end
-                                                    and you can \nproceed to use the output in 'recruit()' provided
-                                                    that it has been \nassigned to an object.")) == 2){
+      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
 
         satisfied <- 1
 
@@ -549,8 +546,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     ###### Checks Begin Here ######
 
     if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
-      stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the
-                       non-guided version of this function."))
+      stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
     }
 
     if(!is.numeric(n_strata)){
@@ -570,13 +566,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
     if(!is.character(variables) | (anyNA(match(variables, names(data))))){
-      stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your
-                       inference population."))
+      stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
     }
 
     if(!is.character(idnum) | is.na(match(idnum, names(data)))){
-      stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.:
-                       'id'."))
+      stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
     }
 
     ###### Checks End Here ######
