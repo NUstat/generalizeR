@@ -449,7 +449,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
         data.frame()
 
-      print(summary_stats2)
+      summary_stats2 %>%
+        kbl(caption = "Summary Statistics by Strata",
+            align = "l") %>%
+        kable_material(c("striped", "hover"), fixed_thead = TRUE) %>%
+        print()
+
+      summary_stats2 %>% print()
 
       simtab_m <- population_summary_stats2 %>%
         select(contains("fn1"))
