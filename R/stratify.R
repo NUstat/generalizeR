@@ -409,10 +409,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
       cat(" of the total \nvariation in the population.")
 
-      cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying
-          variable for each stratum. \nThe bottom row, 'Population,' presents the average values for \nthe entire
-          inference population. The last column, 'n,' lists the \ntotal number of units in the inference population
-          that fall \nwithin each stratum.\n\n")
+      cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying variable for each stratum. \nThe bottom row, 'Population', presents the average values for \nthe entire inference population. The last column, 'n', lists the \ntotal number of units in the inference population that fall \nwithin each stratum.\n\n")
 
       # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
       x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
