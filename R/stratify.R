@@ -405,11 +405,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       cat("\nYou have specified ")
       cat(bold(n_strata))
-      cat(" strata, which explain ")
+      cat(" strata which together explain ")
       cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-      cat(" of the total variation in the \npopulation.")
+      cat(" of the total variation \nin the population.")
 
-      cat("\n\nThe following table presents the mean and standard deviation (mean / sd) of each \nstratifying variable for each stratum. The bottom row, 'Population', presents the \naverage values for the entire inference population. The last column, 'n', lists \nthe total number of units in the inference population that fall within each stratum. \nA table has also been printed in the Viewer pane to the right.\n\n")
+      cat("\n\nThe following table presents the mean and standard deviation (mean / sd) of each \nstratifying variable for each stratum. The bottom row, 'Population', presents the \naverage values for the entire inference population. The last column, 'n', lists \nthe total number of units in the inference population that fall within each stratum. \nA similar table has also been printed in the Viewer pane to the right.\n\n")
 
       # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
       x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
