@@ -22,7 +22,7 @@
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
 #' @importFrom ggthemes theme_base
 #' @importFrom viridis viridis turbo plasma
-#' @importFrom kableExtra kbl kable_material
+#' @importFrom kableExtra kbl kable_styling
 #' @importFrom tidyr pivot_longer unite_
 #' @importFrom dplyr count arrange filter mutate summarise_all summarize_if left_join group_by select select_if all_of mutate_all case_when bind_rows bind_cols distinct everything
 #' @importFrom tibble tibble_row add_row tibble
@@ -54,7 +54,7 @@
 #' @md
 
 select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, title = NULL,
-                                   graphics = getOption("menu.graphics"))
+                        graphics = getOption("menu.graphics"))
 {
   if (!interactive())
     stop("select.list() cannot be used non-interactively")
@@ -115,11 +115,10 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
 }
 
 stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
-                     idnum = NULL){
+                     idnum = NULL, seed = 7835){
 
   skim_variable <- skim_type <- variable <- NULL
   type <- clusterID <- n <- mn <- deviation <- NULL
-  data_name <- deparse(substitute(data))
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
@@ -130,19 +129,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       stop(simpleError("Don't specify n_strata, variables, or idnum as arguments if you are running the guided version of this function."))
     }
 
-    cat(bold("\nWelcome to stratify! \n"))
-
-    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ", blue$bold("dplyr::filter()"), ", and then return.\n", sep = "")
-
-    cat(bold("\nTo store your results, make sure you assign \nthis function to an object.\n\n"))
-
-    if(menu(choices = c("Yes", "No"), title = cat("I have assigned this function to an object and wish to proceed:")) == 1){
-
-    }else{
-      stop(simpleError(blankMsg))
-    }
+    cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
     cat("Your chosen inference population is the '",
-        data_name, "' dataset.", sep = "")
+        deparse(substitute(data)), "' dataset.", sep = "")
 
     cat("\n")
     cat("\n")
@@ -161,38 +150,81 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       is_valid_variable_name <- TRUE
     }
 
+    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ",
+        blue$bold("dplyr::filter()"),
+        ", and then return.\n",
+        sep = "")
+
+    if(menu(choices = c("Yes", "No"), title = cat("\nDo you wish to proceed?")) == 1){
+
+    }else{
+      stop(simpleError(blankMsg))
+    }
+
     id <- data %>% select(all_of(idnum))
-    data <- data %>% select(-all_of(idnum))
+    data <- data %>% select(-all_of(idnum)) %>% mutate_if(is_character, as_factor)
 
     variables_are_correct <- 0
 
+    make_var_overview <- function(dataset, print_to_console = FALSE){
+
+      vars <- dataset %>% names()
+      type <- dataset %>% sapply(class)
+      num_levels <- dataset %>% sapply(nlevels)
+
+      var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
+      rownames(var_overview) <- NULL
+      colnames(var_overview) <- c("Variable", "Type", "Levels")
+
+      var_overview %>%
+        kbl(caption = "Variable Overview",
+            align = "l") %>%
+        kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+        print()
+
+      if(print_to_console == TRUE){
+        print(var_overview, row.names = FALSE)
+      }
+    }
+
+    make_var_overview(data)
+
     while(variables_are_correct != 1){
-      cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
+      cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables).\n",
+          yellow("Please note that any character variables that may have been present in"),
+          yellow("\nyour dataset have been automatically converted to factor variables.\n"),
+          sep = "")
 
       names <- names(data)
       variables <- select.list_CUSTOMIZED(choices = names,
-                                          title = cat("\nWhich key variables do you think may explain variation \nin your treatment effect? Typically, studies include \n4-6 variables for stratification. Note that any \ncharacter variables chosen will automatically be converted \nto factors, and the maximum allowable number of levels in \na factor variable is 10.\n"),
-                                          graphics = FALSE, multiple = TRUE)
+                       title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.\n"),
+                       graphics = FALSE, multiple = TRUE)
 
-      if(length(variables) >= 1){
-        data_subset <- data %>%
-          select(all_of(variables))
-      }else{
+      if(length(variables) >= 1L){
+        data_subset <- data %>% select(all_of(variables))
+      }
+      else{
         ## Check ##
-        stop("You have to select some stratifying variables.")
+        cat(red("Invalid selection. You must select at least one stratification variable.\n"))
+        next
       }
 
-      var_overview <- skimr::skim(data_subset) %>% tibble() %>%
-        distinct(skim_variable, skim_type) %>%
-        mutate(variable = skim_variable, type = skim_type) %>%
-        select(variable, type) %>%
-        data.frame()
+      factor_levels_over_2 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 2L) %>%
+        which() %>% names()
 
-      colnames(var_overview) <- c("Variable", "Type")
+      if(!is_empty(factor_levels_over_2)){
+        cat(yellow("WARNING: The following factor variables have more than 2 levels:\n"),
+            paste(blue$bold(factor_levels_over_2), collapse = ", "),
+            yellow("\nWe strongly recommend you exit out of this function (Press 'Esc') and re-code"),
+            yellow("\nthem as dummy variables.\n\n"), sep = "")
+      }
 
-      cat("\nYou have selected the following stratifying variables: \n")
-      cat(paste(blue$bold(colnames(data_subset)), collapse = ", "), ".\n\n", sep = "")
-      print(var_overview, row.names = FALSE)
+      cat("You have selected the following stratifying variables:\n",
+          paste(blue$bold(colnames(data_subset)), collapse = ", "),
+          "\n\n",
+          sep = "")
+
+      make_var_overview(data_subset, print_to_console = TRUE)
 
       if(menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1){
 
@@ -209,24 +241,17 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
       cat_data_plot <- data.frame(cat_data) %>% na.omit()
-      cat("Please review the descriptive statistics of your \ncategorical variables (factors). Tables for each variable \nwill also be printed in the Viewer pane to the right. Note \nthat each categorical variable will automatically be \nconverted to a dummy variable for analysis.\n")
+      cat("Please review the descriptive statistics of your categorical variables (factors).\n",
+          "Bar charts and tables for each variable will also be printed in the Plots and \nViewer panes to the right.\n", sep = "")
 
       n_cat_vars <- ncol(cat_data_plot)
-      fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+      fill_colors_cat <- plasma(n_cat_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
+        sample()
       outline_colors_cat <- turbo(n_cat_vars) %>% sample()
 
       for(i in 1:n_cat_vars){
         var_name <- cat_data_vars[i]
         levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
-        cat("\nNumber of Observations in Levels of Factor ", paste(blue$bold(var_name)), ":\n", sep = "")
-        cat_data_table <- table(cat_data_plot[,i])
-        cat_data_table %>%
-          kbl(col.names = c("Level", "Frequency"),
-              caption = paste("Number of observations in levels of factor ", var_name),
-              align = "l") %>%
-          kable_material(c("striped", "hover")) %>%
-          print()
-        cat_data_table %>% print()
         barfig <- cat_data_plot %>%
           group_by(across(all_of(var_name))) %>%
           summarise(count = n()) %>%
@@ -239,30 +264,32 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           labs(title = paste("Bar Chart of", var_name))
         print(barfig)
         par(ask = TRUE)
+        cat("\nNumber of Observations in Levels of Factor ",
+            paste(blue$bold(var_name)),
+            ":\n",
+            sep = "")
+        cat_data_table <- table(cat_data_plot[,i])
+        cat_data_table %>% print()
+        cat_data_table %>%
+          kbl(col.names = c("Level", "Frequency"),
+              caption = paste("Number of Observations in Levels of Factor ", var_name),
+              align = "l") %>%
+          kable_styling(c("striped", "hover")) %>%
+          print()
       }
     }
 
     cont_data <- data_subset %>%
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
-    if(dim(cont_data)[2] >= 1){
-      sumstats <- cont_data %>%
-        na.omit() %>%
-        map_df(function(x){
-          tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
-        }) %>%
-        mutate_all(round, digits = 3) %>%
-        mutate(variable = cont_data_vars) %>%
-        select(variable, everything()) %>%
-        clean_names() %>%
-        data.frame()
 
-      cat("\nPlease review the descriptive statistics of your \ncontinuous variables. A table has also been printed \nin the Viewer pane to the right. \n\n")
-      sumstats %>% print(row.names = FALSE)
-      sumstats %>% kbl() %>% kable_material(c("striped", "hover")) %>% print()
+    if(dim(cont_data)[2] >= 1L){
+
+      cat("\nPlease review the descriptive statistics of your continuous variables. Histograms \nand tables for each variable will also be printed in the Plots and Viewer panes \nto the right. \n\n")
 
       n_cont_vars <- ncol(cont_data)
-      fill_colors_cont <- viridis(n_cont_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+      fill_colors_cont <- viridis(n_cont_vars, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>%
+        sample()
       outline_colors_cont <- turbo(n_cont_vars) %>% sample()
 
       for(i in 1:n_cont_vars){
@@ -281,15 +308,30 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         print(hist)
         par(ask = TRUE)
       }
+
+      sumstats <- cont_data %>%
+        na.omit() %>%
+        map_df(function(x){
+          tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
+        }) %>%
+        mutate_all(round, digits = 3) %>%
+        mutate(variable = cont_data_vars) %>%
+        select(variable, everything()) %>%
+        clean_names() %>%
+        data.frame()
+
+      sumstats %>% print(row.names = FALSE)
+      sumstats %>% kbl() %>% kable_styling(c("striped", "hover")) %>% print()
     }
     par(ask = FALSE)
 
-    if(dim(cat_data)[2] >= 1){
-      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>% select_if(negate(is.factor))
+    if(dim(cat_data)[2] >= 1L){
+      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>%
+        select_if(negate(is.factor))
       data_full <- cbind(cat_data, cont_data, id) %>%
         na.omit()
-      id <- data_full %>% select(idnum)
-      data_full <- data_full %>% select(-idnum)
+      id <- data_full %>% select(all_of(idnum))
+      data_full <- data_full %>% select(-all_of(idnum))
     }else{
       data_full <- cbind(cont_data, id) %>%
         na.omit()
@@ -297,8 +339,16 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       data_full <- data_full %>% select(-idnum)
     }
 
-    cat("\nStratification will help you develop a recruitment plan so \nthat your study will result in an unbiased estimate of the\n", bold("average treatment effect (ATE)"), ". Without using strata, it is \neasy to end up with a sample that is very different \nfrom your inference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That \nmeans units within each stratum are almost identical in \nterms of relevant variables.\n\n", sep = "")
-    cat("Enter the number of strata in which you wish to divide your \npopulation. Typically, ", bold("the more strata"), ",", bold(" the better"), "; with \nfewer strata, units in each stratum are no longer identical. \nHowever, increasing the number of strata uses more resources, \nbecause you must sample a given number of units from each \nstratum. \n\nTry a few numbers and choose the 'best' one for you.", sep = "")
+    cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
+
+    cat("Enter the number of strata in which you wish to divide your population. Typically, ",
+        bold("\nthe more strata"),
+        ",",
+        bold("the better"),
+        "; with fewer strata, units in each stratum are no longer \nidentical. However, increasing ",
+        "the number of strata uses more resources, because \nyou must sample a given number of units ",
+        "from each stratum. Choosing 4-6 strata is \ncommon. \n\nTry a few numbers and choose the 'best' one for you.",
+        sep = "")
 
     satisfied <- 0
 
@@ -320,6 +370,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       suppressWarnings(distance <- daisy(data_full, metric = "gower"))
       cat("\n1: Calculated distance matrix.")
+      set.seed(seed)
       solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = TRUE)
 
       x2 <- data.frame(id, data_full, clusterID = solution$clusters)
@@ -339,13 +390,14 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
         cov.dat <- diag(a)
         ma.s <- mahalanobis(dat4, mu, cov.dat)
-        final_dat4 <- data.frame(idvar, dat4, distance = ma.s, clusterID = dat3$clusterID) %>% tibble()
-        recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum, sorted by
-          # distance (so the top N schools in each data frame are the "best," etc.)
+        final_dat4 <- data.frame(idvar, dat4, distance = ma.s, clusterID = dat3$clusterID) %>%
+          tibble()
+        recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum,
+          # sorted by distance (so the top N schools in each data frame are the "best," etc.)
           arrange(distance) %>%
           mutate(rank = seq.int(nrow(final_dat4))) %>%
           select(rank, all_of(idnum))
-      }
+  }
 
       cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
 
@@ -353,11 +405,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       cat("\nYou have specified ")
       cat(bold(n_strata))
-      cat(" strata, which explain ")
+      cat(" strata which together explain ")
       cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-      cat(" of the total \nvariation in the population.")
+      cat(" of the total variation \nin the population.")
 
-      cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying variable for each stratum. \nThe bottom row, 'Population,' presents the average values for \nthe entire inference population. The last column, 'n,' lists the \ntotal number of units in the inference population that fall \nwithin each stratum.\n\n")
+      cat("\n\nThe following table presents the mean and standard deviation (mean / sd) of each \nstratifying variable for each stratum. The bottom row, 'Population', presents the \naverage values for the entire inference population. The last column, 'n', lists \nthe total number of units in the inference population that fall within each stratum. \nA similar table has also been printed in the Viewer pane to the right.\n\n")
 
       # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
       x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
@@ -370,7 +422,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         names() %>% str_sub(end = -5) %>% unique() %>%
         lapply(function(x){
           unite_(population_summary_stats2, x, grep(x, names(population_summary_stats2), value = TRUE),
-                 sep = ' / ', remove = TRUE) %>% select(x)
+                 sep = ' / ', remove = TRUE) %>% select(all_of(x))
         }) %>%
         bind_cols()
 
@@ -388,8 +440,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         unique() %>%
         lapply(function(x){
           unite_(summary_stats, x, grep(x, names(summary_stats), value = TRUE),
-                 sep = ' / ', remove = TRUE) %>% select(x)
-        }) %>%
+                                  sep = ' / ', remove = TRUE) %>% select(all_of(x))
+          }) %>%
         bind_cols() %>% mutate(clusterID = summary_stats$clusterID) %>%
         select(clusterID, everything()) %>%
         left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
@@ -397,7 +449,30 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
         data.frame()
 
-      print(summary_stats2)
+      means <- summary_stats %>% select(ends_with("fn1")) %>% names()
+      stdevs <- summary_stats %>% select(ends_with("fn2")) %>% names()
+
+      summary_stats3 <- summary_stats %>%
+        left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
+        mutate(clusterID = as.character(clusterID)) %>%
+        add_row(tibble_row(clusterID = "Population", population_summary_stats2, n = dim(x2)[1])) %>%
+        select(clusterID, as.vector(rbind(means,stdevs)), n)
+        data.frame()
+
+      var_names <- data_full %>% names()
+      var_length <- var_names %>% length()
+      header_names <- c(" ", var_names, " ")
+      header <- c(1, rep(2, var_length), 1)
+      names(header) <- header_names
+
+      summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
+                             align = "l",
+                             col.names = c("clusterID", rep(c("mean", "sd"), var_length), "n")) %>%
+        kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+        add_header_above(header) %>%
+        print()
+
+      summary_stats2 %>% print()
 
       simtab_m <- population_summary_stats2 %>%
         select(contains("fn1"))
@@ -422,20 +497,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
         left_join(counts_tab, by = "clusterID")
       temporary_df <- data.frame(variable = unique(heat_data$variable),
-                                 pop_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn)),
-                                 pop_sd = (heat_data %>% filter(clusterID == "Population") %>% select(sd)),
-                                 pop_n = (heat_data %>% filter(clusterID == "Population") %>% select(n))) %>%
-        mutate(pop_mean = mn,
-               pop_sd = sd,
-               pop_n = n) %>%
-        select(-mn,-sd,-n)
+                        population_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn))) %>%
+        mutate(population_mean = mn) %>%
+        select(-mn)
       heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
-        mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
-                                     (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
-                                     TRUE ~ (mn - pop_mean)/pop_mean),
-               pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
-               ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
-        )
+        mutate(deviation = case_when((mn - population_mean)/population_mean >= 0.7 ~ 0.7,
+                                     (mn - population_mean)/population_mean <= -0.7 ~ -0.7,
+                                     TRUE ~ (mn - population_mean)/population_mean))
       cluster_labels <- "Population"
       for(i in 2:(n_strata + 1)){
         cluster_labels[i] <- paste("Stratum", (i - 1))
@@ -449,6 +517,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                        label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
                    colour = "black", alpha = 0.7,
                    size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
+        annotate("text", label = "mean \n(sd)",
+                 x = n_strata + 1.25, y = ncol(data_full)) +
         geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
                    linetype = "dotted",
                    colour = "white") +
@@ -475,7 +545,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       print(heat_plot_final)
 
-      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? \nIf you specify 'No' the stratification process will end and you can \nproceed to use the output in 'recruit()' provided that it has been \nassigned to an object.")) == 2){
+      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
 
         satisfied <- 1
 
@@ -524,9 +594,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     # This is where all the non-guided stuff goes
 
-
     cat("Your chosen inference population is the '",
-        data_name, "' dataset.\n", sep = "")
+        deparse(substitute(data)), "' dataset.\n", sep = "")
     cat("\n")
 
     id <- data %>% select(all_of(idnum))
@@ -705,20 +774,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
       left_join(counts_tab, by = "clusterID")
     temporary_df <- data.frame(variable = unique(heat_data$variable),
-                               pop_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn)),
-                               pop_sd = (heat_data %>% filter(clusterID == "Population") %>% select(sd)),
-                               pop_n = (heat_data %>% filter(clusterID == "Population") %>% select(n))) %>%
-      mutate(pop_mean = mn,
-             pop_sd = sd,
-             pop_n = n) %>%
-      select(-mn,-sd,-n)
+                               population_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn))) %>%
+      mutate(population_mean = mn) %>%
+      select(-mn)
     heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
-      mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
-                                   (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
-                                   TRUE ~ (mn - pop_mean)/pop_mean),
-             pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
-             ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
-             )
+      mutate(deviation = case_when((mn - population_mean)/population_mean >= 0.7 ~ 0.7,
+                                   (mn - population_mean)/population_mean <= -0.7 ~ -0.7,
+                                   TRUE ~ (mn - population_mean)/population_mean))
     cluster_labels <- "Population"
     for(i in 2:(n_strata + 1)){
       cluster_labels[i] <- paste("Stratum", (i - 1))
@@ -755,8 +817,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     print(heat_plot_final)
 
-
-
   }
 
   overall_output <- list(x2 = x2, solution = solution, n_strata = n_strata,
@@ -765,8 +825,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                          summary_stats = summary_stats,
                          summary_stats2 = summary_stats2,
                          heat_data = heat_data, heat_plot_final = heat_plot_final,
-                         idnum = idnum, variables = variables, dataset = data_name,
-                         strat_var_stats = sumstats)
+                         idnum = idnum, variables = variables)
 
   class(overall_output) <- c("generalizer_output")
 
@@ -774,51 +833,3 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
 }
 
-print.generalizer_output <- function(x,...){
-
-  cat("A stratify() object: \n")
-  cat(paste0(" - dataset used: ", x$dataset,"\n"))
-  cat(paste0(" - stratification variables included: "))
-  cat(paste0(x$variables), sep = ", ")
-  cat(paste0("\n"))
-  cat(paste0(" - no. of strata chosen: ", x$n_strata, "\n"))
-
-  invisible(x)
-}
-
-summary.generalizer_output <- function(object,...){
-  out <- object
-
-  class(out) = "summary.generalizer_output"
-  return(out)
-}
-
-print.summary.generalizer_output <- function(x,...){
-
-  cat(paste0("Summary of Stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
-  cat(paste0("Stratification Variables: "))
-  cat(paste0(x$variables), sep = ", ")
-  cat(paste0("\n"))
-  cat(paste0("Variation in population: \n \n"))
-
-  print(x$strat_var_stats)
-
-  cat(paste0("\n"))
-
-  cat(paste0("No. in population: ", bold(nrow(x$x2)),"\n"))
-  cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
-  cat(paste0("Proportion of variation in population explained by strata: "))
-  cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-  cat("\n")
-
-
-  cat("============================================ \n")
-
-  cat("Covariate Distributions: \n \n")
-
-  print(x$heat_data %>% select(clusterID, variable, mn, sd, n, ASMD) %>% filter(clusterID != "Population"))
-
-  print(x$heat_plot_final)
-
-  invisible(x)
-}
