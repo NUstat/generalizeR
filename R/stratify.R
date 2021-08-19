@@ -119,6 +119,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   skim_variable <- skim_type <- variable <- NULL
   type <- clusterID <- n <- mn <- deviation <- NULL
+  data_name <- deparse(substitute(data))
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
@@ -129,9 +130,19 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       stop(simpleError("Don't specify n_strata, variables, or idnum as arguments if you are running the guided version of this function."))
     }
 
-    cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
+    cat(bold("\nWelcome to stratify! \n"))
+
+    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ", blue$bold("dplyr::filter()"), ", and then return.\n", sep = "")
+
+    cat(bold("\nTo store your results, make sure you assign \nthis function to an object.\n\n"))
+
+    if(menu(choices = c("Yes", "No"), title = cat("I have assigned this function to an object and wish to proceed:")) == 1){
+
+    }else{
+      stop(simpleError(blankMsg))
+    }
     cat("Your chosen inference population is the '",
-        deparse(substitute(data)), "' dataset.", sep = "")
+        data_name, "' dataset.", sep = "")
 
     cat("\n")
     cat("\n")
@@ -148,17 +159,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
 
       is_valid_variable_name <- TRUE
-    }
-
-    cat("\nIf you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use ",
-        blue$bold("dplyr::filter()"),
-        ", and then return.\n",
-        sep = "")
-
-    if(menu(choices = c("Yes", "No"), title = cat("\nDo you wish to proceed?")) == 1){
-
-    }else{
-      stop(simpleError(blankMsg))
     }
 
     id <- data %>% select(all_of(idnum))
@@ -497,13 +497,21 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
         left_join(counts_tab, by = "clusterID")
       temporary_df <- data.frame(variable = unique(heat_data$variable),
-                        population_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn))) %>%
-        mutate(population_mean = mn) %>%
-        select(-mn)
+                                 pop_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn)),
+                                 pop_sd = (heat_data %>% filter(clusterID == "Population") %>% select(sd)),
+                                 pop_n = (heat_data %>% filter(clusterID == "Population") %>% select(n))) %>%
+        mutate(pop_mean = mn,
+               pop_sd = sd,
+               pop_n = n) %>%
+        select(-mn,-sd,-n)
       heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
-        mutate(deviation = case_when((mn - population_mean)/population_mean >= 0.7 ~ 0.7,
-                                     (mn - population_mean)/population_mean <= -0.7 ~ -0.7,
-                                     TRUE ~ (mn - population_mean)/population_mean))
+        mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
+                                     (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
+                                     TRUE ~ (mn - pop_mean)/pop_mean),
+               pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
+               ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
+        )
+
       cluster_labels <- "Population"
       for(i in 2:(n_strata + 1)){
         cluster_labels[i] <- paste("Stratum", (i - 1))
@@ -774,13 +782,21 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
       left_join(counts_tab, by = "clusterID")
     temporary_df <- data.frame(variable = unique(heat_data$variable),
-                               population_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn))) %>%
-      mutate(population_mean = mn) %>%
-      select(-mn)
+                               pop_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn)),
+                               pop_sd = (heat_data %>% filter(clusterID == "Population") %>% select(sd)),
+                               pop_n = (heat_data %>% filter(clusterID == "Population") %>% select(n))) %>%
+      mutate(pop_mean = mn,
+             pop_sd = sd,
+             pop_n = n) %>%
+      select(-mn,-sd,-n)
     heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
-      mutate(deviation = case_when((mn - population_mean)/population_mean >= 0.7 ~ 0.7,
-                                   (mn - population_mean)/population_mean <= -0.7 ~ -0.7,
-                                   TRUE ~ (mn - population_mean)/population_mean))
+      mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
+                                   (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
+                                   TRUE ~ (mn - pop_mean)/pop_mean),
+             pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
+             ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
+      )
+
     cluster_labels <- "Population"
     for(i in 2:(n_strata + 1)){
       cluster_labels[i] <- paste("Stratum", (i - 1))
@@ -825,7 +841,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                          summary_stats = summary_stats,
                          summary_stats2 = summary_stats2,
                          heat_data = heat_data, heat_plot_final = heat_plot_final,
-                         idnum = idnum, variables = variables)
+                         idnum = idnum, variables = variables, dataset = data_name,
+                         strat_var_stats = sumstats)
 
   class(overall_output) <- c("generalizer_output")
 
@@ -833,3 +850,51 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
 }
 
+print.generalizer_output <- function(x,...){
+
+  cat("A stratify() object: \n")
+  cat(paste0(" - dataset used: ", x$dataset,"\n"))
+  cat(paste0(" - stratification variables included: "))
+  cat(paste0(x$variables), sep = ", ")
+  cat(paste0("\n"))
+  cat(paste0(" - no. of strata chosen: ", x$n_strata, "\n"))
+
+  invisible(x)
+}
+
+summary.generalizer_output <- function(object,...){
+  out <- object
+
+  class(out) = "summary.generalizer_output"
+  return(out)
+}
+
+print.summary.generalizer_output <- function(x,...){
+
+  cat(paste0("Summary of Stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
+  cat(paste0("Stratification Variables: "))
+  cat(paste0(x$variables), sep = ", ")
+  cat(paste0("\n"))
+  cat(paste0("Variation in population: \n \n"))
+
+  print(x$strat_var_stats)
+
+  cat(paste0("\n"))
+
+  cat(paste0("No. in population: ", bold(nrow(x$x2)),"\n"))
+  cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
+  cat(paste0("Proportion of variation in population explained by strata: "))
+  cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
+  cat("\n")
+
+
+  cat("============================================ \n")
+
+  cat("Covariate Distributions: \n \n")
+
+  print(x$heat_data %>% select(clusterID, variable, mn, sd, n, ASMD) %>% filter(clusterID != "Population"))
+
+  print(x$heat_plot_final)
+
+  invisible(x)
+}
