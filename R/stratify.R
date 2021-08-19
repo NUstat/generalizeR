@@ -351,7 +351,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       data_full <- data_full %>% select(-idnum)
     }
 
-    cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
+    cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the ", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
 
     cat("Enter the number of strata in which you wish to divide your population. Typically, ",
         bold("\nthe more strata"),
