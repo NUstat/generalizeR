@@ -209,6 +209,18 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         next
       }
 
+      factor_levels_over_100 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 100L) %>%
+        which() %>% names()
+
+      if(!is_empty(factor_levels_over_100)){
+        cat(red("ERROR: The following factor variables have more than 100 levels:\n"),
+            paste(blue$bold(factor_levels_over_100), collapse = ", "),
+            red("\n100 is the maximum number of levels this function will allow a factor to have."),
+            red("\nPlease exit out of this function (Press 'Esc') and re-code your desired factor"),
+            red("\nlevels from these variables as dummy variables (see the package 'fastDummies').\n"), sep = "")
+        next
+      }
+
       factor_levels_over_2 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 2L) %>%
         which() %>% names()
 
@@ -216,7 +228,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         cat(yellow("WARNING: The following factor variables have more than 2 levels:\n"),
             paste(blue$bold(factor_levels_over_2), collapse = ", "),
             yellow("\nWe strongly recommend you exit out of this function (Press 'Esc') and re-code"),
-            yellow("\nthem as dummy variables.\n\n"), sep = "")
+            yellow("\nyour desired factor levels from these variables as dummy variables (see the \npackage 'fastDummies').\n\n"), sep = "")
       }
 
       cat("You have selected the following stratifying variables:\n",
