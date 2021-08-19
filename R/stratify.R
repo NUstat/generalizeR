@@ -718,7 +718,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                                    TRUE ~ (mn - pop_mean)/pop_mean),
              pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
              ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
-      )
+             )
     cluster_labels <- "Population"
     for(i in 2:(n_strata + 1)){
       cluster_labels[i] <- paste("Stratum", (i - 1))
