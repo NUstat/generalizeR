@@ -529,6 +529,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         cluster_labels[i] <- paste("Stratum", (i - 1))
       }
 
+      path_to_mean_df = data.frame(x = c(1.18, 1.32, 1.32), y = c(ncol(data_full) + 0.05, ncol(data_full) + 0.05, ncol(data_full) + 0.2))
+      path_to_sd_df = data.frame(x = c(1.18, 1.32, 1.32), y = c(ncol(data_full) - 0.05, ncol(data_full) - 0.05, ncol(data_full) - 0.2))
+
       heat_plot_final <- ggplot(data = heat_data) +
         geom_tile(aes(x = clusterID, y = variable, fill = deviation), width = 0.95) +
         geom_text(aes(x = clusterID, y = ((ncol(summary_stats) + 1)/2 - 0.15),
@@ -537,8 +540,22 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                        label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
                    colour = "black", alpha = 0.7,
                    size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
-        annotate("text", label = "mean \n(sd)",
-                 x = n_strata + 1.25, y = ncol(data_full)) +
+        geom_label(label = "mean",
+                   x = 1.32,
+                   y = ncol(data_full) + 0.25,
+                   color = "black",
+                   label.size = NA,
+                   fill = NA,
+                   size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3)) +
+        geom_label(label = "sd",
+                   x = 1.32,
+                   y = ncol(data_full) - 0.25,
+                   color = "black",
+                   label.size = NA,
+                   fill = NA,
+                   size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3)) +
+        geom_path(data = path_to_mean_df, aes(x, y)) +
+        geom_path(data = path_to_sd_df, aes(x, y)) +
         geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
                    linetype = "dotted",
                    colour = "white") +
