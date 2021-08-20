@@ -461,30 +461,70 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
         data.frame()
 
-      means <- summary_stats %>% select(ends_with("fn1")) %>% names()
-      stdevs <- summary_stats %>% select(ends_with("fn2")) %>% names()
+      summary_stats2 %>% print()
 
-      summary_stats3 <- summary_stats %>%
-        left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
-        mutate(clusterID = as.character(clusterID)) %>%
-        add_row(tibble_row(clusterID = "Population", population_summary_stats2, n = dim(x2)[1])) %>%
-        select(clusterID, as.vector(rbind(means,stdevs)), n)
-        data.frame()
+      # means <- summary_stats %>% select(ends_with("fn1")) %>% names()
+      # stdevs <- summary_stats %>% select(ends_with("fn2")) %>% names()
+      #
+      # summary_stats3 <- summary_stats %>%
+      #   left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
+      #   mutate(clusterID = as.character(clusterID)) %>%
+      #   add_row(tibble_row(clusterID = "Population", population_summary_stats2, n = dim(x2)[1])) %>%
+      #   select(clusterID, as.vector(rbind(means,stdevs)), n)
+      #   data.frame()
+      #
+      # var_names <- data_full %>% names()
+      # var_length <- var_names %>% length()
+      # header_names <- c(" ", var_names, " ")
+      # header <- c(1, rep(2, var_length), 1)
+      # names(header) <- header_names
+      #
+      # summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
+      #                        align = "l",
+      #                        col.names = c("clusterID", rep(c("mean", "sd"), var_length), "n")) %>%
+      #   kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+      #   add_header_above(header) %>%
+      #   print()
 
       var_names <- data_full %>% names()
-      var_length <- var_names %>% length()
-      header_names <- c(" ", var_names, " ")
-      header <- c(1, rep(2, var_length), 1)
-      names(header) <- header_names
+      header_names <- " "
+      for (i in 1:n_strata) {
+        header_names <- header_names %>% append(paste0("Stratum ", i))
+      }
+      header <- c(1, rep(2, n_strata+1))
+      names(header) <- header_names %>% append("Population")
+
+      means_names <- NULL
+      stdevs_names <- NULL
+      for (i in 1:(n_strata+1)) {
+        means_names <- means_names %>% append(paste0("mean",i))
+        stdevs_names <- stdevs_names %>% append(paste0("sd",i))
+      }
+
+      temp <- summary_stats %>% add_row(tibble_row(population_summary_stats2))
+
+      means <- temp %>%
+        select(ends_with("fn1")) %>%
+        t() %>%
+        as.data.frame()
+      names(means) <- means_names
+
+      stdevs <- temp %>%
+        select(ends_with("fn2")) %>%
+        t() %>%
+        as.data.frame()
+      names(stdevs) <- stdevs_names
+
+      summary_stats3 <- data.frame(means,stdevs, row.names = NULL) %>%
+        mutate(Variable = var_names) %>%
+        select(Variable, as.vector(rbind(means_names,stdevs_names)))
 
       summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
-                             align = "l",
-                             col.names = c("clusterID", rep(c("mean", "sd"), var_length), "n")) %>%
+                             align = "c",
+                             col.names = c("Variable", rep(c("mean", "sd"), n_strata+1))) %>%
         kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
         add_header_above(header) %>%
         print()
-
-      summary_stats2 %>% print()
 
       simtab_m <- population_summary_stats2 %>%
         select(contains("fn1"))
