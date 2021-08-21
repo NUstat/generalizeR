@@ -479,9 +479,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       header <- c(1, rep(2, n_strata+1))
       header_names <- " "
       for (i in 1:n_strata) {
-        header_names <- header_names %>% append(paste0("Stratum ", i))
+        header_names <- header_names %>% append(paste0("Stratum ", i, "\nn = ", summary_stats2$n[i]))
       }
-      names(header) <- header_names %>% append("Population")
+      names(header) <- header_names %>% append(paste0("Population\n", "n = ", summary_stats2$n %>% tail(n=1)))
 
       means_names <- stdevs_names <- NULL
       for (i in 1:(n_strata+1)) {
