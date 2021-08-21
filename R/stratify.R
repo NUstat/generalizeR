@@ -190,45 +190,34 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     make_var_overview(data)
 
     while(variables_are_correct != 1){
-      cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables).\n",
-          yellow("Please note that any character variables that may have been present in"),
-          yellow("\nyour dataset have been automatically converted to factor variables.\n"),
+      cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables). ",
+          yellow$bold("Please note that any character \nvariables that may have been present in your dataset have been \nautomatically converted to factor variables.\n"),
           sep = "")
 
       names <- names(data)
       variables <- select.list_CUSTOMIZED(choices = names,
-                       title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.\n"),
+                       title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
                        graphics = FALSE, multiple = TRUE)
 
-      if(length(variables) >= 1L){
+      if(length(variables) >= 2L){
         data_subset <- data %>% select(all_of(variables))
       }
       else{
         ## Check ##
-        cat(red("Invalid selection. You must select at least one stratification variable.\n"))
+        cat(red("ERROR: Invalid selection. You must select at least 2 stratification variables.\n"))
         next
       }
 
-      factor_levels_over_100 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 100L) %>%
+      factor_levels_over_4 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 4L) %>%
         which() %>% names()
 
-      if(!is_empty(factor_levels_over_100)){
-        cat(red("ERROR: The following factor variables have more than 100 levels:\n"),
-            paste(blue$bold(factor_levels_over_100), collapse = ", "),
-            red("\n100 is the maximum number of levels this function will allow a factor to have."),
+      if(!is_empty(factor_levels_over_4)){
+        cat(red("ERROR: The following factor variables have more than 4 levels:\n"),
+            paste(blue$bold(factor_levels_over_4), collapse = ", "),
+            red("\n4 is the maximum number of levels this function will allow a factor to have."),
             red("\nPlease exit out of this function (Press 'Esc') and re-code your desired factor"),
             red("\nlevels from these variables as dummy variables (see the package 'fastDummies').\n"), sep = "")
         next
-      }
-
-      factor_levels_over_2 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 2L) %>%
-        which() %>% names()
-
-      if(!is_empty(factor_levels_over_2)){
-        cat(yellow("WARNING: The following factor variables have more than 2 levels:\n"),
-            paste(blue$bold(factor_levels_over_2), collapse = ", "),
-            yellow("\nWe strongly recommend you exit out of this function (Press 'Esc') and re-code"),
-            yellow("\nyour desired factor levels from these variables as dummy variables (see the \npackage 'fastDummies').\n\n"), sep = "")
       }
 
       cat("You have selected the following stratifying variables:\n",
