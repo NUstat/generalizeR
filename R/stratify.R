@@ -154,7 +154,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       ## Check ##
       if(!idnum %in% names(data)) {
-        cat(red("We could not find that variable. Please make sure your \ndataset contains an ID variable."))
+        cat(red("ERROR: We could not find that variable. Please make sure your \ndataset contains an ID variable."))
         next
       }
 
@@ -359,7 +359,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       ## Catch ##
       if(is.na(n_strata) || n_strata <= 1){
-        cat(red("The number of strata must be a single positive integer greater than 1.\n"))
+        cat(red("ERROR: The number of strata must be a single positive integer greater than 1.\n"))
         next
       }
 
