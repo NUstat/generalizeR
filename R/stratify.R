@@ -476,15 +476,14 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       #   print()
 
       var_names <- data_full %>% names()
+      header <- c(1, rep(2, n_strata+1))
       header_names <- " "
       for (i in 1:n_strata) {
         header_names <- header_names %>% append(paste0("Stratum ", i))
       }
-      header <- c(1, rep(2, n_strata+1))
       names(header) <- header_names %>% append("Population")
 
-      means_names <- NULL
-      stdevs_names <- NULL
+      means_names <- stdevs_names <- NULL
       for (i in 1:(n_strata+1)) {
         means_names <- means_names %>% append(paste0("mean",i))
         stdevs_names <- stdevs_names %>% append(paste0("sd",i))
