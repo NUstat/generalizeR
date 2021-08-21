@@ -509,7 +509,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
                              align = "c",
-                             col.names = c("Variable", rep(c("mean", "sd"), n_strata+1))) %>%
+                             col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata+1))) %>%
         kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
         add_header_above(header) %>%
         print()
