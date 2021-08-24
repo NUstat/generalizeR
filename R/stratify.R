@@ -21,6 +21,8 @@
 #' @importFrom janitor clean_names
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
 #' @importFrom ggthemes theme_base
+#' @importFrom ggrepel geom_label_repel
+#' @importFrom ggnewscale new_scale
 #' @importFrom viridis viridis turbo plasma
 #' @importFrom kableExtra kbl kable_styling
 #' @importFrom tidyr pivot_longer unite_
@@ -552,29 +554,30 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
         )
 
+      longer_heat_data <- heat_data %>%
+        pivot_longer(cols = c("mn", "sd"),
+                     names_to = "mn_or_sd",
+                     values_to = "values") %>%
+        mutate(values = values %>% round(1))
+
       cluster_labels <- "Population"
       for(i in 2:(n_strata + 1)){
         cluster_labels[i] <- paste("Stratum", (i - 1))
       }
 
-      heat_plot_final <- ggplot(data = heat_data) +
-        geom_tile(aes(x = clusterID, y = variable, fill = deviation), width = 0.95) +
-        geom_text(aes(x = clusterID, y = ((ncol(summary_stats) + 1)/2 - 0.15),
+      heat_plot <- ggplot(data = heat_data) +
+        geom_tile(aes(x = clusterID,
+                      y = variable,
+                      fill = deviation),
+                  width = 0.95) +
+        geom_text(aes(x = clusterID,
+                      y = ((ncol(summary_stats) + 1)/2 - 0.15),
                       label = paste(n, "\nunits")), size = 3.4) +
-        geom_label(aes(x = clusterID, y = variable,
-                       label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
-                   color = "black", alpha = 0.7,
-                   size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
-        geom_text(x = (n_strata+1) + 2.9/(n_strata+1),
-                   y = ncol(data_full),
-                   label = "mean \n(sd)",
-                   color = "black",
-                   alpha = 0.7,
-                   size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
         geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
                    linetype = "dotted",
                    color = "white") +
-        scale_fill_gradientn(name = NULL, breaks=c(-0.5, 0, 0.5),
+        scale_fill_gradientn(name = NULL,
+                             breaks=c(-0.5, 0, 0.5),
                              labels = c("50% \nBelow Mean",
                                         "Population\nMean",
                                         "50% \nAbove Mean"),
@@ -582,7 +585,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                                          "white", "#3D85C6",
                                          "#0B5294"),
                              limits = c(-0.7, 0.7)) +
-        scale_x_discrete(position = "top", expand = c(0, 0), labels = c(cluster_labels[-1], "Population")) +
+        scale_x_discrete(position = "top",
+                         expand = c(0, 0),
+                         labels = c(cluster_labels[-1], "Population")) +
         expand_limits(y = c(0, (ncol(summary_stats) + 1)/2 + 0.1)) +
         labs(y = NULL, x = NULL) +
         theme(panel.background = element_blank(),
@@ -592,6 +597,25 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
               legend.text = element_text(size = 10),
               legend.position = "right")
 
+      heat_plot_final <- heat_plot +
+        new_scale("fill") +
+        geom_label_repel(data = longer_heat_data,
+                         aes(x = clusterID,
+                             y = variable,
+                             label = values,
+                             fill = mn_or_sd),
+                         segment.color = "transparent",
+                         direction = "y",
+                         alpha = 0.7,
+                         size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
+        scale_fill_viridis(labels = c("Mean", "Standard Deviation"),
+                           begin = 0.2,
+                           end = 0.5,
+                           direction = -1,
+                           discrete = TRUE,
+                           option = "C") +
+        theme(legend.title = element_blank()) +
+        guides(fill = guide_legend(override.aes = aes(label = "")))
 
       readline(prompt = "Press [enter] to continue:")
 
