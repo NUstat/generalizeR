@@ -599,13 +599,24 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       heat_plot_final <- heat_plot +
         new_scale("fill") +
-        geom_label_repel(data = longer_heat_data,
+        geom_label_repel(data = longer_heat_data %>% filter(mn_or_sd == "mn"),
                          aes(x = clusterID,
                              y = variable,
                              label = values,
                              fill = mn_or_sd),
-                         segment.color = "transparent",
+                         min.segment.length = 1,
                          direction = "y",
+                         nudge_y = 0.05,
+                         alpha = 0.7,
+                         size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
+        geom_label_repel(data = longer_heat_data %>% filter(mn_or_sd == "sd"),
+                         aes(x = clusterID,
+                             y = variable,
+                             label = values,
+                             fill = mn_or_sd),
+                         min.segment.length = 1,
+                         direction = "y",
+                         nudge_y = -0.05,
                          alpha = 0.7,
                          size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
         scale_fill_viridis(labels = c("Mean", "Standard Deviation"),
