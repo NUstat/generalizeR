@@ -620,11 +620,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                          alpha = 0.7,
                          size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
         scale_fill_viridis(labels = c("Mean", "Standard Deviation"),
-                           begin = 0.2,
-                           end = 0.5,
-                           direction = -1,
+                           begin = 0.4,
+                           end = 0.8,
+                           direction = 1,
                            discrete = TRUE,
-                           option = "C") +
+                           option = "D") +
         theme(legend.title = element_blank()) +
         guides(fill = guide_legend(override.aes = aes(label = "")))
 
