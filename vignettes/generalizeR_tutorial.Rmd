@@ -24,7 +24,7 @@ library(crayon)
 
 ## Introduction
 
-Note that it is possible to use the package at either end of the sampling process; that is, you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously-obtained sample data and assess its generalizability.
+Note that it is possible to use the package at either end of the sampling process: you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously obtained sample data and assess its generalizability.
 
 ### Setup
 
@@ -42,36 +42,36 @@ library(gridExtra)
 library(usmap)
 ```
 
-Soon the generalizeR package will be on CRAN and can be installed with 'install.packages'. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
+Soon the generalizeR package will be on CRAN and can be installed with `install.packages()`. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
 
 ## Step 1: Stratify
 
-The stratify() function defaults to 'guided' mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of http://thegeneralizer.org/ and in part because we intend for this R package to be as accessible as possible for people with limited R experience.
+The `stratify()` function defaults to 'guided' mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of http://thegeneralizer.org/ and in part because we intend for this R package to be as accessible as possible for people with limited R experience.
 
-Users who are running stratify() multiple times, who are familiar with R, or who simply dislike the guided feature can turn it off by using the argument 'guided = FALSE'. If they do so, however, they must be sure to specify values for all the other function arguments, as those would otherwise be obtained from user input later.
+Users who are running `stratify()` multiple times, who are familiar with R, or who simply dislike the guided feature can turn it off by using the argument 'guided = FALSE'. If they do so, however, they must be sure to specify values for all the other function arguments, as those would otherwise be obtained from user input later.
 
 This tutorial will follow a hypothetical example.
 
 ### Example
 
-The first is of an education researcher who wants to test the effect of an intervention on SAT scores. The researcher has somewhat limited resources, so they plan on a sample size of 40 schools. They want to estimate the average effect of their intervention in Texas charter high schools. Thus, their **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so the researcher selects a few **stratifying variables** -- *percentage female, percentage black, and percentage free and reduced lunch*. The researcher also thinks school size might result in treatment differences, so they include the *total school size* as well.
+Suppose an education researcher wants to test the effect of an intervention on SAT scores. The researcher has somewhat limited resources, so they plan on a sample size of 40 schools. They want to estimate the average effect of their intervention in Texas charter high schools. Thus, their **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so the researcher selects a few **stratifying variables** -- *percentage female*, *percentage black*, and *percentage free and reduced lunch*. The researcher also thinks school size might result in treatment differences, so they include the *total school size* as well.
 
-Since this researcher is working with high schools, they can use the Common Core database we provide in 'generalizeRdata'. For information on each of the columns and the source of the data, run '?cc'.
+Since this researcher is working with high schools, they can use the Common Core database we provide in 'generalizeRdata'. For information on each of the columns and the source of the data, run `?cc`.
 
 ```{r}
 cc
 ```
 
-By looking at the 'st' column, we can already see a problem here. The data frame contains schools from all states in the US, but the researcher has a much narrower inference population. Therefore, there is some filtering they must do first.
+By looking at the `st` column, we can already see a problem here. The data frame contains schools from all states in the US, but the researcher has a much narrower inference population. Therefore, there is some filtering they must do first.
 
-To identify Texas schools, the researcher can select those rows with 'st' equal to 'TX':
+To identify Texas schools, the researcher can select those rows with `st` equal to `TX`:
 
 ```{r}
 inference_pop <- cc %>% 
   filter(st == "TX")
 ```
 
-There is a variable in the data frame called 'charter'; '?cc' will show that it takes on the value of 0 for non-charter schools and 1 for charter schools. Finally, to select high schools (which almost always include grades 9 to 12), the researcher can use one of the grade indicator variables, say 'g_10_offered'. After combining all of these filters, we get:
+There is a variable in the data frame called `charter`; `?cc` will show that it takes on the value of 0 for non-charter schools and 1 for charter schools. Finally, to select high schools (which almost always include grades 9 to 12), the researcher can use one of the grade indicator variables, say `g_10_offered`. After combining all of these filters, we get:
 
 ```{r}
 inference_pop <- cc %>% 
@@ -103,8 +103,7 @@ cat("\n")
 
 idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
 ```
-
-It's important to note that the user can hit the 'Escape' key here to stop the function if they have forgotten to store their results -- that is, to use the assignment operator '<-' to set their results to an object (here, called 'output').
+If the user has forgotten to store their results -- that is, to use the assignment operator `<-` to assign their results to an object (here, called 'output') -- they may enter '2' here to stop the function and do so. Otherwise, they may enter '1' to proceed.
 
 At the prompt, they enter the column name that contains the NCES school IDs in the CCD database -- "ncessch":
 
