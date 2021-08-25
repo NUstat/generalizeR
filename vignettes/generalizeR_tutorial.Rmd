@@ -12,12 +12,10 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-
 # Note:
 #  changing back to this (below)
 #   rmarkdown::html_vignette
 # would probably make the vignette smaller.
-
 knitr::opts_chunk$set(echo = TRUE)
 library(crayon)
 ```
@@ -78,7 +76,6 @@ inference_pop <- cc %>%
   filter(st == "TX") %>% 
   filter(charter == 1) %>% 
   filter(g_10_offered == "Yes")
-
 inference_pop
 ```
 
@@ -96,16 +93,14 @@ They are greeted with the following:
 
 ```{r include=FALSE, eval=FALSE}
 cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
-
 cat("Your chosen inference population is the '", deparse(substitute(inference_pop)), "' dataset.", sep = "")
 cat("\n")
 cat("\n")
-
 idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
 ```
-If the user has forgotten to store their results -- that is, to use the assignment operator `<-` to assign their results to an object (here, called `output`) -- they may enter '2' here to stop the function and do so. Otherwise, they may enter '1' to proceed.
+If the user has forgotten to store their results -- that is, to use the assignment operator `<-` to assign their results to an object (here, called 'output') -- they may enter '2' here to stop the function and do so. Otherwise, they may enter '1' to proceed.
 
-At the prompt, they enter the column name that contains the NCES school IDs in the CCD database -- `ncessch`:
+At the prompt, they enter the column name that contains the NCES school IDs in the CCD database -- "ncessch":
 
 <img src="sec_1_ex_1_fig_2.png" width="550"/>
 
@@ -145,13 +140,11 @@ plot1 <- inference_pop %>%
   theme_base() + 
   xlab("total") +
   labs(title = "Histogram of total")
-
 plot2 <- inference_pop %>% 
   ggplot(aes(x = pct_black_or_african_american)) + geom_histogram(bins = 30) +
   theme_base() + 
   xlab("pct_black") +
   labs(title = "Histogram of pct_black")
-
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
@@ -162,13 +155,11 @@ plot1 <- inference_pop %>%
   theme_base() + 
   xlab("pct_female") +
   labs(title = "Histogram of pct_female")
-
 plot2 <- inference_pop %>% 
   ggplot(aes(x = pct_free_and_reduced_lunch)) + geom_histogram(bins = 30) +
   theme_base() + 
   xlab("pct_frlunch") +
   labs(title = "Histogram of pct_frlunch")
-
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
