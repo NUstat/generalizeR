@@ -569,13 +569,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         geom_tile(aes(x = clusterID,
                       y = variable,
                       fill = deviation),
+                  color = "black",
                   width = 0.95) +
         geom_text(aes(x = clusterID,
                       y = ((ncol(summary_stats) + 1)/2 - 0.15),
                       label = paste(n, "\nunits")), size = 3.4) +
-        geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
-                   linetype = "dotted",
-                   color = "white") +
         scale_fill_gradientn(name = NULL,
                              breaks=c(-0.5, 0, 0.5),
                              labels = c("50% \nBelow Mean",
