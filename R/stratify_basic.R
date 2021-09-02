@@ -73,7 +73,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     clean_names()
 
   # 3) Save summaries of variables in dataset
-  pop_stats <- data %>%
+  pop_stats <- data_full %>%
     map_df(function(x){
       tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
     }) %>%
