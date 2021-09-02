@@ -61,7 +61,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                "\nlevels from these variables as dummy variables (see the package 'fastDummies').\n"))
   }
 
-  if(dim(cat_data)[2] >= 1L & dim(cat_data)[2] <= 4L){
+  if(dim(cat_data)[2] >= 1L){
     cat_data <- cat_data %>%
       fastDummies::dummy_cols(remove_first_dummy = TRUE) %>%
       select_if(negate(is.factor))
@@ -78,7 +78,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
       tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
     }) %>%
     mutate_all(round, digits = 3) %>%
-    mutate(variable = names(data)) %>%
+    mutate(variable = names(data_full)) %>%
     select(variable, everything()) %>%
     data.frame() %>%
     clean_names()

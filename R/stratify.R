@@ -62,7 +62,7 @@
 
 ## Should this be stored in a different R file? I think that would be preferable,
 select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, title = NULL,
-                        graphics = getOption("menu.graphics")){
+                                   graphics = getOption("menu.graphics")){
 
   if (!interactive())
     stop("select.list() cannot be used non-interactively")
@@ -156,7 +156,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
 
-# Here begins the guided wrapper for the function -------------------------
+  # Here begins the guided wrapper for the function -------------------------
 
   if(guided == TRUE){
 
@@ -166,7 +166,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
 
-# 1) Introduction: instructions to store object ---------------------------
+    # 1) Introduction: instructions to store object ---------------------------
 
     cat(bold("\nWelcome to stratify! \n"))
 
@@ -186,7 +186,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat("\n")
 
 
-# 2) Selection of idnum ---------------------------------------------------
+    # 2) Selection of idnum ---------------------------------------------------
 
     is_valid_variable_name <- FALSE
 
@@ -205,7 +205,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     variables_are_correct <- 0
 
 
-# 3) Selection of variables (for stratification) -----------------------------------------
+    # 3) Selection of variables (for stratification) -----------------------------------------
 
     data_guided <- data %>% select(-all_of(idnum))
 
@@ -218,8 +218,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       names <- names(data_guided)
       variables <- select.list_CUSTOMIZED(choices = names,
-                       title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
-                       graphics = FALSE, multiple = TRUE)
+                                          title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
+                                          graphics = FALSE, multiple = TRUE)
 
       if(length(variables) >= 2L){
         data_subset <- data_guided %>% select(all_of(variables))
@@ -262,8 +262,12 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
 
-# 4) Overview of categorical variables ------------------------------------
-## NOTE: These cat variables get converted into factors anyway
+    # insert a section where we say:
+    # no. of observations in population based on variables
+    # alert them of no. of observations omitted due to missing information in those variables
+
+    # 4) Overview of categorical variables ------------------------------------
+    ## NOTE: These cat variables get converted into factors anyway
 
     cat_data <- data_subset %>% select_if(is.factor)
     cat_data_vars <- names(cat_data)
@@ -309,7 +313,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
 
 
-# 5) Overview of cont data ------------------------------------------------
+    # 5) Overview of cont data ------------------------------------------------
 
     cont_data <- data_subset %>%
       select_if(negate(is.factor))
@@ -358,7 +362,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     par(ask = FALSE)
 
 
-# 6) Selection of no. of strata -------------------------------------------
+    # 6) Selection of no. of strata -------------------------------------------
 
     cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the ", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
 
@@ -371,53 +375,61 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         "from each stratum. Choosing 4-6 strata is \ncommon. \n\nTry a few numbers and choose the 'best' one for you.",
         sep = "")
 
-    n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
 
     ## Catch ##
-    if(is.na(n_strata) || n_strata <= 1){
-      cat(red("ERROR: The number of strata must be a single positive integer greater than 1.\n"))
-      next
-    }
 
-    if(n_strata%%1==0){
-      n_strata <- round(n_strata)
+    n_strata_correct <- FALSE
+
+    while(!n_strata_correct) {
+
+      n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
+
+      if(is.na(n_strata) || n_strata <= 1){
+        cat(red("ERROR: The number of strata must be a single positive integer greater than 1.\n"))
+        next
+      }
+
+      if(n_strata%%1==0){
+        n_strata <- round(n_strata)
+      }
+      n_strata_correct <- TRUE
     }
   }
 
   # here is where guided_loop ENDS.
 
 
-# 7) Stratify_basic call  -------------------------------------------------
+  # 7) Stratify_basic call  -------------------------------------------------
 
 
   if(verbose == TRUE){
-  overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
-                 idnum = idnum, seed = 7835, verbose = TRUE)
+    overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
+                                     idnum = idnum, seed = 7835, verbose = TRUE)
   }else{
     overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
                                      idnum = idnum, seed = 7835, verbose = FALSE)
   }
 
 
-# 8) Final message for guided version -------------------------------------
+  # 8) Final message for guided version -------------------------------------
 
   if(guided == TRUE){
-  cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
-  cat("You can pull up the results anytime by passing your stratify_object into summary().\n\n")
+    cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
+    cat("You can pull up the results anytime by passing your stratify_object into summary().\n\n")
 
-  readline(prompt = "Press [enter] to view the results")
+    readline(prompt = "Press [enter] to view the results")
 
-  print(summary(overall_output))
+    print(summary(overall_output))
 
-  # if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
-  #
-  #   satisfied <- 1
-  #
-  # }else{
-  #
-  #   satisfied <- 0
-  #
-  # }
+    # if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
+    #
+    #   satisfied <- 1
+    #
+    # }else{
+    #
+    #   satisfied <- 0
+    #
+    # }
 
   }
 
@@ -425,5 +437,5 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   return(invisible(overall_output))
 
-  }
+}
 
