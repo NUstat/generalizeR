@@ -78,7 +78,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
       tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
     }) %>%
     mutate_all(round, digits = 3) %>%
-    mutate(variable = names(data)) %>%
+    mutate(variable = names(data_full)) %>%
     select(variable, everything()) %>%
     data.frame() %>%
     clean_names()
