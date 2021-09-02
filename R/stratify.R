@@ -56,8 +56,8 @@
 #' @md
 
 select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, title = NULL,
-                        graphics = getOption("menu.graphics"))
-{
+                        graphics = getOption("menu.graphics")){
+
   if (!interactive())
     stop("select.list() cannot be used non-interactively")
   if (!is.null(title) && (!is.character(title) || length(title) !=
@@ -117,7 +117,7 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
 }
 
 stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
-                     idnum = NULL, seed = 7835){
+                     idnum = NULL, seed = 7835, verbose = TRUE){
 
   skim_variable <- skim_type <- variable <- NULL
   type <- clusterID <- n <- mn <- deviation <- NULL
@@ -125,6 +125,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
+  # This is the guided part of the function.
   if(guided == TRUE){
 
     ## Check ##
@@ -163,10 +164,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       is_valid_variable_name <- TRUE
     }
 
-    id <- data %>% select(all_of(idnum))
-    data <- data %>% select(-all_of(idnum)) %>% mutate_if(is_character, as_factor)
-
     variables_are_correct <- 0
+    data_guided <- data %>% select(-all_of(idnum))
+
+
+# this is a helper function that should be moved --------------------------
 
     make_var_overview <- function(dataset, print_to_console = FALSE){
 
@@ -189,20 +191,22 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
-    make_var_overview(data)
+# end of helper function --------------------------------------------------
+
+    make_var_overview(data_guided)
 
     while(variables_are_correct != 1){
       cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables). ",
           yellow$bold("Please note that any character \nvariables that may have been present in your dataset have been \nautomatically converted to factor variables.\n"),
           sep = "")
 
-      names <- names(data)
+      names <- names(data_guided)
       variables <- select.list_CUSTOMIZED(choices = names,
                        title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
                        graphics = FALSE, multiple = TRUE)
 
       if(length(variables) >= 2L){
-        data_subset <- data %>% select(all_of(variables))
+        data_subset <- data_guided %>% select(all_of(variables))
       }
       else{
         ## Check ##
@@ -223,7 +227,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
 
       cat("You have selected the following stratifying variables:\n",
-          paste(blue$bold(colnames(data_subset)), collapse = ", "),
+          paste(blue$bold(variables), collapse = ", "),
           "\n\n",
           sep = "")
 
@@ -239,6 +243,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       }
     }
+
+
+# we don't still need the cat data section right? because they  --------
+# would have been converted to factors?
 
     cat_data <- data_subset %>% select_if(is.factor)
     cat_data_vars <- names(cat_data)
@@ -281,6 +289,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
           print()
       }
     }
+
+
+# end of cat data ---------------------------------------------------------
 
     cont_data <- data_subset %>%
       select_if(negate(is.factor))
@@ -328,19 +339,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
     par(ask = FALSE)
 
-    if(dim(cat_data)[2] >= 1L){
-      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>%
-        select_if(negate(is.factor))
-      data_full <- cbind(cat_data, cont_data, id) %>%
-        na.omit()
-      id <- data_full %>% select(all_of(idnum))
-      data_full <- data_full %>% select(-all_of(idnum))
-    }else{
-      data_full <- cbind(cont_data, id) %>%
-        na.omit()
-      id <- data_full %>% select(idnum)
-      data_full <- data_full %>% select(-idnum)
-    }
 
     cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the ", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
 
@@ -353,625 +351,47 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         "from each stratum. Choosing 4-6 strata is \ncommon. \n\nTry a few numbers and choose the 'best' one for you.",
         sep = "")
 
-    satisfied <- 0
+    n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
 
-    while(satisfied != 1){
-
-      n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
-
-      ## Catch ##
-      if(is.na(n_strata) || n_strata <= 1){
-        cat(red("ERROR: The number of strata must be a single positive integer greater than 1.\n"))
-        next
-      }
-
-      if(n_strata%%1==0){
-        n_strata <- round(n_strata)
-      }
-
-      cat("This might take a little while. Please bear with us.")
-
-      suppressWarnings(distance <- daisy(data_full, metric = "gower"))
-      cat("\n1: Calculated distance matrix.")
-      set.seed(seed)
-      solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = TRUE)
-
-      x2 <- data.frame(id, data_full, clusterID = solution$clusters)
-      recruitment_lists <- list(NULL)
-
-      for(i in 1:n_strata){
-        dat3 <- x2 %>%
-          dplyr::filter(clusterID == i)
-        idvar <- dat3 %>% select(all_of(idnum))
-        dat4 <- dat3 %>% select(-c(all_of(idnum), clusterID)) %>%
-          mutate_all(as.numeric)
-
-        mu <- dat4 %>% map_dbl(mean)
-        v <- var(dat4)
-        a <- diag(v)
-
-        if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
-        cov.dat <- diag(a)
-        ma.s <- mahalanobis(dat4, mu, cov.dat)
-        final_dat4 <- data.frame(idvar, dat4, distance = ma.s, clusterID = dat3$clusterID) %>%
-          tibble()
-        recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum,
-          # sorted by distance (so the top N schools in each data frame are the "best," etc.)
-          arrange(distance) %>%
-          mutate(rank = seq.int(nrow(final_dat4))) %>%
-          select(rank, all_of(idnum))
-  }
-
-      cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
-
-      readline(prompt = "Press [enter] to view the results")
-
-      cat("\nYou have specified ")
-      cat(bold(n_strata))
-      cat(" strata which together explain ")
-      cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-      cat(" of the total variation \nin the population.")
-
-      cat("\n\nThe following table presents the mean and standard deviation (mean / sd) of each \nstratifying variable for each stratum. The bottom row, 'Population', presents the \naverage values for the entire inference population. The last column, 'n', lists \nthe total number of units in the inference population that fall within each stratum. \nA similar table has also been printed in the Viewer pane to the right.\n\n")
-
-      # x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
-      x3 <- data.frame(data_full, clusterID = solution$clusters) %>% tibble()
-
-      population_summary_stats2 <- x3 %>% select(-c(clusterID)) %>%
-        summarise_all(list(mean, sd)) %>%
-        mutate_all(round, digits = 3)
-
-      population_summary_stats <- population_summary_stats2 %>%
-        names() %>% str_sub(end = -5) %>% unique() %>%
-        lapply(function(x){
-          unite_(population_summary_stats2, x, grep(x, names(population_summary_stats2), value = TRUE),
-                 sep = ' / ', remove = TRUE) %>% select(all_of(x))
-        }) %>%
-        bind_cols()
-
-      summary_stats <- x3 %>%
-        group_by(clusterID) %>%
-        summarize_if(is.numeric, mean) %>%
-        left_join((x3 %>% group_by(clusterID) %>% summarize_if(is.numeric, sd)),
-                  by = "clusterID", suffix = c("_fn1", "_fn2")) %>%
-        mutate_all(round, digits = 3)
-
-      summary_stats2 <- summary_stats %>%
-        select(-clusterID) %>%
-        names() %>%
-        str_sub(end = -5) %>%
-        unique() %>%
-        lapply(function(x){
-          unite_(summary_stats, x, grep(x, names(summary_stats), value = TRUE),
-                                  sep = ' / ', remove = TRUE) %>% select(all_of(x))
-          }) %>%
-        bind_cols() %>% mutate(clusterID = summary_stats$clusterID) %>%
-        select(clusterID, everything()) %>%
-        left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
-        mutate(clusterID = as.character(clusterID)) %>%
-        add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1])) %>%
-        data.frame()
-
-      summary_stats2 %>% print()
-
-      # means <- summary_stats %>% select(ends_with("fn1")) %>% names()
-      # stdevs <- summary_stats %>% select(ends_with("fn2")) %>% names()
-      #
-      # summary_stats3 <- summary_stats %>%
-      #   left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
-      #   mutate(clusterID = as.character(clusterID)) %>%
-      #   add_row(tibble_row(clusterID = "Population", population_summary_stats2, n = dim(x2)[1])) %>%
-      #   select(clusterID, as.vector(rbind(means,stdevs)), n)
-      #   data.frame()
-      #
-      # var_names <- data_full %>% names()
-      # var_length <- var_names %>% length()
-      # header_names <- c(" ", var_names, " ")
-      # header <- c(1, rep(2, var_length), 1)
-      # names(header) <- header_names
-      #
-      # summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
-      #                        align = "l",
-      #                        col.names = c("clusterID", rep(c("mean", "sd"), var_length), "n")) %>%
-      #   kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-      #   add_header_above(header) %>%
-      #   print()
-
-      var_names <- data_full %>% names()
-      header <- c(1, rep(2, n_strata+1))
-      header_names <- " "
-      for (i in 1:n_strata) {
-        header_names <- header_names %>% append(paste0("Stratum ", i, "\nn = ", summary_stats2$n[i]))
-      }
-      names(header) <- header_names %>% append(paste0("Population\n", "n = ", summary_stats2$n %>% tail(n=1)))
-
-      means_names <- stdevs_names <- NULL
-      for (i in 1:(n_strata+1)) {
-        means_names <- means_names %>% append(paste0("mean",i))
-        stdevs_names <- stdevs_names %>% append(paste0("sd",i))
-      }
-
-      temp <- summary_stats %>% add_row(tibble_row(population_summary_stats2))
-
-      means <- temp %>%
-        select(ends_with("fn1")) %>%
-        t() %>%
-        as.data.frame()
-      names(means) <- means_names
-
-      stdevs <- temp %>%
-        select(ends_with("fn2")) %>%
-        t() %>%
-        as.data.frame()
-      names(stdevs) <- stdevs_names
-
-      summary_stats3 <- data.frame(means,stdevs, row.names = NULL) %>%
-        mutate(Variable = var_names) %>%
-        select(Variable, as.vector(rbind(means_names,stdevs_names)))
-
-      summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
-                             align = "c",
-                             col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata+1))) %>%
-        kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-        add_header_above(header) %>%
-        print()
-
-      simtab_m <- population_summary_stats2 %>%
-        select(contains("fn1"))
-      names(simtab_m) <- names(simtab_m) %>% str_sub(end = -5)
-      sd_tab <- summary_stats %>%
-        select(contains("fn2")) %>%
-        add_row(tibble_row((population_summary_stats2 %>% select(contains("fn2")))))
-      names(sd_tab) <- names(sd_tab) %>% str_sub(end = -5)
-      sd_tab <- sd_tab %>%
-        mutate(clusterID = summary_stats2$clusterID) %>%
-        pivot_longer(-clusterID, names_to = "variable", values_to = "sd")
-      mean_tab <- summary_stats %>%
-        select(contains("fn1")) %>%
-        add_row(tibble_row((population_summary_stats2 %>% select(contains("fn1")))))
-      names(mean_tab) <- names(mean_tab) %>% str_sub(end = -5)
-      mean_tab <- mean_tab %>%
-        mutate(clusterID = summary_stats2$clusterID) %>%
-        pivot_longer(-clusterID, names_to = "variable", values_to = "mn")
-      counts_tab <- summary_stats2 %>%
-        select(clusterID, n)
-
-      heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
-        left_join(counts_tab, by = "clusterID")
-      temporary_df <- data.frame(variable = unique(heat_data$variable),
-                                 pop_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn)),
-                                 pop_sd = (heat_data %>% filter(clusterID == "Population") %>% select(sd)),
-                                 pop_n = (heat_data %>% filter(clusterID == "Population") %>% select(n))) %>%
-        mutate(pop_mean = mn,
-               pop_sd = sd,
-               pop_n = n) %>%
-        select(-mn,-sd,-n)
-      heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
-        mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
-                                     (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
-                                     TRUE ~ (mn - pop_mean)/pop_mean),
-               pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
-               ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
-        )
-
-      longer_heat_data <- heat_data %>%
-        pivot_longer(cols = c("mn", "sd"),
-                     names_to = "mn_or_sd",
-                     values_to = "values") %>%
-        mutate(values = values %>% round(1))
-
-      cluster_labels <- "Population"
-      for(i in 2:(n_strata + 1)){
-        cluster_labels[i] <- paste("Stratum", (i - 1))
-      }
-
-      heat_plot <- ggplot(data = heat_data) +
-        geom_tile(aes(x = clusterID,
-                      y = variable,
-                      fill = deviation),
-                  color = "black",
-                  width = 0.95) +
-        geom_text(aes(x = clusterID,
-                      y = ((ncol(summary_stats) + 1)/2 - 0.15),
-                      label = paste(n, "\nunits")), size = 3.4) +
-        scale_fill_gradientn(name = NULL,
-                             breaks=c(-0.5, 0, 0.5),
-                             labels = c("50% \nBelow Mean",
-                                        "Population\nMean",
-                                        "50% \nAbove Mean"),
-                             colours = c("#990000", "#CC0000",
-                                         "white", "#3D85C6",
-                                         "#0B5294"),
-                             limits = c(-0.7, 0.7)) +
-        scale_x_discrete(position = "top",
-                         expand = c(0, 0),
-                         labels = c(cluster_labels[-1], "Population")) +
-        expand_limits(y = c(0, (ncol(summary_stats) + 1)/2 + 0.1)) +
-        labs(y = NULL, x = NULL) +
-        theme(panel.background = element_blank(),
-              axis.ticks = element_blank(),
-              axis.text = element_text(size = 10, colour = "grey15"),
-              legend.key.height = unit(1, "cm"),
-              legend.text = element_text(size = 10),
-              legend.position = "right")
-
-      heat_plot_final <- heat_plot +
-        new_scale("fill") +
-        geom_label_repel(data = longer_heat_data %>% filter(mn_or_sd == "mn"),
-                         aes(x = clusterID,
-                             y = variable,
-                             label = values,
-                             fill = mn_or_sd),
-                         min.segment.length = 1,
-                         direction = "y",
-                         nudge_y = 0.05,
-                         alpha = 0.7,
-                         size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
-        geom_label_repel(data = longer_heat_data %>% filter(mn_or_sd == "sd"),
-                         aes(x = clusterID,
-                             y = variable,
-                             label = values,
-                             fill = mn_or_sd),
-                         min.segment.length = 1,
-                         direction = "y",
-                         nudge_y = -0.05,
-                         alpha = 0.7,
-                         size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
-        scale_fill_viridis(labels = c("Mean", "Standard Deviation"),
-                           begin = 0.4,
-                           end = 0.8,
-                           direction = 1,
-                           discrete = TRUE,
-                           option = "D") +
-        theme(legend.title = element_blank()) +
-        guides(fill = guide_legend(override.aes = aes(label = "")))
-
-      readline(prompt = "Press [enter] to continue:")
-
-      print(heat_plot_final)
-
-      if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
-
-        satisfied <- 1
-
-      }else{
-
-        satisfied <- 0
-
-      }
-
-    }
-
-  }else{
-    par(ask = FALSE)
-
-    ###### Checks Begin Here ######
-
-    if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
-      stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
-    }
-
-    if(!is.numeric(n_strata)){
-      stop(simpleError("The number of strata must be a number."))
-    }
-
-    if((length(n_strata) > 1)){
-      stop(simpleError("Only specify one number of strata."))
-    }
-
-    if(n_strata <= 1){
-      stop(simpleError("The number of strata must be a positive number greater than 1."))
+    ## Catch ##
+    if(is.na(n_strata) || n_strata <= 1){
+      cat(red("ERROR: The number of strata must be a single positive integer greater than 1.\n"))
+      next
     }
 
     if(n_strata%%1==0){
       n_strata <- round(n_strata)
     }
 
-    if(!is.character(variables) | (anyNA(match(variables, names(data))))){
-      stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
-    }
+  }
 
-    if(!is.character(idnum) | is.na(match(idnum, names(data)))){
-      stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
-    }
+  # here is where non-guided starts. Feed into stratify_basic
 
-    ###### Checks End Here ######
+  overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
+                 idnum = idnum, seed = 7835)
 
-    # This is where all the non-guided stuff goes
+  if(guided == TRUE){
+  cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
 
-    cat("Your chosen inference population is the '",
-        deparse(substitute(data)), "' dataset.\n", sep = "")
-    cat("\n")
+  readline(prompt = "Press [enter] to view the results")
 
-    id <- data %>% select(all_of(idnum))
-    data <- data %>% select(-all_of(idnum))
+  print(summary(overall_output))
 
-    data <- data %>%
-      select(all_of(variables))
+  if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
 
-    cat_data <- data %>%
-      select_if(is.factor)
-    cat_data_vars <- names(cat_data)
-    if(dim(cat_data)[2] >= 1){
-      cat_data_plot <- data.frame(cat_data) %>%
-        na.omit()
-      cat("Please review the descriptive statistics of your \n" %+% bold("categorical variables (factors).") %+% "Note that these will \nautomatically be converted to dummy variables for analysis.\n")
-      for(i in 1:(ncol(cat_data_plot))){
-        var_name <- cat_data_vars[i]
-        cat("\nNumber of Observations in Levels of Factor ", paste(blue$bold(var_name)), ":\n", sep = "")
-        print(table(cat_data_plot[,i]))
-        barfig <- ggplot(data = cat_data_plot, aes(x = cat_data_plot[,i])) +
-          geom_bar() +
-          theme_base() +
-          xlab(var_name) +
-          labs(title = paste("Bar Chart of", var_name))
-        print(barfig)
-        cat("\n")
-      }
-    }
+    satisfied <- 1
 
-    cont_data <- data %>%
-      select_if(negate(is.factor))
-    cont_data_vars <- names(cont_data)
-    if(dim(cont_data)[2] >= 1){
-      sumstats <- cont_data %>%
-        na.omit() %>%
-        map_df(function(x){
-          tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
-        }) %>%
-        mutate_all(round, digits = 3) %>%
-        mutate(variable = cont_data_vars) %>%
-        select(variable, everything()) %>%
-        clean_names() %>%
-        data.frame()
+  }else{
 
-      cat("Please review the descriptive statistics of your \n" %+% bold("continuous variables") %+% ".\n\n")
-      print(sumstats, row.names = FALSE)
-      for(i in 1:ncol(cont_data)){
-        cont_data_plot <- cont_data %>% data.frame()
-        suppressWarnings(
-          suppressMessages(
-            hist <- ggplot(data = cont_data_plot, aes(x = cont_data_plot[,i])) +
-              geom_histogram(bins = 30) +
-              theme_base() +
-              xlab(cont_data_vars[i]) +
-              labs(title = paste("Histogram of", cont_data_vars[i]))
-          )
-        )
-        print(hist)
-      }
-    }
-
-    cat("\n\nThis might take a little while. Please bear with us.")
-
-    if(dim(cat_data)[2] >= 1){
-      cat_data <- fastDummies::dummy_cols(cat_data, remove_first_dummy = TRUE) %>%
-        select_if(negate(is.factor))
-      data_full <- cbind(cat_data, cont_data, id) %>%
-        na.omit()
-      id <- data_full %>% select(idnum)
-      data_full <- data_full %>% select(-idnum)
-    }else{
-      data_full <- cbind(cont_data, id) %>%
-        na.omit()
-      id <- data_full %>% select(idnum)
-      data_full <- data_full %>% select(-idnum)
-    }
-
-    suppressWarnings(distance <- daisy(data_full, metric = "gower"))
-    cat("\n1: Calculated distance matrix.")
-    solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = TRUE)
-
-    x2 <- data.frame(id, data_full, clusterID = solution$clusters)
-    recruitment_lists <- list(NULL)
-
-    for(i in 1:n_strata){
-      dat3 <- x2 %>%
-        dplyr::filter(clusterID == i)
-      idvar <- dat3 %>% select(all_of(idnum))
-      dat4 <- dat3 %>% select(-c(all_of(idnum), clusterID)) %>%
-        mutate_all(as.numeric)
-
-      mu <- dat4 %>% map_dbl(mean)
-      v <- var(dat4)
-      a <- diag(v)
-
-      if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
-      cov.dat <- diag(a)
-      ma.s <- mahalanobis(dat4, mu, cov.dat)
-      final_dat4 <- data.frame(idvar, dat4, distance = ma.s, clusterID = dat3$clusterID) %>% tibble()
-      recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum, sorted by
-        # distance (so the top N schools in each data frame are the "best," etc.)
-        arrange(distance) %>%
-        mutate(rank = seq.int(nrow(final_dat4))) %>%
-        select(rank, all_of(idnum))
-    }
-
-    cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
-
-    cat("\nYou have specified ")
-    cat(bold(n_strata))
-    cat(" strata, which explain ")
-    cat(paste(bold(100 * round(solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-    cat(" of the total \nvariation in the population.")
-
-    cat("\n\nThe following table presents the mean and standard deviation \n(mean / sd) of each stratifying variable for each stratum. \nThe bottom row, 'Population,' presents the average values for \nthe entire inference population. The last column, 'n,' lists the \ntotal number of units in the inference population that fall \nwithin each stratum.\n\n")
-
-    x2 <- data.frame(id, data_full, clusterID = solution$clusters) %>% tibble()
-
-    population_summary_stats2 <- x2 %>% select(-c(all_of(idnum), clusterID)) %>%
-      summarise_all(list(mean, sd)) %>%
-      mutate_all(round, digits = 3)
-
-    population_summary_stats <- population_summary_stats2 %>%
-      names() %>% str_sub(end = -5) %>% unique() %>%
-      lapply(function(x){
-        unite_(population_summary_stats2, x, grep(x, names(population_summary_stats2), value = TRUE),
-               sep = ' / ', remove = TRUE) %>% select(x)
-      }) %>%
-      bind_cols()
-
-    summary_stats <- x2 %>%
-      select(-all_of(idnum)) %>%
-      group_by(clusterID) %>%
-      summarize_if(is.numeric, mean) %>%
-      left_join((x2 %>% select(-all_of(idnum)) %>% group_by(clusterID) %>% summarize_if(is.numeric, sd)),
-                by = "clusterID", suffix = c("_fn1", "_fn2")) %>%
-      mutate_all(round, digits = 3)
-
-    summary_stats2 <- summary_stats %>%
-      select(-clusterID) %>%
-      names() %>%
-      str_sub(end = -5) %>%
-      unique() %>%
-      lapply(function(x){
-        unite_(summary_stats, x, grep(x, names(summary_stats), value = TRUE),
-               sep = ' / ', remove = TRUE) %>% select(x)
-      }) %>%
-      bind_cols() %>% mutate(clusterID = summary_stats$clusterID) %>%
-      select(clusterID, everything()) %>%
-      left_join((x2 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
-      mutate(clusterID = as.character(clusterID)) %>%
-      add_row(tibble_row(clusterID = "Population", population_summary_stats, n = dim(x2)[1]))
-
-    print(summary_stats2)
-
-    simtab_m <- population_summary_stats2 %>%
-      select(contains("fn1"))
-    names(simtab_m) <- names(simtab_m) %>% str_sub(end = -5)
-    sd_tab <- summary_stats %>%
-      select(contains("fn2")) %>%
-      add_row(tibble_row((population_summary_stats2 %>% select(contains("fn2")))))
-    names(sd_tab) <- names(sd_tab) %>% str_sub(end = -5)
-    sd_tab <- sd_tab %>%
-      mutate(clusterID = summary_stats2$clusterID) %>%
-      pivot_longer(-clusterID, names_to = "variable", values_to = "sd")
-    mean_tab <- summary_stats %>%
-      select(contains("fn1")) %>%
-      add_row(tibble_row((population_summary_stats2 %>% select(contains("fn1")))))
-    names(mean_tab) <- names(mean_tab) %>% str_sub(end = -5)
-    mean_tab <- mean_tab %>%
-      mutate(clusterID = summary_stats2$clusterID) %>%
-      pivot_longer(-clusterID, names_to = "variable", values_to = "mn")
-    counts_tab <- summary_stats2 %>%
-      select(clusterID, n)
-
-    heat_data <- left_join(mean_tab, sd_tab, by = c("clusterID", "variable")) %>%
-      left_join(counts_tab, by = "clusterID")
-    temporary_df <- data.frame(variable = unique(heat_data$variable),
-                               pop_mean = (heat_data %>% filter(clusterID == "Population") %>% select(mn)),
-                               pop_sd = (heat_data %>% filter(clusterID == "Population") %>% select(sd)),
-                               pop_n = (heat_data %>% filter(clusterID == "Population") %>% select(n))) %>%
-      mutate(pop_mean = mn,
-             pop_sd = sd,
-             pop_n = n) %>%
-      select(-mn,-sd,-n)
-    heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
-      mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
-                                   (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
-                                   TRUE ~ (mn - pop_mean)/pop_mean),
-             pooled_sd = sqrt(((n - 1)*(sd^2) + (pop_n - 1)*(pop_sd^2))/(n + pop_n - 2)),
-             ASMD = round(abs((mn - pop_mean)/pooled_sd),3)
-      )
-
-    cluster_labels <- "Population"
-    for(i in 2:(n_strata + 1)){
-      cluster_labels[i] <- paste("Stratum", (i - 1))
-    }
-
-    heat_plot_final <- ggplot(data = heat_data) +
-      geom_tile(aes(x = clusterID, y = variable, fill = deviation), width = 0.95) +
-      geom_text(aes(x = clusterID, y = ((ncol(summary_stats) + 1)/2 - 0.15),
-                    label = paste(n, "\nunits")), size = 3.4) +
-      geom_label(aes(x = clusterID, y = variable,
-                     label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
-                 colour = "black", alpha = 0.7,
-                 size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
-      geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
-                 linetype = "dotted",
-                 colour = "white") +
-      scale_fill_gradientn(name = NULL, breaks=c(-0.5, 0, 0.5),
-                           labels = c("50% \nBelow Mean",
-                                      "Population\nMean",
-                                      "50% \nAbove Mean"),
-                           colours = c("#990000", "#CC0000",
-                                       "white", "#3D85C6",
-                                       "#0B5294"),
-                           limits = c(-0.7, 0.7)) +
-      scale_x_discrete(position = "top", expand = c(0, 0), labels = c(cluster_labels[-1], "Population")) +
-      expand_limits(y = c(0, (ncol(summary_stats) + 1)/2 + 0.1)) +
-      labs(y = NULL, x = NULL) +
-      theme(panel.background = element_blank(),
-            axis.ticks = element_blank(),
-            axis.text = element_text(size = 10, colour = "grey15"),
-            legend.key.height = unit(1, "cm"),
-            legend.text = element_text(size = 10),
-            legend.position = "right")
-
-    print(heat_plot_final)
+    satisfied <- 0
 
   }
 
-  overall_output <- list(x2 = x2, solution = solution, n_strata = n_strata,
-                         recruitment_lists = recruitment_lists,
-                         population_summary_stats2 = population_summary_stats2,
-                         summary_stats = summary_stats,
-                         summary_stats2 = summary_stats2,
-                         heat_data = heat_data, heat_plot_final = heat_plot_final,
-                         idnum = idnum, variables = variables, dataset = data_name,
-                         strat_var_stats = sumstats)
+  }
 
   class(overall_output) <- c("generalizer_output")
 
   return(invisible(overall_output))
 
-}
+  }
 
-print.generalizer_output <- function(x,...){
-
-  cat("A stratify() object: \n")
-  cat(paste0(" - dataset used: ", x$dataset,"\n"))
-  cat(paste0(" - stratification variables included: "))
-  cat(paste0(x$variables), sep = ", ")
-  cat(paste0("\n"))
-  cat(paste0(" - no. of strata chosen: ", x$n_strata, "\n"))
-
-  invisible(x)
-}
-
-summary.generalizer_output <- function(object,...){
-  out <- object
-
-  class(out) = "summary.generalizer_output"
-  return(out)
-}
-
-print.summary.generalizer_output <- function(x,...){
-
-  cat(paste0("Summary of Stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
-  cat(paste0("Stratification Variables: "))
-  cat(paste0(x$variables), sep = ", ")
-  cat(paste0("\n"))
-  cat(paste0("Variation in population: \n \n"))
-
-  print(x$strat_var_stats)
-
-  cat(paste0("\n"))
-
-  cat(paste0("No. in population: ", bold(nrow(x$x2)),"\n"))
-  cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
-  cat(paste0("Proportion of variation in population explained by strata: "))
-  cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
-  cat("\n")
-
-
-  cat("============================================ \n")
-
-  cat("Covariate Distributions: \n \n")
-
-  print(x$heat_data %>% select(clusterID, variable, mn, sd, n, ASMD) %>% filter(clusterID != "Population"))
-
-  print(x$heat_plot_final)
-
-  invisible(x)
-}

@@ -1,8 +1,36 @@
-stratify_basic <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
+stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                            idnum = NULL, seed = 7835, verbose = TRUE){
 
   skim_variable <- skim_type <- variable <- NULL
   type <- clusterID <- n <- mn <- deviation <- NULL
+
+  if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
+    stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
+  }
+
+  if(!is.numeric(n_strata)){
+    stop(simpleError("The number of strata must be a number."))
+  }
+
+  if((length(n_strata) > 1)){
+    stop(simpleError("Only specify one number of strata."))
+  }
+
+  if(n_strata <= 1){
+    stop(simpleError("The number of strata must be a positive number greater than 1."))
+  }
+
+  if(n_strata%%1==0){
+    n_strata <- round(n_strata)
+  }
+
+  if(!is.character(variables) | (anyNA(match(variables, names(data))))){
+    stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
+  }
+
+  if(!is.character(idnum) | is.na(match(idnum, names(data)))){
+    stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
+  }
 
   # 1) Store all information given by user
 
@@ -219,6 +247,8 @@ stratify_basic <- function(data, guided = TRUE, n_strata = NULL, variables = NUL
           legend.text = element_text(size = 10),
           legend.position = "right")
 
+  # 7) Recruit proportions table
+
   recruit_table <- heat_data %>% select(clusterID, n) %>%
     distinct(clusterID, .keep_all = TRUE) %>%
     mutate(proportion = round(n/(dim(x2)[1]), digits = 3)) %>%
@@ -227,6 +257,9 @@ stratify_basic <- function(data, guided = TRUE, n_strata = NULL, variables = NUL
     data.frame() %>%
     pivot_longer(names_to = "variable", cols = c(n,proportion)) %>%
     pivot_wider(names_from = clusterID, names_prefix = "Strata_")
+
+
+  # 8) Save output
 
   overall_output <- list(x2 = x2, solution = solution, n_strata = n_strata,
                          data_omitted = data_omitted,
@@ -288,7 +321,6 @@ print.summary.generalizer_output <- function(x,...){
   cat(paste0("Proportion of variation in population explained by strata: "))
   cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
   cat("\n")
-
 
   cat("============================================ \n")
 
