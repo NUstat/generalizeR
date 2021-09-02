@@ -1,0 +1,70 @@
+---
+title: "stratification table"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(devtools)
+library(tidyverse)
+library(ggthemes)
+library(gridExtra)
+library(janitor)
+library(crayon)
+library(ggplot2)
+library(viridisLite)
+library(generalizeRdata)
+library(generalizeR)
+library(cluster)
+library(ClusterR)
+library(knitr)
+library(kableExtra)
+
+source("/Users/beatricechao/Documents/STEPP/generalizeR/R/assess_wrap.R")
+
+
+```
+
+### Summary of stratify() function
+
+Let’s say the user saves the stratification object as stratify_object 
+
+```{r cars, results = FALSE, fig.show='hide', warning = FALSE}
+
+selection_vars <- c("pct_female", "pct_black_or_african_american", "pct_free_and_reduced_lunch")
+
+inference_pop <- cc %>% 
+  filter(charter == 1) %>%
+  filter(g_10_offered == "Yes") %>% 
+  select(ncessch, all_of(selection_vars))
+
+stratify_results <- stratify(inference_pop, guided=F, n_strata = 4, variables = selection_vars,idnum = "ncessch")
+
+```
+
+We want to make sure that they are able to call up their object again to see the summary of their output again. Currently, when you print "stratify_results", you get all the information stored as lists within the stratify_results object, which is obviously not ideal (and too long to print even here).
+
+Compare this to assess function, which gives you a summary of the choices you made in the function
+
+```{r cars3, warning = FALSE}
+sample <- tibble(ncessch = c(stratify_results$recruitment_lists[[1]]$ncessch[1:20],
+                             stratify_results$recruitment_lists[[2]]$ncessch[1:4],
+                             stratify_results$recruitment_lists[[3]]$ncessch[1:6],
+                             stratify_results$recruitment_lists[[4]]$ncessch[1:11]))
+
+gen_results <- assess_wrap(sample,inference_pop,join_var = "ncessch")
+
+gen_results
+
+```
+
+When you do summary(gen_results) [as you would do summary(lm), when trying to fit a linear model], it gives the following 
+
+
+```{r cars4, warning = FALSE}
+
+summary(gen_results)
+
+```
+
+
