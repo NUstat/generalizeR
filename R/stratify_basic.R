@@ -72,6 +72,8 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     cbind(cat_data) %>%
     clean_names()
 
+  variables <- data_full %>% names()
+
   # 3) Save summaries of variables in dataset
   pop_stats <- data_full %>%
     map_df(function(x){
