@@ -55,6 +55,12 @@
 #' }
 #' @md
 
+
+
+
+# Helper functions ------------------------------------------------------
+
+## Should this be stored in a different R file? I think that would be preferable,
 select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, title = NULL,
                         graphics = getOption("menu.graphics")){
 
@@ -116,6 +122,30 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
   }
 }
 
+make_var_overview <- function(dataset, print_to_console = FALSE){
+
+  vars <- dataset %>% names()
+  type <- dataset %>% sapply(class)
+  num_levels <- dataset %>% sapply(nlevels)
+
+  var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
+  rownames(var_overview) <- NULL
+  colnames(var_overview) <- c("Variable", "Type", "Levels")
+
+  var_overview %>%
+    kbl(caption = "Variable Overview",
+        align = "l") %>%
+    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    print()
+
+  if(print_to_console == TRUE){
+    print(var_overview, row.names = FALSE)
+  }
+}
+
+
+# Stratify function -------------------------------------------------------
+
 stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                      idnum = NULL, seed = 7835, verbose = TRUE){
 
@@ -125,13 +155,18 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
-  # This is the guided part of the function.
+
+# Here begins the guided wrapper for the function -------------------------
+
   if(guided == TRUE){
 
     ## Check ##
     if(!is.null(n_strata) | !is.null(variables) | !is.null(idnum)){
       stop(simpleError("Don't specify n_strata, variables, or idnum as arguments if you are running the guided version of this function."))
     }
+
+
+# 1) Introduction: instructions to store object ---------------------------
 
     cat(bold("\nWelcome to stratify! \n"))
 
@@ -150,6 +185,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat("\n")
     cat("\n")
 
+
+# 2) Selection of idnum ---------------------------------------------------
+
     is_valid_variable_name <- FALSE
 
     while(is_valid_variable_name == FALSE) {
@@ -165,33 +203,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
     variables_are_correct <- 0
+
+
+# 3) Selection of variables (for stratification) -----------------------------------------
+
     data_guided <- data %>% select(-all_of(idnum))
-
-
-# this is a helper function that should be moved --------------------------
-
-    make_var_overview <- function(dataset, print_to_console = FALSE){
-
-      vars <- dataset %>% names()
-      type <- dataset %>% sapply(class)
-      num_levels <- dataset %>% sapply(nlevels)
-
-      var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
-      rownames(var_overview) <- NULL
-      colnames(var_overview) <- c("Variable", "Type", "Levels")
-
-      var_overview %>%
-        kbl(caption = "Variable Overview",
-            align = "l") %>%
-        kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-        print()
-
-      if(print_to_console == TRUE){
-        print(var_overview, row.names = FALSE)
-      }
-    }
-
-# end of helper function --------------------------------------------------
 
     make_var_overview(data_guided)
 
@@ -214,6 +230,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         next
       }
 
+      ## Check to see there are no cat vars with > 4 factors ##
       factor_levels_over_4 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 4L) %>%
         which() %>% names()
 
@@ -245,8 +262,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
 
-# we don't still need the cat data section right? because they  --------
-# would have been converted to factors?
+# 4) Overview of categorical variables ------------------------------------
+## NOTE: These cat variables get converted into factors anyway
 
     cat_data <- data_subset %>% select_if(is.factor)
     cat_data_vars <- names(cat_data)
@@ -291,7 +308,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
 
-# end of cat data ---------------------------------------------------------
+
+# 5) Overview of cont data ------------------------------------------------
 
     cont_data <- data_subset %>%
       select_if(negate(is.factor))
@@ -340,6 +358,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     par(ask = FALSE)
 
 
+# 6) Selection of no. of strata -------------------------------------------
+
     cat("\nStratification will help you develop a recruitment plan so that your study will \nresult in an unbiased estimate of the ", bold("average treatment effect (ATE)"), ". Without \nusing strata, it is easy to end up with a sample that is very different from your \ninference population. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within \neach stratum are almost identical in terms of relevant variables.\n\n", sep = "")
 
     cat("Enter the number of strata in which you wish to divide your population. Typically, ",
@@ -362,30 +382,42 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     if(n_strata%%1==0){
       n_strata <- round(n_strata)
     }
-
   }
 
-  # here is where non-guided starts. Feed into stratify_basic
+  # here is where guided_loop ENDS.
 
+
+# 7) Stratify_basic call  -------------------------------------------------
+
+
+  if(verbose == TRUE){
   overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
-                 idnum = idnum, seed = 7835)
+                 idnum = idnum, seed = 7835, verbose = TRUE)
+  }else{
+    overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
+                                     idnum = idnum, seed = 7835, verbose = FALSE)
+  }
+
+
+# 8) Final message for guided version -------------------------------------
 
   if(guided == TRUE){
   cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
+  cat("You can pull up the results anytime by passing your stratify_object into summary().\n\n")
 
   readline(prompt = "Press [enter] to view the results")
 
   print(summary(overall_output))
 
-  if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
-
-    satisfied <- 1
-
-  }else{
-
-    satisfied <- 0
-
-  }
+  # if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
+  #
+  #   satisfied <- 1
+  #
+  # }else{
+  #
+  #   satisfied <- 0
+  #
+  # }
 
   }
 

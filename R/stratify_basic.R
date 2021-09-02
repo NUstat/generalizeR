@@ -39,7 +39,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   data <- data %>% select(all_of(variables), all_of(idnum)) # subset data to relevant columns only
   data_full <- data #store a full version of the dataset
   data <- data %>% na.omit() #subset strat data to only covariates
-  data_omitted <- data_full %>% anti_join(data) #save dropped observations
+  data_omitted <- data_full %>% anti_join(data, by = all_of(idnum)) #save dropped observations
   id <- data %>% select(all_of(idnum)) #extract id variable
   data <- data %>% select(all_of(variables))
 
@@ -129,7 +129,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   # 6) Save full dataset and heat data
 
-  x2 <- x2 %>% left_join(all_lists)
+  x2 <- x2 %>% left_join(all_lists, by = all_of(idnum))
 
   population_summary_stats2 <- x2 %>% select(all_of(variables)) %>%
     summarise_all(list(mean, sd)) %>%
