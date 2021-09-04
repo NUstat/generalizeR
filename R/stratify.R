@@ -204,25 +204,24 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     variables_are_correct <- 0
 
+    id <- data %>% select(all_of(idnum))
 
     # 3) Selection of variables (for stratification) -----------------------------------------
 
-    data_guided <- data %>% select(-all_of(idnum))
-
-    make_var_overview(data_guided)
+    make_var_overview(data %>% select(-all_of(idnum)))
 
     while(variables_are_correct != 1){
       cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables). ",
           yellow$bold("Please note that any character \nvariables that may have been present in your dataset have been \nautomatically converted to factor variables.\n"),
           sep = "")
 
-      names <- names(data_guided)
+      names <- names(data %>% select(-all_of(idnum)))
       variables <- select.list_CUSTOMIZED(choices = names,
                                           title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
                                           graphics = FALSE, multiple = TRUE)
 
       if(length(variables) >= 2L){
-        data_subset <- data_guided %>% select(all_of(variables))
+        data_subset <- data %>% select(all_of(variables))
       }
       else{
         ## Check ##
@@ -262,6 +261,28 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
 
+# 3b) Let user know of omitted variables ----------------------------------
+
+    missing_obs_table <- data.frame(id, data_subset) %>%
+      tibble() %>%
+      filter(if_any(everything(), is.na)) %>%
+      summarise_all(funs(sum(is.na(.)))) %>%
+      pivot_longer(names_to = "variable", cols = everything(), values_to = "n_missing")
+
+    n_missing <- sum(missing_obs_table$n_missing)
+
+    data_subset <- data.frame(id, data_subset) %>% na.omit() %>% select(-all_of(idnum))
+
+    cat(paste0("The following table shows how many observations are missing for the variables you have chosen. \n",
+    "These ", bold(n_missing)," observations will be dropped from the inference population before stratification.\n\n "))
+
+    print(missing_obs_table %>% as.data.frame())
+
+    cat("\n")
+    readline(prompt = "Press [enter] to proceed once you have viewed the missing observations.")
+
+
+
     # insert a section where we say:
     # no. of observations in population based on variables
     # alert them of no. of observations omitted due to missing information in those variables
@@ -272,7 +293,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat_data <- data_subset %>% select_if(is.factor)
     cat_data_vars <- names(cat_data)
     if(dim(cat_data)[2] >= 1){
-      cat_data_plot <- data.frame(cat_data) %>% na.omit()
+      cat_data_plot <- data.frame(cat_data)
       cat("Please review the descriptive statistics of your categorical variables (factors).\n",
           "Bar charts and tables for each variable will also be printed in the Plots and \nViewer panes to the right.\n", sep = "")
 
@@ -329,7 +350,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       outline_colors_cont <- turbo(n_cont_vars) %>% sample()
 
       for(i in 1:n_cont_vars){
-        cont_data_plot <- cont_data %>% na.omit() %>% data.frame()
+        cont_data_plot <- cont_data %>% data.frame()
         suppressWarnings(
           suppressMessages(
             hist <- ggplot(data = cont_data_plot, aes(x = cont_data_plot[,i])) +
@@ -346,7 +367,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
 
       sumstats <- cont_data %>%
-        na.omit() %>%
         map_df(function(x){
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
         }) %>%
