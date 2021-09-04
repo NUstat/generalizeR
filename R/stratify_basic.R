@@ -1,6 +1,8 @@
 stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                            idnum = NULL, seed = 7835, verbose = TRUE){
 
+  set.seed(seed)
+
   skim_variable <- skim_type <- variable <- NULL
   type <- strataID <- n <- mn <- deviation <- NULL
 
