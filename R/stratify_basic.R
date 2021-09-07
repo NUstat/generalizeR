@@ -4,7 +4,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   set.seed(seed)
 
   skim_variable <- skim_type <- variable <- NULL
-  type <- strataID <- n <- mn <- deviation <- NULL
+  type <- Stratum <- n <- mn <- deviation <- NULL
 
   if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
     stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
@@ -101,7 +101,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = FALSE)
   }
 
-  x2 <- data.frame(id, data_full, strataID = solution$clusters) %>%
+  x2 <- data.frame(id, data_full, Stratum = solution$clusters) %>%
     tibble()
 
   # 5) Create recruitment lists
@@ -110,9 +110,9 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   for(i in 1:n_strata){
     dat3 <- x2 %>%
-      dplyr::filter(strataID == i)
+      dplyr::filter(Stratum == i)
     idvar <- dat3 %>% select(all_of(idnum))
-    dat4 <- dat3 %>% select(-c(all_of(idnum), strataID)) %>%
+    dat4 <- dat3 %>% select(-c(all_of(idnum), Stratum)) %>%
       mutate_all(as.numeric)
 
     mu <- dat4 %>% map_dbl(mean)
@@ -122,7 +122,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
     cov.dat <- diag(a)
     ma.s <- mahalanobis(dat4, mu, cov.dat)
-    final_dat4 <- data.frame(idvar, dat4, distance = ma.s, strataID = dat3$strataID) %>% tibble()
+    final_dat4 <- data.frame(idvar, dat4, distance = ma.s, Stratum = dat3$Stratum) %>% tibble()
     recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum, sorted by
       # distance (so the top N schools in each data frame are the "best," etc.)
       arrange(distance) %>%
@@ -135,8 +135,8 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   # 6) Save full dataset and heat data
 
   x2 <- x2 %>% left_join(all_lists, by = all_of(idnum)) %>%
-    select(strataID, rank, everything()) %>%
-    arrange(strataID, rank)
+    select(Stratum, rank, everything()) %>%
+    arrange(Stratum, rank)
 
   population_summary_stats2 <- x2 %>% select(all_of(variables)) %>%
     summarise_all(list(mean, sd)) %>%
@@ -151,15 +151,15 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     bind_cols()
 
   summary_stats <- x2 %>%
-    select(all_of(variables), strataID) %>%
-    group_by(strataID) %>%
+    select(all_of(variables), Stratum) %>%
+    group_by(Stratum) %>%
     summarize_if(is.numeric, mean) %>%
-    left_join((x2 %>% select(all_of(variables), strataID) %>% group_by(strataID) %>% summarize_if(is.numeric, sd)),
-              by = "strataID", suffix = c("_fn1", "_fn2")) %>%
+    left_join((x2 %>% select(all_of(variables), Stratum) %>% group_by(Stratum) %>% summarize_if(is.numeric, sd)),
+              by = "Stratum", suffix = c("_fn1", "_fn2")) %>%
     mutate_all(round, digits = 3)
 
   summary_stats2 <- summary_stats %>%
-    select(-strataID) %>%
+    select(-Stratum) %>%
     names() %>%
     str_sub(end = -5) %>%
     unique() %>%
@@ -167,11 +167,11 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
       unite_(summary_stats, x, grep(x, names(summary_stats), value = TRUE),
              sep = ' / ', remove = TRUE) %>% select(x)
     }) %>%
-    bind_cols() %>% mutate(strataID = summary_stats$strataID) %>%
-    select(strataID, everything()) %>%
-    left_join((x2 %>% group_by(strataID) %>% count()), by = "strataID") %>%
-    mutate(strataID = as.character(strataID)) %>%
-    add_row(tibble_row(strataID = "Population", population_summary_stats, n = dim(x2)[1]))
+    bind_cols() %>% mutate(Stratum = summary_stats$Stratum) %>%
+    select(Stratum, everything()) %>%
+    left_join((x2 %>% group_by(Stratum) %>% count()), by = "Stratum") %>%
+    mutate(Stratum = as.character(Stratum)) %>%
+    add_row(tibble_row(Stratum = "Population", population_summary_stats, n = dim(x2)[1]))
 
   simtab_m <- population_summary_stats2 %>%
     select(contains("fn1"))
@@ -181,27 +181,27 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     add_row(tibble_row((population_summary_stats2 %>% select(contains("fn2")))))
   names(sd_tab) <- names(sd_tab) %>% str_sub(end = -5)
   sd_tab <- sd_tab %>%
-    mutate(strataID = summary_stats2$strataID) %>%
-    pivot_longer(-strataID, names_to = "variable", values_to = "sd")
+    mutate(Stratum = summary_stats2$Stratum) %>%
+    pivot_longer(-Stratum, names_to = "variable", values_to = "sd")
   mean_tab <- summary_stats %>%
     select(contains("fn1")) %>%
     add_row(tibble_row((population_summary_stats2 %>% select(contains("fn1")))))
   names(mean_tab) <- names(mean_tab) %>% str_sub(end = -5)
   mean_tab <- mean_tab %>%
-    mutate(strataID = summary_stats2$strataID) %>%
-    pivot_longer(-strataID, names_to = "variable", values_to = "mn")
+    mutate(Stratum = summary_stats2$Stratum) %>%
+    pivot_longer(-Stratum, names_to = "variable", values_to = "mn")
   counts_tab <- summary_stats2 %>%
-    select(strataID, n)
+    select(Stratum, n)
 
-  heat_data <- left_join(mean_tab, sd_tab, by = c("strataID", "variable")) %>%
+  heat_data <- left_join(mean_tab, sd_tab, by = c("Stratum", "variable")) %>%
     filter(variable != "rank")
 
   heat_data <- heat_data %>%
-    left_join(counts_tab, by = "strataID")
+    left_join(counts_tab, by = "Stratum")
   temporary_df <- data.frame(variable = unique(heat_data$variable),
-                             pop_mean = (heat_data %>% filter(strataID == "Population") %>% select(mn)),
-                             pop_sd = (heat_data %>% filter(strataID == "Population") %>% select(sd)),
-                             pop_n = (heat_data %>% filter(strataID == "Population") %>% select(n))) %>%
+                             pop_mean = (heat_data %>% filter(Stratum == "Population") %>% select(mn)),
+                             pop_sd = (heat_data %>% filter(Stratum == "Population") %>% select(sd)),
+                             pop_n = (heat_data %>% filter(Stratum == "Population") %>% select(n))) %>%
     mutate(pop_mean = mn,
            pop_sd = sd,
            pop_n = n) %>%
@@ -212,9 +212,9 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                                  TRUE ~ (mn - pop_mean)/pop_mean)
     )
 
-  heat_data_simple <- heat_data %>% select(strataID, variable, mn, sd) %>%
-    filter(strataID != "Population") %>%
-    pivot_wider(names_from = strataID, values_from = c(mn, sd), names_glue = "{strataID}_{.value}")
+  heat_data_simple <- heat_data %>% select(Stratum, variable, mn, sd) %>%
+    filter(Stratum != "Population") %>%
+    pivot_wider(names_from = Stratum, values_from = c(mn, sd), names_glue = "{Stratum}_{.value}")
 
   heat_data_simple <- heat_data_simple %>%
     select(order(colnames(heat_data_simple))) %>%
@@ -226,10 +226,10 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   }
 
   heat_plot_final <- ggplot(data = heat_data) +
-    geom_tile(aes(x = strataID, y = variable, fill = deviation), width = 0.95) +
-    geom_text(aes(x = strataID, y = ((ncol(summary_stats) + 1)/2 - 0.15),
+    geom_tile(aes(x = Stratum, y = variable, fill = deviation), width = 0.95) +
+    geom_text(aes(x = Stratum, y = ((ncol(summary_stats) + 1)/2 - 0.15),
                   label = paste(n, "\nunits")), size = 3.4) +
-    geom_label(aes(x = strataID, y = variable,
+    geom_label(aes(x = Stratum, y = variable,
                    label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
                colour = "black", alpha = 0.7,
                size = ifelse((length(levels(heat_data$variable %>% factor())) + 1) > 7, 2, 3.5)) +
@@ -256,14 +256,14 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   # 7) Recruit proportions table
 
-  recruit_table <- heat_data %>% select(strataID, n) %>%
-    distinct(strataID, .keep_all = TRUE) %>%
+  recruit_table <- heat_data %>% select(Stratum, n) %>%
+    distinct(Stratum, .keep_all = TRUE) %>%
     mutate(proportion = round(n/(dim(x2)[1]), digits = 3)) %>%
-    filter(strataID != "Population") %>%
-    select(strataID, n, proportion) %>%
+    filter(Stratum != "Population") %>%
+    select(Stratum, n, proportion) %>%
     data.frame() %>%
     pivot_longer(names_to = "variable", cols = c(n,proportion)) %>%
-    pivot_wider(names_from = strataID, names_prefix = "Strata_")
+    pivot_wider(names_from = Stratum, names_prefix = "Strata_")
 
 
   # 8) Save output
