@@ -276,7 +276,14 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat(paste0("The following table shows how many observations are missing for the variables you have chosen. \n",
     "These ", bold(n_missing)," observations will be dropped from the inference population before stratification.\n\n "))
 
-    print(missing_obs_table %>% as.data.frame())
+    missing_obs_table %>%
+      kbl(caption = "Missing Observations by Variable",
+          align = "l",
+          col.names = c("Variable", "Number Missing")) %>%
+      kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+      print()
+
+    missing_obs_table %>% print()
 
     cat("\n")
     readline(prompt = "Press [enter] to proceed once you have viewed the missing observations.")
