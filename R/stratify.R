@@ -264,10 +264,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 # 3b) Let user know of omitted variables ----------------------------------
 
     missing_obs_table <- data.frame(id, data_subset) %>%
-      tibble() %>%
-      filter(if_any(everything(), is.na)) %>%
-      summarise_all(funs(sum(is.na(.)))) %>%
-      pivot_longer(names_to = "variable", cols = everything(), values_to = "n_missing")
+      sapply(function(x) sum(is.na(x))) %>%
+      as.data.frame() %>%
+      `colnames<-`("n_missing") %>%
+      rownames_to_column("variable")
 
     n_missing <- sum(missing_obs_table$n_missing)
 
