@@ -116,7 +116,7 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
   }
 }
 
-stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
+old_stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                      idnum = NULL, seed = 7835){
 
   skim_variable <- skim_type <- variable <- NULL
