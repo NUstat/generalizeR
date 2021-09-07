@@ -261,7 +261,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
 
 
-# 3b) Let user know of omitted variables ----------------------------------
+# 3b) Let user know about missing observations ----------------------------------
 
     missing_obs_table <- data.frame(id, data_subset) %>%
       sapply(function(x) sum(is.na(x))) %>%
