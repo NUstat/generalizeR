@@ -75,7 +75,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     cbind(cat_data) %>%
     clean_names()
 
-  variables <- data_full %>% names()
+  var_names <- data_full %>% names()
 
   # 3) Save summaries of variables in dataset
   pop_stats <- data_full %>%
@@ -138,7 +138,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     select(Stratum, rank, everything()) %>%
     arrange(Stratum, rank)
 
-  population_summary_stats2 <- x2 %>% select(all_of(variables)) %>%
+  population_summary_stats2 <- x2 %>% select(all_of(var_names)) %>%
     summarise_all(list(mean, sd)) %>%
     mutate_all(round, digits = 3)
 
@@ -151,10 +151,10 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     bind_cols()
 
   summary_stats <- x2 %>%
-    select(all_of(variables), Stratum) %>%
+    select(all_of(var_names), Stratum) %>%
     group_by(Stratum) %>%
     summarize_if(is.numeric, mean) %>%
-    left_join((x2 %>% select(all_of(variables), Stratum) %>% group_by(Stratum) %>% summarize_if(is.numeric, sd)),
+    left_join((x2 %>% select(all_of(var_names), Stratum) %>% group_by(Stratum) %>% summarize_if(is.numeric, sd)),
               by = "Stratum", suffix = c("_fn1", "_fn2")) %>%
     mutate_all(round, digits = 3)
 
@@ -269,7 +269,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   # 8) Save output
 
   overall_output <- list(idnum = idnum,
-                         variables = variables,
+                         variables = var_names,
                          dataset = data_name,
                          n_strata = n_strata,
                          solution = solution,
