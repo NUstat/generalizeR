@@ -400,7 +400,7 @@ print.summary.generalizer_output <- function(x,...){
 
   cat(paste0("\n"))
 
-  cat(paste0("No. in population: ", bold(nrow(x$x2)),"\n"))
+  cat(paste0("No. in population: ", bold(nrow(x$recruit_data)),"\n"))
   cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
   cat(paste0("Proportion of variation in population explained by strata: "))
   cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
