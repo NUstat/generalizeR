@@ -428,15 +428,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   # 7) Stratify_basic call  -------------------------------------------------
 
-
-  if(verbose == TRUE){
     overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
-                                     idnum = idnum, seed = 7835, verbose = TRUE)
-  }else{
-    overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
-                                     idnum = idnum, seed = 7835, verbose = FALSE)
-  }
-
+                                     idnum = idnum, seed = 7835, verbose = verbose)
 
   # 8) Final message for guided version -------------------------------------
 
