@@ -221,6 +221,19 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     select(Variable, everything())
 
   cluster_labels <- "Population"
+  header <- c(1, rep(2, n_strata+1))
+  header_names <- " "
+  for (i in 1:n_strata) {
+    header_names <- header_names %>% append(paste0("Stratum ", i, "\nn = ", counts_tab$n[i]))
+  }
+  names(header) <- header_names %>% append(paste0("Population\n", "n = ", counts_tab$n %>% tail(n=1)))
+
+  heat_data_kable <- heat_data_simple %>% kbl(caption = "Summary Statistics by Strata and Variable",
+                         align = "c",
+                         col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata+1))) %>%
+    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    add_header_above(header)
+
   for(i in 2:(n_strata + 1)){
     cluster_labels[i] <- paste("Stratum", (i - 1))
   }
@@ -278,6 +291,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                          data_omitted = data_omitted,
                          pop_stats = pop_stats,
                          heat_data = heat_data_simple,
+                         heat_data_kable = heat_data_kable,
                          heat_plot_final = heat_plot_final
   )
 
@@ -336,6 +350,8 @@ print.summary.generalizer_output <- function(x,...){
   cat("Covariate Distributions: \n \n")
 
   print(x$heat_data %>% as.data.frame())
+
+  x$heat_data_kable %>% print()
 
   print(x$heat_plot_final)
 
