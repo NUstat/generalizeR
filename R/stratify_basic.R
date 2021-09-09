@@ -410,11 +410,11 @@ print.summary.generalizer_output <- function(x,...){
 
   cat("Covariate Distributions: \n \n")
 
-  print(x$heat_data %>% as.data.frame())
+  x$heat_data %>% print()
 
   x$heat_data_kable %>% print()
 
-  print(x$heat_plot_final)
+  x$heat_plot_final %>% print()
 
   cat("============================================ \n")
   cat(paste0("Recruitment plan: \n \n"))
