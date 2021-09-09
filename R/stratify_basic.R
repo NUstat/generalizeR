@@ -420,7 +420,7 @@ print.summary.generalizer_output <- function(x,...){
   cat(paste0("Recruitment plan: \n \n"))
   cat(paste0("A recruitment list has been generated. It can be accessed at $recruit_data.\n"))
   cat(paste0("To export it, run ", bold("'write.csv(x$recruit_data)'"),", where x is the name of your stratify_object.\n"))
-  cat(paste0("\nEach unit is ranked in ranked in order of desirability. \n"))
+  cat(paste0("\nEach unit is ranked in order of desirability. \n"))
   cat(paste0("Ideally, units should be recruited across strata according to the proportions below.\n"))
   cat(paste0("Doing so leads to the least bias and no increase in standard errors.\n\n"))
   print(x$recruit_table %>% as.data.frame())
