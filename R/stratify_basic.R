@@ -182,23 +182,23 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   names(sd_tab) <- names(sd_tab) %>% str_sub(end = -5)
   sd_tab <- sd_tab %>%
     mutate(Stratum = summary_stats2$Stratum) %>%
-    pivot_longer(-Stratum, names_to = "variable", values_to = "sd")
+    pivot_longer(-Stratum, names_to = "Variable", values_to = "sd")
   mean_tab <- summary_stats %>%
     select(contains("fn1")) %>%
     add_row(tibble_row((population_summary_stats2 %>% select(contains("fn1")))))
   names(mean_tab) <- names(mean_tab) %>% str_sub(end = -5)
   mean_tab <- mean_tab %>%
     mutate(Stratum = summary_stats2$Stratum) %>%
-    pivot_longer(-Stratum, names_to = "variable", values_to = "mn")
+    pivot_longer(-Stratum, names_to = "Variable", values_to = "mn")
   counts_tab <- summary_stats2 %>%
     select(Stratum, n)
 
-  heat_data <- left_join(mean_tab, sd_tab, by = c("Stratum", "variable")) %>%
-    filter(variable != "rank")
+  heat_data <- left_join(mean_tab, sd_tab, by = c("Stratum", "Variable")) %>%
+    filter(Variable != "rank")
 
   heat_data <- heat_data %>%
     left_join(counts_tab, by = "Stratum")
-  temporary_df <- data.frame(variable = unique(heat_data$variable),
+  temporary_df <- data.frame(Variable = unique(heat_data$Variable),
                              pop_mean = (heat_data %>% filter(Stratum == "Population") %>% select(mn)),
                              pop_sd = (heat_data %>% filter(Stratum == "Population") %>% select(sd)),
                              pop_n = (heat_data %>% filter(Stratum == "Population") %>% select(n))) %>%
@@ -206,19 +206,19 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
            pop_sd = sd,
            pop_n = n) %>%
     select(-mn,-sd,-n)
-  heat_data <- heat_data %>% left_join(temporary_df, by = "variable") %>%
+
+  heat_data <- heat_data %>% left_join(temporary_df, by = "Variable") %>%
     mutate(deviation = case_when((mn - pop_mean)/pop_mean >= 0.7 ~ 0.7,
                                  (mn - pop_mean)/pop_mean <= -0.7 ~ -0.7,
                                  TRUE ~ (mn - pop_mean)/pop_mean)
     )
 
-  heat_data_simple <- heat_data %>% select(Stratum, variable, mn, sd) %>%
-    filter(Stratum != "Population") %>%
+  heat_data_simple <- heat_data %>% select(Stratum, Variable, mn, sd) %>%
     pivot_wider(names_from = Stratum, values_from = c(mn, sd), names_glue = "{Stratum}_{.value}")
 
   heat_data_simple <- heat_data_simple %>%
     select(order(colnames(heat_data_simple))) %>%
-    select(variable, everything())
+    select(Variable, everything())
 
   cluster_labels <- "Population"
   for(i in 2:(n_strata + 1)){
@@ -262,7 +262,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     filter(Stratum != "Population") %>%
     select(Stratum, n, proportion) %>%
     data.frame() %>%
-    pivot_longer(names_to = "variable", cols = c(n,proportion)) %>%
+    pivot_longer(names_to = "Variable", cols = c(n,proportion)) %>%
     pivot_wider(names_from = Stratum, names_prefix = "Strata_")
 
 
