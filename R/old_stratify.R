@@ -454,29 +454,6 @@ old_stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       summary_stats2 %>% print()
 
-      # means <- summary_stats %>% select(ends_with("fn1")) %>% names()
-      # stdevs <- summary_stats %>% select(ends_with("fn2")) %>% names()
-      #
-      # summary_stats3 <- summary_stats %>%
-      #   left_join((x3 %>% group_by(clusterID) %>% count()), by = "clusterID") %>%
-      #   mutate(clusterID = as.character(clusterID)) %>%
-      #   add_row(tibble_row(clusterID = "Population", population_summary_stats2, n = dim(x2)[1])) %>%
-      #   select(clusterID, as.vector(rbind(means,stdevs)), n)
-      #   data.frame()
-      #
-      # var_names <- data_full %>% names()
-      # var_length <- var_names %>% length()
-      # header_names <- c(" ", var_names, " ")
-      # header <- c(1, rep(2, var_length), 1)
-      # names(header) <- header_names
-      #
-      # summary_stats3 %>% kbl(caption = "Summary Statistics by Strata and Variable",
-      #                        align = "l",
-      #                        col.names = c("clusterID", rep(c("mean", "sd"), var_length), "n")) %>%
-      #   kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-      #   add_header_above(header) %>%
-      #   print()
-
       var_names <- data_full %>% names()
       header <- c(1, rep(2, n_strata+1))
       header_names <- " "
