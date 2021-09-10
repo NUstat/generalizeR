@@ -59,7 +59,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                      idnum = NULL, seed = 7835, verbose = TRUE){
 
   skim_variable <- skim_type <- variable <- NULL
-  type <- clusterID <- n <- mn <- deviation <- NULL
+  type <- Stratum <- n <- mn <- deviation <- NULL
   data_name <- deparse(substitute(data))
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
