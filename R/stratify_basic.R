@@ -392,7 +392,7 @@ print.summary.generalizer_output <- function(x,...){
 
   cat("Covariate Distributions: \n \n")
 
-  x$heat_data %>% print()
+  x$heat_data %>% as.data.frame() %>% print()
 
   x$heat_data_kable %>% print()
 
@@ -406,6 +406,8 @@ print.summary.generalizer_output <- function(x,...){
   cat(paste0("Ideally, units should be recruited across strata according to the proportions below.\n"))
   cat(paste0("Doing so leads to the least bias and no increase in standard errors.\n\n"))
   print(x$recruit_table %>% as.data.frame())
+
+  x$recruit_table %>% as.data.frame() %>% print()
 
   x$recruit_kable %>% print()
 
