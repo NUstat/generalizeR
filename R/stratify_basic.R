@@ -300,35 +300,6 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     theme(legend.title = element_blank()) +
     guides(fill = guide_legend(override.aes = aes(label = "")))
 
-  # heat_plot_final <- ggplot(data = heat_data) +
-  #   geom_tile(aes(x = Stratum, y = Variable, fill = deviation), width = 0.95) +
-  #   geom_text(aes(x = Stratum, y = ((ncol(summary_stats) + 1)/2 - 0.15),
-  #                 label = paste(n, "\nunits")), size = 3.4) +
-  #   geom_label(aes(x = Stratum, y = Variable,
-  #                  label = paste0(round(mn, 1), "\n(", round(sd, 1), ")")),
-  #              colour = "black", alpha = 0.7,
-  #              size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)) +
-  #   geom_hline(yintercept = seq(1.5, (ncol(summary_stats) - 1), 1),
-  #              linetype = "dotted",
-  #              colour = "white") +
-  #   scale_fill_gradientn(name = NULL, breaks=c(-0.5, 0, 0.5),
-  #                        labels = c("50% \nBelow Mean",
-  #                                   "Population\nMean",
-  #                                   "50% \nAbove Mean"),
-  #                        colours = c("#990000", "#CC0000",
-  #                                    "white", "#3D85C6",
-  #                                    "#0B5294"),
-  #                        limits = c(-0.7, 0.7)) +
-  #   scale_x_discrete(position = "top", expand = c(0, 0), labels = c(cluster_labels[-1], "Population")) +
-  #   expand_limits(y = c(0, (ncol(summary_stats) + 1)/2 + 0.1)) +
-  #   labs(y = NULL, x = NULL) +
-  #   theme(panel.background = element_blank(),
-  #         axis.ticks = element_blank(),
-  #         axis.text = element_text(size = 10, colour = "grey15"),
-  #         legend.key.height = unit(1, "cm"),
-  #         legend.text = element_text(size = 10),
-  #         legend.position = "right")
-
   # 7) Recruit proportions table
 
   recruit_table <- heat_data %>% select(Stratum, n) %>%
