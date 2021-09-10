@@ -227,10 +227,11 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   }
   names(header) <- header_names %>% append(paste0("Population\n", "n = ", counts_tab$n %>% tail(n=1)))
 
-  heat_data_kable <- heat_data_simple %>% kbl(caption = "Summary Statistics by Strata and Variable",
-                         align = "c",
-                         col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata+1))) %>%
-    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+  heat_data_kable <- heat_data_simple %>% kbl(caption = "Summary Statistics by Stratum and Variable",
+                                              align = "c",
+                                              col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata+1))) %>%
+    kable_styling(c("striped", "hover"),
+                  fixed_thead = TRUE) %>%
     add_header_above(header)
 
   stratum_labels <- "Population"
