@@ -312,6 +312,14 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     pivot_longer(names_to = "Variable", cols = c(Count, Proportion)) %>%
     pivot_wider(names_from = Stratum, names_prefix = "Stratum ")
 
+  recruit_header <- c(1, n_strata)
+  names(recruit_header) <- c(" ", "Stratum")
+
+  recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
+                                         align = "c",
+                                         col.names = c("Variable", 1:n_strata)) %>%
+    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    add_header_above(recruit_header)
 
   # 8) Save output
 
@@ -322,6 +330,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                          solution = solution,
                          recruit_data = x2,
                          recruit_table = recruit_table,
+                         recruit_kable = recruit_kable,
                          data_omitted = data_omitted,
                          pop_stats = pop_stats,
                          heat_data = heat_data_simple,
@@ -397,6 +406,8 @@ print.summary.generalizer_output <- function(x,...){
   cat(paste0("Ideally, units should be recruited across strata according to the proportions below.\n"))
   cat(paste0("Doing so leads to the least bias and no increase in standard errors.\n\n"))
   print(x$recruit_table %>% as.data.frame())
+
+  x$recruit_kable %>% print()
 
 
   invisible(x)
