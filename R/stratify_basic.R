@@ -307,9 +307,10 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     mutate(proportion = round(n/(dim(x2)[1]), digits = 3)) %>%
     filter(Stratum != "Population") %>%
     select(Stratum, n, proportion) %>%
+    rename(Count = n, Proportion = proportion) %>%
     data.frame() %>%
-    pivot_longer(names_to = "Variable", cols = c(n,proportion)) %>%
-    pivot_wider(names_from = Stratum, names_prefix = "Strata_")
+    pivot_longer(names_to = "Variable", cols = c(Count, Proportion)) %>%
+    pivot_wider(names_from = Stratum, names_prefix = "Stratum ")
 
 
   # 8) Save output
