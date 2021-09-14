@@ -147,7 +147,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     names() %>% str_sub(end = -5) %>% unique() %>%
     lapply(function(x){
       unite_(population_summary_stats2, x, grep(x, names(population_summary_stats2), value = TRUE),
-             sep = ' / ', remove = TRUE) %>% select(x)
+             sep = ' / ', remove = TRUE) %>% select(all_of(x))
     }) %>%
     bind_cols()
 
@@ -166,7 +166,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     unique() %>%
     lapply(function(x){
       unite_(summary_stats, x, grep(x, names(summary_stats), value = TRUE),
-             sep = ' / ', remove = TRUE) %>% select(x)
+             sep = ' / ', remove = TRUE) %>% select(all_of(x))
     }) %>%
     bind_cols() %>% mutate(Stratum = summary_stats$Stratum) %>%
     select(Stratum, everything()) %>%
