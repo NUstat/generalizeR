@@ -370,7 +370,7 @@ summary.generalizer_output <- function(object,...){
 
 print.summary.generalizer_output <- function(x,...){
 
-  cat(paste0("Summary of Stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
+  cat(paste0("Summary of stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
 
   cat(paste0("Observations dropped due to missing data: ", nrow(x$data_omitted), " (see $data_omitted)\n\n"))
 
