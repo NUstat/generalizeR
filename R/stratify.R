@@ -119,15 +119,18 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     make_var_overview(data %>% select(-all_of(idnum)))
 
+    cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables). ",
+        yellow$bold("Please note that any character \nvariables that may have been present in your dataset have been \nautomatically converted to factor variables.\n"),
+        sep = "")
+
+    cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n"))
+
     while(variables_are_correct != 1){
-      cat("\nIn the Viewer pane to the right you will find a table that displays each \nvariable in your dataset along with its object type and number of levels \n(only relevant for factor variables). ",
-          yellow$bold("Please note that any character \nvariables that may have been present in your dataset have been \nautomatically converted to factor variables.\n"),
-          sep = "")
 
       names <- names(data %>% select(-all_of(idnum)))
       variables <- select.list_CUSTOMIZED(choices = names,
-                                          title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
-                                          graphics = FALSE, multiple = TRUE)
+                                          graphics = FALSE,
+                                          multiple = TRUE)
 
       data_subset <- data %>% select(all_of(variables))
 
