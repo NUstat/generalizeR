@@ -45,9 +45,10 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
     repeat {
       res <- tryCatch(scan("", what = 0, quiet = TRUE,
                            nlines = 1), error = identity)
-      if (!inherits(res, "error"))
-        break
-      cat(gettext("Invalid input, please try again.\nEnter one or more numbers separated by spaces and then ENTER, or 0 to cancel.\n"))
+      if (!inherits(res, "error") && length(res) >= 2L)
+          break
+      cat(red("ERROR: Invalid selection. You must select at least 2 stratification variables.\n"))
+      cat(gettext("Enter one or more numbers separated by spaces and then ENTER, or 0 to cancel.\n"))
     }
     if (any(res == 0))
       return(character())

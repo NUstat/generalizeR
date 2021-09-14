@@ -129,14 +129,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                                           title = cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n")),
                                           graphics = FALSE, multiple = TRUE)
 
-      if(length(variables) >= 2L){
-        data_subset <- data %>% select(all_of(variables))
-      }
-      else{
-        ## Check ##
-        cat(red("ERROR: Invalid selection. You must select at least 2 stratification variables.\n"))
-        next
-      }
+      data_subset <- data %>% select(all_of(variables))
 
       ## Check to see there are no cat vars with > 4 factors ##
       factor_levels_over_4 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 4L) %>%
