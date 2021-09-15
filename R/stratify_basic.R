@@ -305,10 +305,10 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   recruit_table <- heat_data %>% select(Stratum, n) %>%
     distinct(Stratum, .keep_all = TRUE) %>%
-    mutate(proportion = round(n/(dim(x2)[1]), digits = 3)) %>%
+    mutate(Count = n,
+           Proportion = round(n/(dim(x2)[1]), digits = 3)) %>%
     filter(Stratum != "Population") %>%
-    select(Stratum, n, proportion) %>%
-    rename(Count = n, Proportion = proportion) %>%
+    select(Stratum, Count, Proportion) %>%
     data.frame() %>%
     pivot_longer(names_to = "Variable", cols = c(Count, Proportion)) %>%
     pivot_wider(names_from = Stratum, names_prefix = "Stratum ")
