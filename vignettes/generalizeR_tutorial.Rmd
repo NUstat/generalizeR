@@ -89,36 +89,13 @@ We are greeted with the following:
 
 <img src="sec_1_ex_1_fig_1.png" width="550"/>
 
-```{r include=FALSE, eval=FALSE}
-cat(bold("If you want to store your results, make sure you assign \nthis function to an object.\n\n"))
-cat("Your chosen inference population is the '", deparse(substitute(inference_pop)), "' dataset.", sep = "")
-cat("\n")
-cat("\n")
-idnum <- readline(prompt = "Enter the name of the ID Variable in your dataset: ")
-```
+If we need to make adjustments to our inference population or if we have forgotten to store our results -- that is, to use the assignment operator `<-` to assign our results to an object (here called 'output') -- we may enter '2' to stop the function and do so. We have already taken care of both those items, however, so we enter '1' to proceed. 
 
-If the user needs to make adjustments to their inference population or if they have forgotten to store their results -- that is, to use the assignment operator `<-` to assign their results to an object (here called 'output') -- they may enter '2' to stop the function and do so. We have already taken care of both those items, however, so we enter '1' to proceed.
+The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`:
 
-The next prompt requires the user to enter the name of the ID variable they wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`:
+<img src="sec_1_ex_1_fig_2.png" width="450"/>
 
-<img src="sec_1_ex_1_fig_2.png" width="550"/>
 
-```{r include=FALSE, echo=FALSE}
-cat("If you want to adjust or restrict your inference population \n(e.g., if you are interested in only one location, etc.), \nmake sure that you have altered the data frame appropriately. \nIf you need to alter your data frame, you can exit this \nfunction, use dplyr::filter(), and \nreturn.\n")
-```
-
-The researcher has already done this, so they select 'yes'.
-
-```{r include=FALSE}
-idnum <- "ncessch"
-data <- inference_pop
-id <- data %>% select(all_of(idnum))
-data <- data %>% select(-all_of(idnum))
-```
-
-```{r echo=FALSE, include=FALSE}
-cat("\nYou're now ready to select your stratification variables. \nThe following are the variables available in your dataset.")
-```
 
 <img src="sec_1_ex_1_fig_3.png" width="700"/>
 
