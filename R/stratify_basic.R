@@ -72,8 +72,8 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     stop(paste0("The following factor variables have more than 4 levels: ",
                factor_levels_over_4,
                "\n4 is the maximum number of levels this function will allow a factor to have.",
-               "\nPlease exit out of this function (Press 'Esc') and re-code your desired factor",
-               "\nlevels from these variables as dummy variables (see the package 'fastDummies').\n"))
+               "\nPlease re-code your desired factor levels from these variables as dummy",
+               "\nvariables (see the package 'fastDummies').\n"))
   }
 
   if(dim(cat_data)[2] >= 1L) {
