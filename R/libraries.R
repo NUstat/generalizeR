@@ -9,5 +9,6 @@ library(viridis)
 library(janitor)
 library(ggrepel)
 library(ggnewscale)
+library(lazyeval)
 
 
