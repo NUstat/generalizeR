@@ -36,6 +36,8 @@ library(ggthemes)
 library(gridExtra)
 # install.packages("usmap")
 library(usmap)
+# install.packages("kableExtra")
+library(kableExtra)
 ```
 
 Soon the generalizeR package will be on CRAN and can be installed with `install.packages()`. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
@@ -95,6 +97,20 @@ The next prompt requires us to enter the name of the ID variable we wish to use.
 
 <img src="sec_1_ex_1_fig_2.png" width="450"/>
 
+```{r}
+vars <- inference_pop %>% names()
+type <- inference_pop %>% sapply(class)
+num_levels <- inference_pop %>% sapply(nlevels)
+
+var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
+rownames(var_overview) <- NULL
+colnames(var_overview) <- c("Variable", "Type", "Levels")
+
+var_overview %>%
+  kbl(caption = "Variable Overview",
+      align = "c") %>%
+  kable_styling(c("striped", "hover", "condensed"), fixed_thead = TRUE)
+```
 
 
 <img src="sec_1_ex_1_fig_3.png" width="700"/>
