@@ -114,8 +114,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       is_valid_variable_name <- TRUE
     }
 
-    variables_are_correct <- 0
-
     id <- data %>% select(all_of(idnum))
 
     # 3) Selection of variables (for stratification) -----------------------------------------
@@ -127,6 +125,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         sep = "")
 
     cat("\nYou're now ready to select your stratification variables. The following \nare the variables available in your dataset. Which key variables do you \nthink may explain variation in your treatment effect? Typically, studies \ninclude 4-6 variables for stratification.", yellow$bold("You must choose at least 2 \nvariables and you may not choose any factor variables with more than 4 \nlevels.\n"))
+
+    variables_are_correct <- 0
 
     while(variables_are_correct != 1){
 
