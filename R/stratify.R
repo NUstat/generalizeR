@@ -67,10 +67,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   # Here begins the guided wrapper for the function -------------------------
 
-  if(guided == TRUE){
+  if(guided == TRUE) {
 
     ## Check ##
-    if(!is.null(n_strata) | !is.null(variables) | !is.null(idnum)){
+    if (!is.null(n_strata) | !is.null(variables) | !is.null(idnum)) {
       stop(simpleError("Don't specify n_strata, variables, or idnum as arguments if you are running the guided version of this function."))
     }
 
@@ -83,9 +83,10 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     cat(bold("\nTo store your results, make sure you assign \nthis function to an object.\n\n"))
 
-    if(menu(choices = c("Yes", "No"), title = cat("I have assigned this function to an object and wish to proceed:")) == 1){
+    if(menu(choices = c("Yes", "No"), title = cat("I have assigned this function to an object and wish to proceed:")) == 1) {
 
-    }else{
+    }
+    else {
       stop(simpleError(blankMsg))
     }
     cat("Your chosen inference population is the '",
@@ -138,7 +139,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       factor_levels_over_4 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 4L) %>%
         which() %>% names()
 
-      if(!is_empty(factor_levels_over_4)){
+      if(!is_empty(factor_levels_over_4)) {
         cat(red("ERROR: The following factor variables have more than 4 levels:\n"),
             paste(blue$bold(factor_levels_over_4), collapse = ", "),
             red("\n4 is the maximum number of levels this function will allow a factor to have."),
@@ -154,14 +155,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       make_var_overview(data_subset, print_to_console = TRUE)
 
-      if(menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1){
-
+      if(menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
         variables_are_correct <- 1
-
-      }else{
-
+      }
+      else {
         variables_are_correct <- 0
-
       }
     }
 
@@ -204,7 +202,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     cat_data <- data_subset %>% select_if(is.factor)
     cat_data_vars <- names(cat_data)
-    if(dim(cat_data)[2] >= 1){
+    if(dim(cat_data)[2] >= 1) {
       cat_data_plot <- data.frame(cat_data)
       cat("Please review the descriptive statistics of your categorical variables (factors).\n",
           "Bar charts and tables for each variable will also be printed in the Plots and \nViewer panes to the right.\n", sep = "")
@@ -214,7 +212,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         sample()
       outline_colors_cat <- turbo(n_cat_vars) %>% sample()
 
-      for(i in 1:n_cat_vars){
+      for(i in 1:n_cat_vars) {
         var_name <- cat_data_vars[i]
         levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
         barfig <- cat_data_plot %>%
@@ -252,7 +250,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       select_if(negate(is.factor))
     cont_data_vars <- names(cont_data)
 
-    if(dim(cont_data)[2] >= 1L){
+    if(dim(cont_data)[2] >= 1L) {
 
       cat("\nPlease review the descriptive statistics of your continuous variables. Histograms \nand tables for each variable will also be printed in the Plots and Viewer panes \nto the right. \n\n")
 
@@ -261,7 +259,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         sample()
       outline_colors_cont <- turbo(n_cont_vars) %>% sample()
 
-      for(i in 1:n_cont_vars){
+      for(i in 1:n_cont_vars) {
         cont_data_plot <- cont_data %>% data.frame()
         suppressWarnings(
           suppressMessages(
@@ -279,7 +277,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
 
       sumstats <- cont_data %>%
-        map_df(function(x){
+        map_df(function(x) {
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
         }) %>%
         mutate_all(round, digits = 3) %>%
@@ -316,12 +314,12 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
       n_strata <- suppressWarnings(as.numeric(readline(prompt = "# of strata: ")))
 
-      if(is.na(n_strata) || n_strata <= 1){
+      if(is.na(n_strata) || n_strata <= 1) {
         cat(red("ERROR: The number of strata must be a single positive integer greater than 1.\n"))
         next
       }
 
-      if(n_strata%%1==0){
+      if(n_strata%%1==0) {
         n_strata <- round(n_strata)
       }
       n_strata_correct <- TRUE
@@ -338,7 +336,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   # 8) Final message for guided version -------------------------------------
 
-  if(guided == TRUE){
+  if(guided == TRUE) {
     cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
     cat("You can pull up the results anytime by passing your stratify_object into summary().\n\n")
 

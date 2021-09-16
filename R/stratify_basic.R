@@ -1,38 +1,38 @@
 stratify_basic <- function(data, n_strata = NULL, variables = NULL,
-                           idnum = NULL, seed = 7835, verbose = TRUE){
+                           idnum = NULL, seed = 7835, verbose = TRUE) {
 
   set.seed(seed)
 
   skim_variable <- skim_type <- variable <- NULL
   type <- Stratum <- n <- mn <- deviation <- NULL
 
-  data_name <- data %>% expr_find() #store name of dataset. Must be done before function argument 'data' is evaluated for the first time.
+  data_name <- data %>% expr_find() # Store name of dataset. Must be done before function argument 'data' is evaluated for the first time.
 
-  if(is.null(n_strata) | is.null(variables) | is.null(idnum)){
+  if(is.null(n_strata) | is.null(variables) | is.null(idnum)) {
     stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
   }
 
-  if(!is.numeric(n_strata)){
+  if(!is.numeric(n_strata)) {
     stop(simpleError("The number of strata must be a number."))
   }
 
-  if((length(n_strata) > 1)){
+  if((length(n_strata) > 1)) {
     stop(simpleError("Only specify one number of strata."))
   }
 
-  if(n_strata <= 1){
+  if(n_strata <= 1) {
     stop(simpleError("The number of strata must be a positive number greater than 1."))
   }
 
-  if(n_strata%%1==0){
+  if(n_strata%%1 == 0) {
     n_strata <- round(n_strata)
   }
 
-  if(!is.character(variables) | (anyNA(match(variables, names(data))))){
+  if(!is.character(variables) | (anyNA(match(variables, names(data))))) {
     stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
   }
 
-  if(!is.character(idnum) | is.na(match(idnum, names(data)))){
+  if(!is.character(idnum) | is.na(match(idnum, names(data)))) {
     stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
   }
 
@@ -57,7 +57,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   factor_levels_over_4 <- (cat_data %>% sapply(nlevels) > 4L) %>%
     which() %>% names()
 
-  if(!is_empty(factor_levels_over_4)){
+  if(!is_empty(factor_levels_over_4)) {
     stop(paste0("The following factor variables have more than 4 levels: ",
                factor_levels_over_4,
                "\n4 is the maximum number of levels this function will allow a factor to have.",
@@ -65,7 +65,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                "\nlevels from these variables as dummy variables (see the package 'fastDummies').\n"))
   }
 
-  if(dim(cat_data)[2] >= 1L){
+  if(dim(cat_data)[2] >= 1L) {
     cat_data <- cat_data %>%
       fastDummies::dummy_cols(remove_first_dummy = TRUE) %>%
       select_if(negate(is.factor))
@@ -80,7 +80,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   # 3) Save summaries of variables in dataset
   pop_stats <- data_full %>%
-    map_df(function(x){
+    map_df(function(x) {
       tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
     }) %>%
     mutate_all(round, digits = 3) %>%
@@ -97,7 +97,8 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     cat("\n1: Calculated distance matrix.")
 
     solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = TRUE)
-  } else {
+  }
+  else {
     suppressWarnings(distance <- daisy(data_full, metric = "gower"))
     solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = FALSE)
   }
@@ -109,7 +110,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   recruitment_lists <- list(NULL)
 
-  for(i in 1:n_strata){
+  for(i in 1:n_strata) {
     dat3 <- x2 %>%
       dplyr::filter(Stratum == i)
     idvar <- dat3 %>% select(all_of(idnum))
@@ -120,7 +121,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     v <- var(dat4)
     a <- diag(v)
 
-    if(any(a == 0)){ a[which(a == 0)] <- 0.00000001 }
+    if(any(a == 0)) { a[which(a == 0)] <- 0.00000001 }
     cov.dat <- diag(a)
     ma.s <- mahalanobis(dat4, mu, cov.dat)
     final_dat4 <- data.frame(idvar, dat4, distance = ma.s, Stratum = dat3$Stratum) %>% tibble()
@@ -145,7 +146,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   population_summary_stats <- population_summary_stats2 %>%
     names() %>% str_sub(end = -5) %>% unique() %>%
-    lapply(function(x){
+    lapply(function(x) {
       unite_(population_summary_stats2, x, grep(x, names(population_summary_stats2), value = TRUE),
              sep = ' / ', remove = TRUE) %>% select(all_of(x))
     }) %>%
@@ -164,7 +165,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     names() %>%
     str_sub(end = -5) %>%
     unique() %>%
-    lapply(function(x){
+    lapply(function(x) {
       unite_(summary_stats, x, grep(x, names(summary_stats), value = TRUE),
              sep = ' / ', remove = TRUE) %>% select(all_of(x))
     }) %>%
@@ -223,7 +224,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   header <- c(1, rep(2, n_strata+1))
   header_names <- " "
-  for (i in 1:n_strata) {
+  for(i in 1:n_strata) {
     header_names <- header_names %>% append(paste0("Stratum ", i, "\nn = ", counts_tab$n[i]))
   }
   names(header) <- header_names %>% append(paste0("Population\n", "n = ", counts_tab$n %>% tail(n=1)))
@@ -236,7 +237,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     add_header_above(header)
 
   stratum_labels <- "Population"
-  for(i in 2:(n_strata + 1)){
+  for(i in 2:(n_strata + 1)) {
     stratum_labels[i] <- paste("Stratum", (i - 1))
   }
 
@@ -346,7 +347,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 }
 
 
-print.generalizer_output <- function(x,...){
+print.generalizer_output <- function(x,...) {
 
 
   cat("A stratify() object: \n")
@@ -361,14 +362,14 @@ print.generalizer_output <- function(x,...){
   invisible(x)
 }
 
-summary.generalizer_output <- function(object,...){
+summary.generalizer_output <- function(object,...) {
   out <- object
 
   class(out) = "summary.generalizer_output"
   return(out)
 }
 
-print.summary.generalizer_output <- function(x,...){
+print.summary.generalizer_output <- function(x,...) {
 
   cat(paste0("Summary of stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
 
