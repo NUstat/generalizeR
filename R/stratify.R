@@ -135,7 +135,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                                           graphics = FALSE,
                                           multiple = TRUE)
 
-      data_subset <- data %>% select(all_of(variables))
+      data_subset <- data %>%
+        select(all_of(variables))
 
       ## Check to see there are no cat vars with > 4 factors ##
       factor_levels_over_4 <- (data_subset %>% select_if(is.factor) %>% sapply(nlevels) > 4L) %>%
