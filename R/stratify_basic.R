@@ -38,24 +38,35 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   # 1) Store all information given by user
 
-  data_full <- data #store a full version of the dataset
+  # Extract id variable
+  id <- data %>%
+    select(all_of(variables), all_of(idnum)) %>%
+    drop_na() %>%
+    select(all_of(idnum))
 
-  data <- data %>% select(all_of(variables), all_of(idnum)) %>% na.omit() #create saved dataset
+  # Create a dataframe that includes only the variables selected by the user
+  data_subset <- data %>%
+    select(all_of(variables))
 
-  data_omitted <- data_full %>% anti_join(data, by = all_of(idnum)) #save dropped observations
+  # Save all rows with missing observations in a new dataframe
+  data_omitted <- data_subset %>%
+    filter(if_any(everything(), is.na))
 
-  id <- data %>% select(all_of(idnum)) #extract id variable
-  data <- data %>% select(all_of(variables)) #remove id variable from data
+  # Drop rows with missing observations in the subsetted dataframe
+  data_subset <- data_subset %>%
+    drop_na()
 
-  # 2) Check if there is categorical data.
-  #    If there is, and there are not more than 4 factors,
-  #    convert categorical data into factors
-
-  cat_data <- data %>%
+  # Store any factor variables in a new dataframe
+  cat_data <- data_subset %>%
     select_if(is.factor)
 
+  # Store the names of any factor variable with more than 4 levels in a new dataframe
   factor_levels_over_4 <- (cat_data %>% sapply(nlevels) > 4L) %>%
-    which() %>% names()
+    which() %>%
+    names()
+
+  # 2) Check if there are any factor variables with more than 4 levels.
+  #    Stop the function and inform the user if there are.
 
   if(!is_empty(factor_levels_over_4)) {
     stop(paste0("The following factor variables have more than 4 levels: ",
@@ -71,7 +82,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
       select_if(negate(is.factor))
   }
 
-  data_full <- data %>%
+  data_full <- data_subset %>%
     select_if(negate(is.factor)) %>%
     cbind(cat_data) %>%
     clean_names()
