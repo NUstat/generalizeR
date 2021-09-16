@@ -64,6 +64,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
+  data <- data %>%
+    mutate(across(where(is_character) & !idnum, as_factor)) # immediately convert all character variables (except the id variable if it is one) to factors
 
   # Here begins the guided wrapper for the function -------------------------
 
