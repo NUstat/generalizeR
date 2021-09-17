@@ -60,7 +60,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   skim_variable <- skim_type <- variable <- NULL
   type <- Stratum <- n <- mn <- deviation <- NULL
-  data_name <- deparse(substitute(data))
+  data_name <<- data %>% expr_text() # Store name of dataset as global variable so it can be accessed by stratify_basic(). Must be done before function argument 'data' is evaluated for the first time.
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
@@ -336,6 +336,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
     overall_output <- stratify_basic(data = data, n_strata = n_strata, variables = variables,
                                      idnum = idnum, seed = 7835, verbose = verbose)
+
+    rm(list = deparse(substitute(data_name)), envir=.GlobalEnv) # delete object data_name from global environment
 
   # 8) Final message for guided version -------------------------------------
 

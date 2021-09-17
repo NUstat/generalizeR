@@ -6,8 +6,6 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   skim_variable <- skim_type <- variable <- NULL
   type <- Stratum <- n <- mn <- deviation <- NULL
 
-  data_name <- data %>% expr_find() # Store name of dataset. Must be done before function argument 'data' is evaluated for the first time.
-
   if(is.null(n_strata) | is.null(variables) | is.null(idnum)) {
     stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
   }
