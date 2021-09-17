@@ -28,12 +28,14 @@ Note that it is possible to use the package at either end of the sampling proces
 # install.packages('devtools')
 library(devtools)
 library(tidyverse)
-# install_github('katiecoburn/generalizeRdata')
-# install_github('katiecoburn/generalizeR')
+# install_github('beatricechao99/generalizeRdata')
+# install_github('beatricechao99/generalizeR')
 library(generalizeRdata)
 library(generalizeR)
 library(ggthemes)
+library(ggnewscale)
 library(gridExtra)
+library(ggrepel)
 # install.packages("usmap")
 library(usmap)
 # install.packages("kableExtra")
@@ -42,6 +44,7 @@ library(kableExtra)
 library(viridis)
 # install.packages("patchwork")
 library(patchwork)
+library(lazyeval)
 ```
 
 Soon the generalizeR package will be on CRAN and can be installed with `install.packages()`. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
@@ -101,7 +104,7 @@ The next prompt requires us to enter the name of the ID variable we wish to use.
 
 <img src="sec_1_ex_1_fig_2.png" width="550"/>
 
-We then receive a message informing us that `stratify()` has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table like the one below that displays an overview of the variables in our data frame has been printed in the Viewer pane. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.
+We then receive a message informing us that `stratify()` has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table displaying an overview of the variables in our data frame has been printed in the Viewer pane. A preview of that same table is shown below. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.
 
 ```{r include=FALSE}
 inference_pop <- inference_pop %>%
@@ -118,8 +121,10 @@ rownames(var_overview) <- NULL
 colnames(var_overview) <- c("Variable", "Type", "Levels")
 
 var_overview %>% 
+  head(n=5) %>% 
   kbl(caption = "Variable Overview",
       align = "l") %>%
+  footnote(general = "Only the first 5 rows of the dataset are shown.") %>% 
   kable_styling(c("striped", "hover", "condensed"))
 ```
 
@@ -220,13 +225,17 @@ The function also provides us with a table of the within-cluster means and stand
 
 <img src="sec_1_ex_1_fig_8.png" width="550"/>
 
-```{r, echo=FALSE, include=FALSE}
-test <- (stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch"))
+```{r include=FALSE}
+test <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch")
+```
+
+```{r echo = FALSE}
+test$heat_data_kable
 ```
 
 It prints a heat map:
 
-```{r, fig.height = 5, fig.width = 7.5, echo=FALSE}
+```{r echo=FALSE, fig.height=6, fig.width=8}
 test$heat_plot_final
 ```
 
@@ -373,14 +382,14 @@ inference_pop <- cc %>%
 
 Finally, they feed their sample and populatiuon data frames, the name of the ID variable, and the name of the grouping variable to 'assess_wrap()' -- a wrapper of the included 'assess()' function for ease of use.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 gen_results <- assess_wrap(sample = sample, population = inference_pop,
             join_var = "ncessch", grouping_var = "st")
 ```
   
 They can view a table of their results across states. This code extracts the 'st' variable as a factor and retains unique values, one row per state:
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 state <- inference_pop %>% 
   na.omit() %>% 
   select(st) %>% 
@@ -391,14 +400,14 @@ g_indexes <- gen_results[[2]]
 
 Then that information is bound together with the generalizability indexes:
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 g_overview <- tibble(state, g_index = g_indexes)
 g_overview
 ```
 
 However, the information is easier to assess in the form of a map. There are many mapping tools in R. First, we use the tidyverse to turn the generalizability index values into a categorical variable representing the three levels of generalizability.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 g_overview <- g_overview %>% mutate(g_index = case_when(
   g_index >= 0.90 ~ "best",
   (g_index < 0.90 & g_index >= 0.50) ~ "okay",
@@ -409,7 +418,7 @@ g_overview <- g_overview %>% mutate(g_index = case_when(
 
 A G-index above 0.90 means that the sample is equivalent to a randomized trial. A G-index between 0.50 and 0.90 means that the sample is not quite a miniature of the population, but statistical adjustments to reweight the sample may make generalization possible. Finally, a G-index below 0.50 means that generalization (based upon the selected covariates) is completely unwarranted, and statistical adjustment cannot help.
 
-```{r, fig.height = 5, fig.width = 7.5, warning=FALSE, message=FALSE}
+```{r eval=FALSE, fig.height=5, fig.width=7.5, message=FALSE, warning=FALSE, include=FALSE}
 plot_usmap(data = g_overview, values = "g_index", labels = TRUE) +
    labs(title = "US States",
        subtitle = "Generalizability Index") +
