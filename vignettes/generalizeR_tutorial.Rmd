@@ -200,23 +200,23 @@ p4 <- inference_pop %>% ggplot(aes(x = total)) +
               labs(title = "Histogram of total")
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, dpi = 175}
+```{r echo=FALSE, message=FALSE, warning=FALSE, dpi = 200}
 p1 + p2 + p3 + p4
 ```
 
-Now the researcher is ready to choose a number of strata. The function prints some information, similar to that presented by the [Generalizer Web application](https://www.thegeneralizer.org/), explaining what the choice represents and giving users some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.
+Now we are ready to choose the number of strata in which to divide our population. `stratify()` prints some information, similar to that presented by the [Generalizer Web application](https://www.thegeneralizer.org/), explaining what the choice represents and giving us some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.
 
-Since the researcher in our example plans on a sample size of 40, they try a smaller number -- 4 strata:
-
-<img src="sec_1_ex_1_fig_6.png" width="550"/>
-
-The process of stratifying can take some time. If the function were to run silently, users might fear that R had frozen and quit. As a sort of progress bar, we have turned on "verbose" mode for the clustering process, which prints out the within-cluster sum of squares at each iteration until the stratifying process converges:
+Since we are only planning on using a sample size of 40 schools, we'll try a smaller number -- 4 strata:
 
 <img src="sec_1_ex_1_fig_7.png" width="550"/>
 
-The results begin by telling the user the percentage of population variation explained by the strata -- in this case, about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata, but would require more resources.
+The process of stratifying can take some time. If the function were to run silently, users might fear that R had frozen and quit. As a sort of progress bar, we have turned on "verbose" mode for the clustering process, which prints out the within-cluster sum of squares at each iteration until the stratifying process converges:
 
-The function also provides a table of the within-cluster means and standard deviations for each of the stratifying variables, and a count of the total number of units in each stratum.
+<img src="sec_1_ex_1_fig_8.png" width="550"/>
+
+The results begin by telling the us the percentage of population variation explained by the strata -- in this case, about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata, but would require more resources.
+
+The function also provides us with a table of the within-cluster means and standard deviations for each of the stratifying variables, and a count of the total number of units in each stratum.
 
 <img src="sec_1_ex_1_fig_8.png" width="550"/>
 
