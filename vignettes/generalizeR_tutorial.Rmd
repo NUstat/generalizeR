@@ -38,6 +38,10 @@ library(gridExtra)
 library(usmap)
 # install.packages("kableExtra")
 library(kableExtra)
+# install.packages("viridis")
+library(viridis)
+# install.packages("patchwork")
+library(patchwork)
 ```
 
 Soon the generalizeR package will be on CRAN and can be installed with `install.packages()`. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
@@ -91,13 +95,20 @@ We are greeted with the following:
 
 <img src="sec_1_ex_1_fig_1.png" width="550"/>
 
-If we need to make adjustments to our inference population or if we have forgotten to store our results -- that is, to use the assignment operator `<-` to assign our results to an object (here called 'output') -- we may enter '2' to stop the function and do so. We have already taken care of both those items, however, so we enter '1' to proceed. 
+If we need to make adjustments to our inference population or if we have forgotten to store our results -- that is, to use the assignment operator `<-` to assign our results to an object (here called `output`) -- we may enter `2` to stop the function and do so. We have already taken care of both those items, however, so we enter `1` to proceed. 
 
-The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`:
+The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
 
-<img src="sec_1_ex_1_fig_2.png" width="450"/>
+<img src="sec_1_ex_1_fig_2.png" width="550"/>
 
-```{r}
+We then receive a message informing us that `stratify()` has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table like the one below that displays an overview of the variables in our data frame has been printed in the Viewer pane. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.
+
+```{r include=FALSE}
+inference_pop <- inference_pop %>%
+    mutate(across(where(is_character) & !ncessch, as_factor))
+```
+
+```{r echo=FALSE}
 vars <- inference_pop %>% names()
 type <- inference_pop %>% sapply(class)
 num_levels <- inference_pop %>% sapply(nlevels)
@@ -106,53 +117,91 @@ var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
 rownames(var_overview) <- NULL
 colnames(var_overview) <- c("Variable", "Type", "Levels")
 
-var_overview %>%
+var_overview %>% 
   kbl(caption = "Variable Overview",
-      align = "c") %>%
-  kable_styling(c("striped", "hover", "condensed"), fixed_thead = TRUE)
+      align = "l") %>%
+  kable_styling(c("striped", "hover", "condensed"))
 ```
 
+Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can't choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit `stratify()` and re-code our desired factor levels from that variable as indicator variables within our data frame (the package `fastDummies` may be of use).
 
 <img src="sec_1_ex_1_fig_3.png" width="700"/>
 
-The researcher now selects the variables that represent their stratifying variables of interest -- 'pct_female', 'pct_black_or_african_american', 'pct_free_and_reduced_lunch', and 'total'. They enter: '29 32 38 42'.
+For our stratifying variables of interest, we have chosen `pct_female`, `pct_black_or_african_american`, `pct_free_and_reduced_lunch`, and `total`. We enter: `29 32 38 42`. The function prints out a list of these variables with their names highlighted in blue, as well as a table displaying each variable's type and number of levels. This is done so we can look them over, confirm what we selected, and make sure the variables are the types we expected. Since these results seem reasonable, we indicate that they are correct by entering `1`.
 
 <img src="sec_1_ex_1_fig_4.png" width="550"/>
 
-The function prints out a list of the variables chosen with names highlighted and a table of variables and their types. This is so the researcher can look them over, confirm what they selected, and make sure the variables are the expected types. Since these results seem reasonable, the researcher chooses 'Yes'.
+We are now shown a table (also available in the Viewer pane) that breaks down how many missing observations each variable contains, including our id variable `ncessch`. These observations will be dropped from the inference population before the stratification is performed.
 
 <img src="sec_1_ex_1_fig_5.png" width="550"/>
 
-Next, the function prints out the descriptive statistics of the stratification variables chosen, categorical and continuous. In this case, all the variables are continuous. Plots of the variables -- histograms or bar charts, as appropriate -- are generated and displayed one at a time.
+Next, the function prints out the descriptive statistics of the stratification variables chosen, both categorical and continuous. In this case, all the variables are continuous. Plots of the variables -- histograms or bar charts, as appropriate -- are generated and displayed one at a time.
 
-```{r, fig.height = 3, fig.width = 7.5, echo=FALSE, warning=FALSE}
-par(mar = c(4, 4, .1, .1))
-plot1 <- inference_pop %>% 
-  ggplot(aes(x = total)) + geom_histogram(bins = 30) +
-  theme_base() + 
-  xlab("total") +
-  labs(title = "Histogram of total")
-plot2 <- inference_pop %>% 
-  ggplot(aes(x = pct_black_or_african_american)) + geom_histogram(bins = 30) +
-  theme_base() + 
-  xlab("pct_black") +
-  labs(title = "Histogram of pct_black")
-grid.arrange(plot1, plot2, ncol = 2)
+<img src="sec_1_ex_1_fig_6.png" width="550"/>
+
+```{r include=FALSE}
+fill_colors <- viridis(4, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
+outline_colors <- turbo(4) %>% sample()
 ```
 
-```{r, fig.height = 3, fig.width = 7.5, echo=FALSE, warning=FALSE}
-par(mar = c(4, 4, .1, .1))
-plot1 <- inference_pop %>% 
-  ggplot(aes(x = pct_female)) + geom_histogram(bins = 30) +
-  theme_base() + 
-  xlab("pct_female") +
-  labs(title = "Histogram of pct_female")
-plot2 <- inference_pop %>% 
-  ggplot(aes(x = pct_free_and_reduced_lunch)) + geom_histogram(bins = 30) +
-  theme_base() + 
-  xlab("pct_frlunch") +
-  labs(title = "Histogram of pct_frlunch")
-grid.arrange(plot1, plot2, ncol = 2)
+```{r include=FALSE}
+p1 <- inference_pop %>% ggplot(aes(x = pct_female)) +
+              geom_histogram(bins = 30,
+                             fill = fill_colors[1],
+                             color = outline_colors[1]) +
+              theme_minimal() +
+              theme(plot.title = element_text(size = 6),
+                    axis.title = element_text(size = 5),
+                    axis.text = element_text(size = 5),
+                    axis.ticks.length = unit(0, "pt")) +
+              xlab("pct_female") +
+              labs(title = "Histogram of pct_female")
+```
+
+```{r include=FALSE}
+p2 <- inference_pop %>% ggplot(aes(x = pct_black_or_african_american)) +
+              geom_histogram(bins = 30,
+                             fill = fill_colors[2],
+                             color = outline_colors[2]) +
+              theme_minimal() +
+              theme(plot.title = element_text(size = 6),
+                    axis.title = element_text(size = 5),
+                    axis.text = element_text(size = 5),
+                    axis.ticks.length = unit(0, "pt")) +
+              xlab("pct_black_or_african_american") +
+              labs(title = "Histogram of \npct_black_or_african_american")
+```
+
+```{r include=FALSE}
+p3 <- inference_pop %>% ggplot(aes(x = pct_free_and_reduced_lunch)) +
+              geom_histogram(bins = 30,
+                             fill = fill_colors[3],
+                             color = outline_colors[3]) +
+              theme_minimal() +
+              theme(plot.title = element_text(size = 6),
+                    axis.title = element_text(size = 5),
+                    axis.text = element_text(size = 5),
+                    axis.ticks.length = unit(0, "pt")) +
+              xlab("pct_free_and_reduced_lunch") +
+              labs(title = "Histogram of \npct_free_and_reduced_lunch")
+```
+
+```{r include=FALSE}
+p4 <- inference_pop %>% ggplot(aes(x = total)) +
+              geom_histogram(bins = 30,
+                             fill = fill_colors[4],
+                             color = outline_colors[4]) +
+              theme_minimal() +
+              theme(plot.title = element_text(size = 6),
+                    axis.title = element_text(size = 5),
+                    axis.text = element_text(size = 5),
+                    axis.ticks.length = unit(0, "pt")) +
+              xlab("total") +
+              labs(title = "Histogram of total")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, dpi = 175}
+p1 + p2 + p3 + p4
 ```
 
 Now the researcher is ready to choose a number of strata. The function prints some information, similar to that presented by the [Generalizer Web application](https://www.thegeneralizer.org/), explaining what the choice represents and giving users some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.
