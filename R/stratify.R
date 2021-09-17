@@ -175,12 +175,13 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       `colnames<-`("n_missing") %>%
       rownames_to_column("variable")
 
-    n_missing <- data.frame(id, data_subset) %>% filter(if_any(everything(), is.na)) %>% nrows()
+    n_missing <- data.frame(id, data_subset) %>% filter(if_any(everything(), is.na)) %>% nrow()
 
     data_subset <- data.frame(id, data_subset) %>% na.omit() %>% select(-all_of(idnum))
 
     cat(paste0("The following table shows how many observations are missing for the variables you have chosen. \n",
-    "These ", bold(n_missing)," observations will be dropped from the inference population before stratification.\n\n "))
+    yellow$bold("In total,", n_missing, "rows will be dropped from the inference population before stratification due to \nmissing observations. "),
+    "Note that there may be multiple missing observations per row, meaning that \nthe total number of dropped observations won't necessarily be the sum of the number of \nmissing observations in each variable.\n\n "))
 
     missing_obs_table %>%
       kbl(caption = "Missing Observations by Variable",
