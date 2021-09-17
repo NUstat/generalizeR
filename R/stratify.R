@@ -266,7 +266,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         cont_data_plot <- cont_data %>% data.frame()
         suppressWarnings(
           suppressMessages(
-            hist <- ggplot(data = cont_data_plot, aes(x = cont_data_plot[,i])) +
+            hist <- cont_data_plot %>% ggplot(aes(x = cont_data_plot[,i])) +
               geom_histogram(bins = 30,
                              fill = fill_colors_cont[i],
                              color = outline_colors_cont[i]) +
