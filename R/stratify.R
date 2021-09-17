@@ -175,7 +175,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       `colnames<-`("n_missing") %>%
       rownames_to_column("variable")
 
-    n_missing <- sum(missing_obs_table$n_missing)
+    n_missing <- data.frame(id, data_subset) %>% filter(if_any(everything(), is.na)) %>% nrows()
 
     data_subset <- data.frame(id, data_subset) %>% na.omit() %>% select(-all_of(idnum))
 
