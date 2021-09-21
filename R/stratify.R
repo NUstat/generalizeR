@@ -291,7 +291,11 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         data.frame()
 
       sumstats %>% print(row.names = FALSE)
-      sumstats %>% kbl() %>% kable_styling(c("striped", "hover")) %>% print()
+
+      sumstats %>%
+        kbl(col.names = c("Variable", "Min", "Pct50", "Max", "Mean", "SD")) %>%
+        kable_styling(c("striped", "hover")) %>%
+        print()
     }
     par(ask = FALSE)
 
