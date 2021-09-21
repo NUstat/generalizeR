@@ -367,10 +367,11 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                          recruit_table = recruit_table,
                          recruit_kable = recruit_kable,
                          data_omitted = data_omitted,
-                         pop_stats = pop_stats,
+                         cont_data_stats = cont_data_stats,
+                         cat_data_levels = cat_data_levels,
                          heat_data = heat_data_simple,
                          heat_data_kable = heat_data_kable,
-                         heat_plot_final = heat_plot_final
+                         heat_plot = heat_plot_final
   )
 
   class(overall_output) <- c("generalizer_output")
