@@ -78,15 +78,21 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   }
 
   if(dim(cat_data)[2] >= 1L) {
-    cat_data <- cat_data %>%
+    cat_data_with_dummies <- cat_data %>%
       fastDummies::dummy_cols(remove_first_dummy = TRUE) %>%
       select_if(negate(is.factor))
+
+    data_full <- cont_data %>%
+      cbind(cat_data_with_dummies) %>%
+      clean_names()
+  }
+  else {
+    data_full <- cont_data %>%
+      cbind(cat_data) %>%
+      clean_names()
   }
 
-  data_full <- data_subset %>%
-    select_if(negate(is.factor)) %>%
-    cbind(cat_data) %>%
-    clean_names()
+
 
   var_names <- data_full %>% names()
 
