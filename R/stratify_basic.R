@@ -344,7 +344,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     filter(Stratum != "Population") %>%
     select(Stratum, Count, Proportion) %>%
     data.frame() %>%
-    pivot_longer(names_to = "Variable", cols = c(Count, Proportion)) %>%
+    pivot_longer(names_to = "Metric", cols = c(Count, Proportion)) %>%
     pivot_wider(names_from = Stratum, names_prefix = "Stratum ")
 
   recruit_header <- c(1, n_strata)
@@ -352,7 +352,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
                                          align = "c",
-                                         col.names = c("Variable", 1:n_strata)) %>%
+                                         col.names = c("Metric", 1:n_strata)) %>%
     kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
     add_header_above(recruit_header)
 
