@@ -54,9 +54,12 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   data_subset <- data_subset %>%
     drop_na()
 
-  # Store any factor variables in a new dataframe
+  # Store categorical and continuous variables in separate dataframes
   cat_data <- data_subset %>%
     select_if(is.factor)
+
+  cont_data <- data_subset %>%
+    select_if(negate(is.factor))
 
   # Store the names of any factor variable with more than 4 levels in a new dataframe
   factor_levels_over_4 <- (cat_data %>% sapply(nlevels) > 4L) %>%
