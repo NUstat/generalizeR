@@ -405,17 +405,15 @@ summary.generalizer_output <- function(object,...) {
 
 print.summary.generalizer_output <- function(x,...) {
 
+  cat("============================================ \n")
   cat(paste0("Summary of stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
 
-  cat(paste0("Observations dropped due to missing data: ", nrow(x$data_omitted), " (see $data_omitted)\n\n"))
+  cat(paste0("Observations dropped due to missing data: ", bold(nrow(x$data_omitted)), " (see $data_omitted)\n"))
 
   cat(paste0("Stratification Variables: "))
-  cat(paste0(x$variables), sep = ", ")
-  cat(paste0("\n\n"))
-
-  cat(paste0("\n"))
-
-  cat(paste0("No. in population: ", bold(nrow(x$recruit_data)),"\n"))
+  cat(paste0(blue$bold(x$variables)), sep = ", ")
+  cat("\n")
+  cat(paste0("Population size: ", bold(nrow(x$recruit_data)),"\n"))
   cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
   cat(paste0("Proportion of variation in population explained by strata: "))
   cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
@@ -429,7 +427,7 @@ print.summary.generalizer_output <- function(x,...) {
 
   x$heat_data_kable %>% print()
 
-  x$heat_plot_final %>% print()
+  x$heat_plot %>% print()
 
   cat("============================================ \n")
   cat("Recruitment plan: \n \n")
@@ -438,7 +436,7 @@ print.summary.generalizer_output <- function(x,...) {
   cat(paste0("To export it, run ", bold("'write.csv(x$recruit_data)'"),".\n"))
   cat("\nEach unit is ranked in order of desirability. ")
   cat("Ideally, units should be recruited \nacross strata according to the proportions below. ")
-  cat("Doing so will lead to the least \nbias and no increase in standard errors.\n\n")
+  cat("Doing so will lead to the least \namount of bias and no increase in standard errors.\n\n")
 
   x$recruit_table %>% as.data.frame() %>% print()
 
