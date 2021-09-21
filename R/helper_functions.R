@@ -62,13 +62,15 @@ select.list_CUSTOMIZED <- function(choices, preselect = NULL, multiple = FALSE, 
 
 make_var_overview <- function(dataset, print_to_console = FALSE){
 
-  vars <- dataset %>% names()
-  type <- dataset %>% sapply(class)
-  num_levels <- dataset %>% sapply(nlevels)
-
-  var_overview <- cbind(vars, type, num_levels) %>% data.frame() %>% arrange(type)
-  rownames(var_overview) <- NULL
-  colnames(var_overview) <- c("Variable", "Type", "Levels")
+  var_overview <- dataset %>%
+    map_df(function(x) {
+      tibble(
+        Type = class(x),
+        Levels = nlevels(x))
+    }) %>%
+    mutate(Variable = names(dataset)) %>%
+    select(Variable, everything()) %>%
+    data.frame()
 
   var_overview %>%
     kbl(caption = "Variable Overview",
