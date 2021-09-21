@@ -97,15 +97,30 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   var_names <- data_full %>% names()
 
   # 3) Save summaries of variables in dataset
-  pop_stats <- data_full %>%
+  cont_data_stats <- cont_data %>%
     map_df(function(x) {
-      tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
+      tibble(
+        min = min(x),
+        pct50 = median(x),
+        max = max(x),
+        mean = mean(x),
+        sd = sd(x))
     }) %>%
     mutate_all(round, digits = 3) %>%
-    mutate(variable = names(data_full)) %>%
+    mutate(variable = names(cont_data)) %>%
     select(variable, everything()) %>%
     data.frame() %>%
     clean_names()
+
+  cat_data_levels <- cat_data %>%
+    map_df(function(x) {
+      tibble(
+        Type = class(x),
+        Levels = nlevels(x))
+    }) %>%
+    mutate(Variable = names(cat_data)) %>%
+    select(Variable, everything()) %>%
+    data.frame()
 
   # 4) Perform stratification - cluster with KMeans
 
