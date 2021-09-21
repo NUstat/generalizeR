@@ -412,9 +412,6 @@ print.summary.generalizer_output <- function(x,...) {
   cat(paste0("Stratification Variables: "))
   cat(paste0(x$variables), sep = ", ")
   cat(paste0("\n\n"))
-  cat(paste0("Variation in population: \n \n"))
-
-  print(x$pop_stats)
 
   cat(paste0("\n"))
 
