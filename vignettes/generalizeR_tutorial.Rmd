@@ -121,10 +121,10 @@ rownames(var_overview) <- NULL
 colnames(var_overview) <- c("Variable", "Type", "Levels")
 
 var_overview %>% 
-  head(n=5) %>% 
+  head(n = 5) %>% 
   kbl(caption = "Variable Overview",
       align = "l") %>%
-  footnote(general = "Only the first 5 rows of the dataset are shown.") %>% 
+  footnote(general = "Only the first 5 rows of the table are shown.") %>% 
   kable_styling(c("striped", "hover", "condensed"))
 ```
 
@@ -223,7 +223,11 @@ The results begin by telling the us the percentage of population variation expla
 
 The function also provides us with a table of the within-cluster means and standard deviations for each of the stratifying variables, and a count of the total number of units in each stratum.
 
-<img src="sec_1_ex_1_fig_8.png" width="550"/>
+<img src="sec_1_ex_1_fig_9.png" width="550"/>
+
+<img src="sec_1_ex_1_fig_10.png" width="550"/>
+
+<img src="sec_1_ex_1_fig_11.png" width="550"/>
 
 ```{r include=FALSE}
 test <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch")
@@ -244,10 +248,6 @@ Each column of the heat map corresponds to a stratum. Users can read the map by 
 The first stratum contains 161 Texas charter high schools which are close to the population mean in number of students (about 430), above the population mean in the percentage of students on free or reduced lunch (80%), close to the population mean in percentage of female students (50%), and below the population mean in percentage of black students (10%).
 
 (Users may wonder why the shade of red for the bottom left and bottom right cells differs when both seem to have a mean of 10%. This is because of the scale of the variable, the size of the population mean, and rounding.)
-
-Finally, users are given the option to change the number of strata. The researcher says 'no'; they are satisfied with four.
-
-<img src="sec_1_ex_1_fig_9.png" width="550"/>
 
 They have completed the stratifying process! For their study, the next step is figuring out which units from these strata to recruit. They can proceed to the second function, 'recruit().'
 
