@@ -407,12 +407,10 @@ print.summary.generalizer_output <- function(x,...) {
 
   cat("============================================ \n")
   cat(paste0("Summary of stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))
-
-  cat(paste0("Observations dropped due to missing data: ", bold(nrow(x$data_omitted)), " (see $data_omitted)\n"))
-
   cat(paste0("Stratification Variables: "))
   cat(paste0(blue$bold(x$variables)), sep = ", ")
   cat("\n")
+  cat(paste0("Observations dropped due to missing data: ", bold(nrow(x$data_omitted)), " (see $data_omitted)\n"))
   cat(paste0("Population size: ", bold(nrow(x$recruit_data)),"\n"))
   cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
   cat(paste0("Proportion of variation in population explained by strata: "))
