@@ -425,9 +425,20 @@ print.summary.generalizer_output <- function(x,...) {
 
   x$heat_data_kable %>% print()
 
-  x$heat_plot %>% print()
+  tryCatch(
+    {
+      x$heat_plot %>% print()
+    },
 
-  cat("============================================ \n")
+    error = function(cond) {
+      message("Your Plots pane is too small for the heat map to be displayed. \nIf you still want to view the plot, try resizing the pane and \nthen running 'x$heat_plot' where 'x' is the name of your stratify_object.")
+      message("Here's the original error message:")
+      message(cond)
+      return(NA)
+    }
+  )
+
+  cat("\n============================================ \n")
   cat("Recruitment plan: \n \n")
   cat("A recruitment list has been printed in the Console below as well as in the Viewer \npane to the right. ")
   cat(paste0("It can be accessed with ", bold("'x$recruit_data'"), ", where ", bold("'x'"), " is the name of \nyour stratify_object. "))
