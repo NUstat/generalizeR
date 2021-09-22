@@ -419,7 +419,7 @@ print.summary.generalizer_output <- function(x,...) {
 
   cat("============================================ \n")
 
-  cat("Covariate Distributions: \n \n")
+  cat("Covariate Statistics by Stratum and Variable: \n \n")
 
   x$heat_data %>% as.data.frame() %>% print()
 
