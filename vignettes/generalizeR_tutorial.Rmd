@@ -28,7 +28,7 @@ Note that it is possible to use the package at either end of the sampling proces
 # install.packages('devtools')
 library(devtools)
 library(tidyverse)
-# install_github('beatricechao99/generalizeRdata')
+# install_github('katiecoburn/generalizeRdata')
 # install_github('beatricechao99/generalizeR')
 library(generalizeRdata)
 library(generalizeR)
@@ -219,11 +219,11 @@ The process of stratifying can take some time. If the function were to run silen
 
 <img src="sec_1_ex_1_fig_8.png" width="550"/>
 
-The results begin by telling the us the percentage of population variation explained by the strata -- in this case, about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata, but would require more resources.
-
-The function also provides us with a table of the within-cluster means and standard deviations for each of the stratifying variables, and a count of the total number of units in each stratum.
+The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources.
 
 <img src="sec_1_ex_1_fig_9.png" width="550"/>
+
+`stratify()` then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum. The table is also displayed in the Viewer pane.
 
 <img src="sec_1_ex_1_fig_10.png" width="550"/>
 
@@ -240,8 +240,9 @@ test$heat_data_kable
 It prints a heat map:
 
 ```{r echo=FALSE, fig.height=6, fig.width=8}
-test$heat_plot_final
+test$heat_plot
 ```
+
 
 Each column of the heat map corresponds to a stratum. Users can read the map by going down the columns, assessing each stratum in relation to the population. Since the goal is for the strata to be homogeneous, to sample across them and gain a sample representative of the population, each stratum will differ from the others. We'll "read" a stratum here as an example:
 
