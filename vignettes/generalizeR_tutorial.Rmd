@@ -223,34 +223,42 @@ The results begin with a brief review of the stratification process. We are info
 
 <img src="sec_1_ex_1_fig_9.png" width="550"/>
 
-`stratify()` then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum. The table is also displayed in the Viewer pane.
+`stratify()` then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum.
 
 <img src="sec_1_ex_1_fig_10.png" width="550"/>
-
-<img src="sec_1_ex_1_fig_11.png" width="550"/>
 
 ```{r include=FALSE}
 test <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch")
 ```
 
+A similar table is also printed in the Viewer pane:
+
 ```{r echo = FALSE}
 test$heat_data_kable
 ```
 
-It prints a heat map:
+At this point, the function also prints a heat map:
 
 ```{r echo=FALSE, fig.height=6, fig.width=8}
 test$heat_plot
 ```
 
 
-Each column of the heat map corresponds to a stratum. Users can read the map by going down the columns, assessing each stratum in relation to the population. Since the goal is for the strata to be homogeneous, to sample across them and gain a sample representative of the population, each stratum will differ from the others. We'll "read" a stratum here as an example:
+Each column of the heat map corresponds to a stratum. We can read the map by going down the columns, assessing each stratum in relation to the population. Remember that the goal is to sample independently within each stratum in order to obtain a sample that is representative of the population as a whole. To that end, each stratum has been made as homogeneous as possible within itself (i.e. the within-stratum variances have been minimized) while also maintaining as much heterogeneity as possible across strata (i.e. the between-stratum variance has been maximized).
 
-The first stratum contains 161 Texas charter high schools which are close to the population mean in number of students (about 430), above the population mean in the percentage of students on free or reduced lunch (80%), close to the population mean in percentage of female students (50%), and below the population mean in percentage of black students (10%).
+Looking at the first column, we see that Stratum 1 contains 161 Texas charter high schools. These schools are: 
+
+- close to the population mean in number of students (about 430), 
+- above the population mean in the percentage of students on free or reduced lunch (80%), 
+- close to the population mean in percentage of female students (50%), 
+- and below the population mean in percentage of black students (10%).
+
+The other columns may be interpreted in exactly the same manner. 
 
 (Users may wonder why the shade of red for the bottom left and bottom right cells differs when both seem to have a mean of 10%. This is because of the scale of the variable, the size of the population mean, and rounding.)
 
-They have completed the stratifying process! For their study, the next step is figuring out which units from these strata to recruit. They can proceed to the second function, 'recruit().'
+We have completed the stratifying process! The next step is figuring out which units from these strata to recruit. 
+<img src="sec_1_ex_1_fig_11.png" width="550"/>
 
 <!-- ### Example Two -->
 
