@@ -16,15 +16,6 @@ vignette: >
 # would probably make the vignette smaller.
 knitr::opts_chunk$set(echo = TRUE)
 library(crayon)
-```
-
-## Introduction
-
-Note that it is possible to use the package at either end of the sampling process: you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously obtained sample data and assess its generalizability.
-
-### Setup
-
-```{r, warning=FALSE, message=FALSE}
 # install.packages('devtools')
 library(devtools)
 library(tidyverse)
@@ -47,7 +38,15 @@ library(patchwork)
 library(lazyeval)
 ```
 
-Soon the generalizeR package will be on CRAN and can be installed with `install.packages()`. The supplemental package, generalizeRdata, however, will always be on GitHub since the data files it contains are quite large and incapable of meeting CRAN's size constraints.
+## Introduction
+
+Welcome to the generalizeR! This package is designed to guide education researchers through:
+
+- Selecting important features of their inference population
+- Developing a recruitment plan for a future evaluation
+- Assessing the generalizability of a completed evaluation
+
+Note that it is possible to use the package at either end of the sampling process: you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously obtained sample data and assess its generalizability.
 
 ## Step 1: Stratify
 
@@ -57,7 +56,7 @@ Users who are running `stratify()` multiple times, who are familiar with R, or w
 
 This tutorial will follow a hypothetical example.
 
-### Example
+### Filtering the Inference Population
 
 Suppose we are a team of education researchers who want to test the effect of an intervention on SAT scores. We have somewhat limited resources, so we plan on using a sample size of 40 schools. We want to estimate the average effect of our intervention in Texas charter high schools. Thus, our **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so we select a few **stratifying variables** -- *percentage female*, *percentage black*, and *percentage free and reduced lunch*. We also think school size might result in treatment differences, so we include the *total school size* as well.
 
@@ -88,7 +87,9 @@ inference_pop
 
 The size of our inference population has dropped from over 98,000 schools to about 350 schools. It now only includes Texas charter high schools (or schools that offer 10th grade).
 
-We can then run:
+### Running the Function 
+
+We are now ready to run `stratify()` on our inference population. We enter:
 
 ```{r eval=FALSE}
 output <- stratify(data = inference_pop)
@@ -99,6 +100,8 @@ We are greeted with the following:
 <img src="sec_1_ex_1_fig_1.png" width="550"/>
 
 If we need to make adjustments to our inference population or if we have forgotten to store our results -- that is, to use the assignment operator `<-` to assign our results to an object (here called `output`) -- we may enter `2` to stop the function and do so. We have already taken care of both those items, however, so we enter `1` to proceed. 
+
+### Selecting the ID Variable
 
 The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
 
@@ -128,6 +131,8 @@ var_overview %>%
   kable_styling(c("striped", "hover", "condensed"))
 ```
 
+### Selecting the Stratification Variables
+
 Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can't choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit `stratify()` and re-code our desired factor levels from that variable as indicator variables within our data frame (the package `fastDummies` may be of use).
 
 <img src="sec_1_ex_1_fig_3.png" width="700"/>
@@ -136,9 +141,13 @@ For our stratifying variables of interest, we have chosen `pct_female`, `pct_bla
 
 <img src="sec_1_ex_1_fig_4.png" width="550"/>
 
+### Missing Observations
+
 We are now shown a table (also available in the Viewer pane) that breaks down how many missing observations each variable contains, including our id variable `ncessch`. These observations will be dropped from the inference population before the stratification is performed.
 
 <img src="sec_1_ex_1_fig_5.png" width="550"/>
+
+### Descriptive Statistics
 
 Next, the function prints out the descriptive statistics of the stratification variables chosen, both categorical and continuous. In this case, all the variables are continuous. Plots of the variables -- histograms or bar charts, as appropriate -- are generated and displayed one at a time.
 
@@ -209,6 +218,8 @@ p4 <- inference_pop %>% ggplot(aes(x = total)) +
 p1 + p2 + p3 + p4
 ```
 
+### Choosing the Number of Strata
+
 Now we are ready to choose the number of strata in which to divide our population. `stratify()` prints some information, similar to that presented by the [Generalizer Web application](https://www.thegeneralizer.org/), explaining what the choice represents and giving us some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.
 
 Since we are only planning on using a sample size of 40 schools, we'll try a smaller number -- 4 strata:
@@ -219,28 +230,35 @@ The process of stratifying can take some time. If the function were to run silen
 
 <img src="sec_1_ex_1_fig_8.png" width="550"/>
 
+### Understanding the Results
+
+#### Stratification Review 
 The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources.
 
 <img src="sec_1_ex_1_fig_9.png" width="550"/>
+
+#### Covariate Statistics
 
 `stratify()` then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum.
 
 <img src="sec_1_ex_1_fig_10.png" width="550"/>
 
-```{r include=FALSE}
-test <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch")
-```
+A similar table is printed in the Viewer pane:
 
-A similar table is also printed in the Viewer pane:
+```{r include=FALSE}
+output <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch")
+```
 
 ```{r echo = FALSE}
-test$heat_data_kable
+output$heat_data_kable
 ```
 
-At this point, the function also prints a heat map:
+#### Heat Map
+
+The function also prints a heat map:
 
 ```{r echo=FALSE, fig.height=6, fig.width=8}
-test$heat_plot
+output$heat_plot
 ```
 
 
@@ -257,8 +275,36 @@ The other columns may be interpreted in exactly the same manner.
 
 (Users may wonder why the shade of red for the bottom left and bottom right cells differs when both seem to have a mean of 10%. This is because of the scale of the variable, the size of the population mean, and rounding.)
 
-We have completed the stratifying process! The next step is figuring out which units from these strata to recruit. 
+#### Recruitment plan
+
+Finally, `stratify()` prints a short recruitment plan telling us what proportion of the total sample size should be recruited from each stratum in order to make the overall sample representative of the entire inference population.
+
 <img src="sec_1_ex_1_fig_11.png" width="550"/>
+
+Our desired sample size is 40 schools. Using this recruitment plan, here is how many schools we should recruit from each stratum:
+
+- Stratum 1: $0.497 \cdot 40 = 19.88 \approx \bf{20} \textbf{ schools}$ 
+- Stratum 2: $0.093 \cdot 40 = 3.72 \approx \bf{4} \textbf{ schools}$ 
+- Stratum 3: $0.142 \cdot 40 = 5.68 \approx \bf{5} \textbf{ schools}$ 
+- Stratum 4: $0.269 \cdot 40 = 10.76 \approx \bf{11} \textbf{ schools}$ 
+
+We chose to round down in Stratum 3 since it had the smallest fraction after the decimal point.
+
+#### Summary and Print
+
+If we wish to look at the results of `stratify()` again, we can run the following code: 
+
+```{r eval=FALSE}
+summary(output)
+```
+
+Note that `output` is the name we have assigned to our `stratify_object` in this example; users should replace it with their own name they have chosen. 
+
+There is also an option to print our `stratify_object`. Doing so yields:
+
+<img src="sec_1_ex_1_fig_12.png" width="550"/>
+
+We have finished the stratifying process! 
 
 <!-- ### Example Two -->
 
@@ -373,7 +419,7 @@ Then they read in their sample. The way they do this may differ -- for example, 
 output <- test
 ```
 
-```{r}
+```{r eval=FALSE}
 sample <- tibble(ncessch = c(output$recruitment_lists[[1]]$ncessch[1:20],
                 output$recruitment_lists[[2]]$ncessch[1:4],
                 output$recruitment_lists[[3]]$ncessch[1:6],
