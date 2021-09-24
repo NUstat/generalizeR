@@ -385,12 +385,12 @@ print.generalizer_output <- function(x,...) {
 
 
   cat("A stratify() object: \n")
-  cat(paste0(" - dataset used: ", x$dataset,"\n"))
-  cat(paste0(" - stratification variables included: "))
-  cat(paste0(x$variables), sep = ", ")
+  cat(paste0(" - Dataset used: ", bold(x$dataset),"\n"))
+  cat(paste0(" - Stratification variables: "))
+  cat(paste0(bold$blue(x$variables)), sep = ", ")
   cat(paste0("\n"))
-  cat(paste0(" - no. of strata chosen: ", x$n_strata, "\n"))
-  cat(paste0(" - no. of observations dropped due to missing data: ", nrow(x$data_omitted), "\n"))
+  cat(paste0(" - Number of strata: ", bold(x$n_strata), "\n"))
+  cat(paste0(" - Number of observations dropped due to missing data: ", bold(nrow(x$data_omitted)), "\n"))
   cat(paste0("   (see $data_omitted for dropped observations)"))
 
   invisible(x)
