@@ -14,6 +14,7 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom randomForest randomForest
 #' @importFrom stats as.formula glm lm predict quantile
+#' @importFrom crayon bold blue
 
 weighting <- function(outcome, treatment, trial, selection_covariates, data,
                      selection_method = "lr", is_data_disjoint = TRUE, seed = 7835){
@@ -24,42 +25,52 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
   set.seed(seed)
 
   ### Make input method lower case ###
-  selection_method = tolower(selection_method)
+  selection_method <- selection_method %>% tolower()
+
+  ### Store the column names ###
+  data_names <- data %>% names()
 
   ### Checks ###
   if (!is.data.frame(data)) {
-    stop("Data must be a data.frame.", call. = FALSE)}
+    stop("Data must be a data.frame.", call. = FALSE)
+    }
 
-  if(anyNA(match(outcome,names(data)))){
-    stop("Outcome is not a variable in the data provided!",call. = FALSE)
-  }
+  if(!outcome %in% data_names){
+    stop(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided!"), call. = FALSE)
+    }
 
-  if(anyNA(match(treatment,names(data)))){
-    stop("Treatment is not a variable in the data provided!",call. = FALSE)
-  }
+  if(!treatment %in% data_names){
+    stop(paste("The treatment variable", blue$bold(treatment), "is not a variable in the data provided!"), call. = FALSE)
+    }
 
-  if(anyNA(match(selection_covariates,names(data)))){
-    stop("Not all covariates listed are variables in the data provided!",call. = FALSE)
-  }
+  invalid_selection_covariates <- selection_covariates %>% setdiff(data_names)
+
+  if(!is_empty(invalid_selection_covariates)){
+    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
+    }
 
   if(!selection_method %in% c("lr","rf","lasso")){
-    stop("Invalid method!",call. = FALSE)
-  }
+    stop("Invalid selection method!", call. = FALSE)
+    }
 
-  ### Clean up data from missing values ###
-  data = data[rownames(na.omit(data[,c(trial,selection_covariates)])),c(outcome, treatment, trial, selection_covariates)]
+  ### Omit rows in which the trial variable or the selection covariates contain missing values from the data ###
+  data <- data %>% drop_na(c(trial, selection_covariates))
 
   ### Generate Participation Probabilities ###
   # Logistic Regression
   if(selection_method == "lr"){
-    formula = as.formula(paste(trial, paste(selection_covariates,collapse="+"),sep="~"))
-    ps = predict(glm(formula, data = data, family='quasibinomial'),type = 'response')
+
+    formula <- paste(trial, paste(selection_covariates, collapse = "+"), sep = "~") %>% as.formula()
+    ps <- formula %>% glm(data = data, family = "quasibinomial") %>% predict(type = "response")
+
   }
 
   # Random Forests
   if(selection_method == "rf"){
-    formula = as.formula(paste( paste("as.factor(",trial,")"), paste(selection_covariates,collapse="+"),sep="~"))
-    ps = predict(randomForest::randomForest(formula, data=data, na.action=na.omit, sampsize = 454, ntree=1500),type = 'prob')[,2]
+
+    formula <- paste(paste("as.factor(", trial, ")"), paste(selection_covariates, collapse = "+"), sep = "~") %>% as.formula()
+    ps <- predict(randomForest::randomForest(formula, data = data, na.action = na.omit, sampsize = 454, ntree=1500), type = 'prob')[,2]
+
   }
 
   # Lasso
