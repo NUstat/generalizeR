@@ -7,8 +7,8 @@
 #' @param trial variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)
 #' @param selection_covariates vector of covariate names in data set that predict trial participation
 #' @param data data frame comprised of "stacked" trial and target population data
-#' @param selection_method method to estimate the probability of trial participation.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint logical. If TRUE, then trial and population data are considered independent.  This affects calculation of the weights - see details for more information.
+#' @param selection_method method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
+#' @param is_data_disjoint logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.
 #' @param seed numeric. By default, the seed is set to 7835, otherwise can be specified (such as for simulation purposes).
 #' @export
 #' @importFrom glmnet cv.glmnet
@@ -60,28 +60,49 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
   # Logistic Regression
   if(selection_method == "lr"){
 
-    formula <- paste(trial, paste(selection_covariates, collapse = "+"), sep = "~") %>% as.formula()
-    ps <- formula %>% glm(data = data, family = "quasibinomial") %>% predict(type = "response")
+    formula <- cat(trial,
+                   paste(selection_covariates, collapse = "+"),
+                   sep = "~") %>%
+      as.formula()
+    ps <- formula %>%
+      glm(data = data,
+          family = "quasibinomial") %>%
+      predict(type = "response")
 
   }
 
   # Random Forests
   if(selection_method == "rf"){
 
-    formula <- paste(paste("as.factor(", trial, ")"), paste(selection_covariates, collapse = "+"), sep = "~") %>% as.formula()
-    ps <- predict(randomForest::randomForest(formula, data = data, na.action = na.omit, sampsize = 454, ntree=1500), type = 'prob')[,2]
+    formula <- cat(
+      paste("as.factor(", trial, ")"),
+      paste(selection_covariates, collapse = "+"),
+      sep = "~") %>%
+      as.formula()
+    ps <- randomForest::randomForest(formula,
+                                     data = data,
+                                     na.action = na.omit,
+                                     sampsize = 454,
+                                     ntree = 1500) %>%
+      predict(type = "prob") %>%
+      extract2(2)
 
   }
 
   # Lasso
   if(selection_method == "lasso"){
-    test.x = model.matrix(~ -1 + ., data=data[,selection_covariates])
-    test.y = data[,trial]
-    ps = as.numeric(predict(glmnet::cv.glmnet(
-      x=test.x,
-      y=test.y,
-      family="binomial"
-    ),newx=test.x,s="lambda.1se",type="response"))
+
+    test.x <- model.matrix(~ -1 + .,
+                           data = data[,selection_covariates])
+    test.y <- data[,trial]
+    ps <- glmnet::cv.glmnet(x = test.x,
+                           y = test.y,
+                           family = "binomial") %>%
+      predict(newx = test.x,
+              s = "lambda.1se",
+              type = "response") %>%
+      as.numeric()
+
   }
 
   ### Set any participation probabilities of 0 in the trial to the minimum non-zero value ###
