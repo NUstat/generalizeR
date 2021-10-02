@@ -58,6 +58,10 @@
 stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                      idnum = NULL, seed = 7835, verbose = TRUE){
 
+  if(!is.data.frame(data)){
+    stop(simpleError("Data must be an object of type 'data.frame'."))
+  }
+
   skim_variable <- skim_type <- variable <- NULL
   type <- Stratum <- n <- mn <- deviation <- NULL
   data_name <<- data %>% expr_text() # Store name of dataset as global variable so it can be accessed by stratify_basic(). Must be done before function argument 'data' is evaluated for the first time.
@@ -65,7 +69,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
 
   data <- data %>%
-    mutate(across(where(is_character) & !idnum, as_factor)) # immediately convert all character variables (except the id variable if it is one) to factors
+    mutate(across(where(is_character), as_factor)) # immediately convert all character variables to factors
 
   # Here begins the guided wrapper for the function -------------------------
 

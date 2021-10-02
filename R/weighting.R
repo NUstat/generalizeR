@@ -32,25 +32,25 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
 
   ### Checks ###
   if (!is.data.frame(data)) {
-    stop("Data must be a data.frame.", call. = FALSE)
+    stop(simpleError("Data must be an object of type 'data.frame'."))
     }
 
   if(!outcome %in% data_names){
-    stop(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided!"), call. = FALSE)
+    stop(simpleError(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided!")))
     }
 
   if(!treatment %in% data_names){
-    stop(paste("The treatment variable", blue$bold(treatment), "is not a variable in the data provided!"), call. = FALSE)
+    stop(simpleError(paste("The treatment variable", blue$bold(treatment), "is not a variable in the data provided!")))
     }
 
   invalid_selection_covariates <- selection_covariates %>% setdiff(data_names)
 
   if(!is_empty(invalid_selection_covariates)){
-    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
+    stop(simpleError(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", "))))
     }
 
   if(!selection_method %in% c("lr","rf","lasso")){
-    stop("Invalid selection method!", call. = FALSE)
+    stop(simpleError("Invalid selection method! Please choose one of 'lr', 'rf', or 'lasso' for your selection method."))
     }
 
   ### Omit rows in which the trial variable or the selection covariates contain missing values from the data ###

@@ -26,11 +26,17 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     n_strata <- round(n_strata)
   }
 
-  if(!is.character(variables) | (anyNA(match(variables, names(data))))) {
+  if(!is.character(variables)) {
     stop(simpleError("You must provide a character vector consisting of the names of stratifying variables in your inference population."))
   }
 
-  if(!is.character(idnum) | is.na(match(idnum, names(data)))) {
+  invalid_vars <- c(variables, idnum) %>% setdiff(names(data))
+
+  if(!is_empty(invalid_vars)){
+    stop(simpleError(paste("The following variables are not columns in the chosen dataframe:\n", paste(blue$bold(invalid_vars), collapse = ", "))))
+  }
+
+  if(!is.character(idnum)) {
     stop(simpleError("idnum should be the name of the identifying variable in your inference population -- e.x.: 'id'."))
   }
 
