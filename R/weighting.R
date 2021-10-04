@@ -60,7 +60,7 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
   # Logistic Regression
   if(selection_method == "lr"){
 
-    formula <- cat(trial,
+    formula <- paste(trial,
                    paste(selection_covariates, collapse = "+"),
                    sep = "~") %>%
       as.formula()
@@ -74,7 +74,7 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
   # Random Forests
   if(selection_method == "rf"){
 
-    formula <- cat(
+    formula <- paste(
       paste("as.factor(", trial, ")"),
       paste(selection_covariates, collapse = "+"),
       sep = "~") %>%
