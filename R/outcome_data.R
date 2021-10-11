@@ -3,25 +3,19 @@ inference_pop = cc %>%
   filter(charter == 1) %>%
   filter(g_10_offered == "Yes")
 
-selection_covariates = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch")
+selection_covariates = c("total", "pct_black_or_african_american", "pct_female")
 
 output = stratify(inference_pop, guided = FALSE, n_strata = 4, variables = selection_covariates, idnum = "ncessch")
 
-#set.seed(3592)
+set.seed(3592)
 
-stratum_sample_sizes = c(20, 4, 5, 11)
+stratum_sample_sizes = c(1, 37, 1, 1) #c(20, 4, 5, 11)
 total_sample_size = stratum_sample_sizes %>% sum()
 
-beta = c(0, 4, 8, 12, 16)*4
-delta = c(0.5, 1, 2, 3, 4)*4
+beta = 0
+delta = c(0.5, 1, 1, 1, 0) * 90295422
 
-target_data = output$recruit_data %>%
-  mutate(
-    total = scale(total),
-    pct_female = scale(pct_female),
-    pct_black_or_african_american = scale(pct_black_or_african_american),
-    pct_free_and_reduced_lunch = scale(pct_free_and_reduced_lunch)
-  )
+target_data = output$recruit_data
 
 trial_data = target_data %>%
   group_by(Stratum) %>%
@@ -46,15 +40,84 @@ target_data = target_data %>%
   mutate(trial = ifelse(ncessch %in% trial_data$ncessch, 1, 0),
          treatment = case_when(
            ncessch %in% treatment_data$ncessch ~ 1,
-           ncessch %in% trial_data$ncessch ~ 0
-           ),
-         outcome = beta[1] + delta[1]*treatment +
-                   (beta[2] + delta[2]*treatment)*total +
-                   (beta[3] + delta[3]*treatment)*pct_female +
-                   (beta[4] + delta[4]*treatment)*pct_black_or_african_american +
-                   (beta[5] + delta[5]*treatment)*pct_free_and_reduced_lunch +
-                   rnorm(1, 0, 10)*(1+treatment)
+           ncessch %in% trial_data$ncessch ~ 0)
          ) %>%
   dplyr::select(-Stratum, -rank, -ncessch)
 
-weighting("outcome", "treatment", "trial", selection_covariates, target_data)
+total_mean = target_data %>%
+  filter(trial == 1) %>%
+  pull(total) %>%
+  mean()
+
+total_sd = target_data %>%
+  filter(trial == 1) %>%
+  pull(total) %>%
+  sd()
+
+epsilon = rnorm(length(target_data$total), 0, 10^4)
+
+target_data = target_data %>%
+  mutate(total = (total-total_mean)/total_sd,
+         outcome = delta[1]*treatment + (beta + delta[2]*treatment)*total +
+                                        (beta + delta[3]*treatment)*pct_black_or_african_american +
+                   epsilon
+         )
+
+control = target_data %>%
+  filter(treatment == 0)
+
+target_data %>%
+  filter(treatment == 0) %>%
+  pull(outcome) %>%
+  var()
+
+control_var = control %>%
+  pull(outcome) %>%
+  var()
+
+target_data = target_data %>%
+  mutate(outcome = outcome / control_var)
+
+# mean in control group should be close to 0
+# mean in treatment group should be close to 0.5 (change delta[1])
+
+target_data %>%
+  filter(treatment == 1) %>%
+  pull(outcome) %>%
+  mean()
+
+test = weighting("outcome", "treatment", "trial", selection_covariates, target_data, is_data_disjoint = FALSE)
+hist(test$weights[test$weights != 0])
+
+assess("trial", selection_covariates, target_data, is_data_disjoint = FALSE)
+
+treatment_mean = target_data %>%
+  filter(treatment == 1) %>%
+  select(outcome) %>%
+  pull(outcome) %>%
+  mean()
+
+treatment_var = target_data %>%
+  filter(treatment == 1) %>%
+  select(outcome) %>%
+  pull(outcome) %>%
+  var()
+
+control_mean = target_data %>%
+  filter(treatment == 0) %>%
+  select(outcome) %>%
+  pull(outcome) %>%
+  mean()
+
+control_var = target_data %>%
+  filter(treatment == 0) %>%
+  select(outcome) %>%
+  pull(outcome) %>%
+  var()
+
+
+
+fit = lm(outcome ~ total + pct_black_or_african_american + pct_female + pct_free_and_reduced_lunch, data = control)
+fit %>% summary()
+
+

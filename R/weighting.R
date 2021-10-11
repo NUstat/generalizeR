@@ -134,10 +134,18 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
     TATE = summary(TATE_model)$coefficients[treatment,"Estimate"]
     TATE_se = summary(TATE_model)$coefficients[treatment,"Std. Error"]
 
+    TATE_model_null = lm(as.formula(paste(outcome,treatment,sep="~")),data = data)
+
+    TATE_null = summary(TATE_model_null)$coefficients[treatment,"Estimate"]
+    TATE_se_null = summary(TATE_model_null)$coefficients[treatment,"Std. Error"]
+
     TATE_CI_l = TATE - 1.96*TATE_se
     TATE_CI_u = TATE + 1.96*TATE_se
 
-    TATE = list(estimate = TATE, se = TATE_se, CI_l = TATE_CI_l, CI_u = TATE_CI_u)
+    TATE = list(estimate = TATE, se = TATE_se, CI_l = TATE_CI_l, CI_u = TATE_CI_u,
+                estimate_null = TATE_null, se_null = TATE_se_null)
+
+
   }
 
   ##### Items to return out #####
