@@ -17,42 +17,50 @@
 assess <- function(trial, selection_covariates, data, selection_method = "lr",
                   is_data_disjoint = TRUE, trim_pop = FALSE, seed = 12222){
 
-  ##### make methods lower case #####
+  ##### Set the seed #####
+  set.seed(seed)
+
+  ##### Make methods lower case #####
   selection_method = tolower(selection_method)
 
   ##### CHECKS #####
-  # if (!is.data.frame(data)) {
-  #   stop("Data must be a data.frame.", call. = FALSE)
-  # }
-
-  if(anyNA(match(selection_covariates,names(data)))){
-    stop("Not all covariates listed are variables in the data provided!",call. = FALSE)
+  if(!is.data.frame(data)) {
+    stop("Data must be an object of type 'data.frame'.", call. = FALSE)
   }
 
-  if(anyNA(match(names(table(data[,trial])),c("0","1")))){
-    stop("Sample Membership variable must be coded as `0` (not in trial) or `1` (in trial)",call. = FALSE)
+  invalid_selection_covariates <- selection_covariates %>% setdiff(names(data))
+
+  if(!is_empty(invalid_selection_covariates)) {
+    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
   }
 
-  if(!selection_method %in% c("lr","rf","lasso")){
-    stop("Invalid weighting method!",call. = FALSE)
+  if(anyNA(match(names(table(data[,trial])), c("0","1")))) {
+    stop("Sample membership variable must be coded as `0` (not in trial) or `1` (in trial).", call. = FALSE)
+  }
+
+  if(!selection_method %in% c("lr","rf","lasso")) {
+    stop("Invalid selection method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your selection method.", call. = FALSE)
   }
 
   if(!missing(seed)){
     if(!is.numeric(seed)){
-      stop("seed must be numeric!,call. = FALSE")
+      stop("Seed must be numeric.", call. = FALSE)
     }}
+
   ##### Clean up data from missing values #####
   #data = data[rownames(na.omit(data[,c(trial,selection_covariates)])),]
 
-  if(trim_pop == FALSE){n_excluded = NULL}
+  if(trim_pop == FALSE) {n_excluded = NULL}
 
   if(trim_pop == TRUE){
-    n_excluded = trim_pop(trial, selection_covariates, data)$n_excluded
-    data = trim_pop(trial, selection_covariates, data)$trimmed_data
+
+
+    n_excluded <- trim_pop(trial, selection_covariates, data)$n_excluded
+    data <- trim_pop(trial, selection_covariates, data)$trimmed_data
   }
 
   weight_object = weighting(outcome = NULL, treatment = NULL, trial, selection_covariates, data,
-                            selection_method, is_data_disjoint,seed)
+                            selection_method, is_data_disjoint, seed)
 
   participation_probs = weight_object$participation_probs
 

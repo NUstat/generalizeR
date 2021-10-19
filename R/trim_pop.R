@@ -9,59 +9,86 @@ trim_pop <- function(trial, selection_covariates, data){
 
   ##### CHECKS #####
   if (!is.data.frame(data)) {
-    stop("Data must be a data.frame.", call. = FALSE)
+    stop("Data must be of type 'data.frame'.", call. = FALSE)
   }
 
-  if(anyNA(match(selection_covariates,names(data)))){
-    stop("Not all covariates listed are variables in the data provided!",call. = FALSE)
+  invalid_selection_covariates <- selection_covariates %>% setdiff(names(data))
+
+  if(!is_empty(invalid_selection_covariates)) {
+    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
   }
 
-  if(!length(na.omit(unique(data[,trial]))) == 2){
-    stop("Trial Membership variable not binary", call. = FALSE)
+  trial_valid <- data %>%
+    pull(trial) %>%
+    na.omit() %>%
+    table() %>%
+    names() %>%
+    setequal(c("0", "1"))
+
+  if(!trial_valid) {
+    stop("Trial membership variable must be binary and coded as `0` (not in trial) or `1` (in trial)", call. = FALSE)
   }
 
-  if(anyNA(match(names(table(data[,trial])),c("0","1")))){
-    stop("Sample Membership variable must be coded as `0` (not in trial) or `1` (in trial)",call. = FALSE)
+  ##### Subset trial data covariates #####
+  trial_dat <- data %>%
+    filter(trial == 1) %>%
+    select(selection_covariates)
+
+  if(length(selection_covariates) == 1) {
+
+    trial_dat <- trial_dat %>% data.frame()
+    names(trial_dat) <- selection_covariates
   }
 
-  ##### subset trial data covariates #####
-  trial_dat = data[which(data[,trial]==1),selection_covariates]
+  ##### Find covariate bounds in the trial #####
+  covariate_bounds <- function(covariate) {
 
-  if(length(selection_covariates)==1){
-    trial_dat = data.frame(trial_dat)
-    names(trial_dat) = selection_covariates
-  }
+    # Convert quoted expression contained in function argument to symbol so it can be evaluated inside dplyr functions
+    covariate <- covariate %>% rlang::sym()
 
-  ##### find covariate bounds in the trial #####
-  covariate_bounds = function(covariate){
-    if(is.factor(trial_dat[,covariate])){
+    # Make covariate vector but only for observations selected to be part of the trial
+    trial_covariate <- trial_dat %>% pull(covariate)
 
-      trial_levels = levels(droplevels(trial_dat)[,covariate])
-      return(rownames(data)[which(!data[,covariate] %in% trial_levels)])
+    if(trial_covariate %>% is.factor()) {
+
+      trial_levels <- trial_covariate %>% droplevels() %>% levels()
+
+      return(
+        data %>%
+          mutate(test = !(!!covariate %in% trial_levels)) %>% # The !!-operator (bang-bang) evaluates covariate first so the expression it contains is what gets passed to mutate()
+          pull(test) %>%
+          which()
+      )
     }
 
-    if(is.numeric(trial_dat[,covariate])){
-      trial_bounds = c(min(trial_dat[,covariate],na.rm=TRUE),max(trial_dat[,covariate],na.rm=TRUE))
-      return(rownames(data)[which(!(data[,covariate] >= trial_bounds[1] & data[,covariate] <= trial_bounds[2]))])
+    if(trial_covariate %>% is.numeric()) {
+
+      trial_bounds <- c(trial_covariate %>% min(na.rm = TRUE), trial_covariate %>% max(na.rm = TRUE))
+
+      return(
+        data %>%
+          mutate(test = !(!!covariate %>% between(trial_bounds[1], trial_bounds[2]))) %>%
+          pull(test) %>%
+          which()
+      )
     }
   }
 
-  ##### find rows of population data that violate bounds #####
-  bound_violations = purrr::map(selection_covariates,covariate_bounds)
+  ##### Find and remove rows of population data that violate bounds #####
+  bound_violations <- purrr::map(selection_covariates, covariate_bounds)
 
-  missing_rows=unique(unlist(bound_violations))
+  missing_rows <- bound_violations %>% unlist() %>% unique()
 
-  trimmed_data = data[which(!rownames(data) %in% missing_rows),]
+  trimmed_data <- data %>%
+    filter(!row.names(data) %in% missing_rows) %>%
+    droplevels() # Get rid of unused levels from factors
 
-  ##### get rid of unused levels from factors #####
-  trimmed_data = droplevels(trimmed_data)
+  ##### Number of rows in population data excluded #####
+  n_excluded <- missing_rows %>% length()
 
-  ##### number of rows in population data excluded #####
-  n_excluded = nrow(data[which(data[,trial]==0),]) - nrow(trimmed_data[which(trimmed_data[,trial]==0),])
-
-  out = list(n_excluded = n_excluded,
-             trimmed_data = trimmed_data,
-             untrimmed_data = data)
+  out <- list(n_excluded = n_excluded,
+              trimmed_data = trimmed_data,
+              untrimmed_data = data)
 
   return(out)
 }

@@ -35,7 +35,7 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
     stop(simpleError("Data must be an object of type 'data.frame'."))
     }
 
-  if(!outcome %in% data_names){
+  if(!(outcome %in% data_names)){
     stop(simpleError(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided!")))
     }
 
@@ -120,12 +120,12 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
   }
 
   # Trim any of the weights if necessary
-  data$weights[which(data$weights == 0 & data[,trial] == 1)] = quantile(data$weights[which(data[,trial]==1)],0.01,na.rm=TRUE)
+  data$weights[which(data$weights == 0 & data[,trial] == 1)] = quantile(data$weights[which(data[,trial]==1)], 0.01, na.rm=TRUE)
 
   participation_probs = list(population = ps[which(data[,trial]==0)],
                              trial = ps[which(data[,trial]==1)])
 
-  if(is.null(outcome) & is.null(treatment)){TATE = NULL}
+  if (is.null(outcome) & is.null(treatment)) {TATE = NULL}
   else{
 
     ##### ESTIMATE POPULATION AVERAGE TREATMENT EFFECT #####
