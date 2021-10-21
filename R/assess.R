@@ -54,30 +54,38 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
 
   if(trim_pop == TRUE){
 
+    trim_pop_output <- trim_pop(trial, selection_covariates, data)
 
-    n_excluded <- trim_pop(trial, selection_covariates, data)$n_excluded
-    data <- trim_pop(trial, selection_covariates, data)$trimmed_data
+    n_excluded <- trim_pop_output$n_excluded
+
+    data <- trim_pop_output$trimmed_data
   }
 
-  weight_object = weighting(outcome = NULL, treatment = NULL, trial, selection_covariates, data,
+  weight_object <- weighting(outcome = NULL, treatment = NULL, trial, selection_covariates, data,
                             selection_method, is_data_disjoint, seed)
 
-  participation_probs = weight_object$participation_probs
+  participation_probs <- weight_object$participation_probs
 
-  weights = weight_object$weights
+  weights <- weight_object$weights
 
-  g_index = gen_index(participation_probs$trial, participation_probs$population)
+  g_index <- gen_index(participation_probs$trial, participation_probs$population)
 
-  cov_tab = covariate_table(trial, selection_covariates, data)
-  weighted_cov_tab = covariate_table(trial, selection_covariates, data,weighted_table = TRUE)
+  cov_tab <- covariate_table(trial, selection_covariates, data)
+  weighted_cov_tab <- covariate_table(trial, selection_covariates, data,weighted_table = TRUE)
 
 
-  n_trial = nrow(data[which(data[,trial] == 1),])
-  n_pop = nrow(data[which(data[,trial] == 0),])
+  n_trial <- data %>%
+    filter(trial == 1) %>%
+    nrow()
 
-  data_output = data[,c(trial, selection_covariates)]
+  n_pop <- data %>%
+    filter(trial == 0) %>%
+    nrow()
 
-  out = list(
+  data_output <- data %>%
+    select(trial, selection_covariates)
+
+  out <- list(
     g_index = g_index,
     selection_method = selection_method,
     selection_covariates = selection_covariates,
@@ -93,7 +101,7 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
     data = data_output
   )
 
-  class(out) = "generalize_assess"
+  class(out) <- "generalize_assess"
 
   return(out)
 }
@@ -132,7 +140,7 @@ summary.generalize_assess <- function(object,...){
     n_excluded = object$n_excluded
   )
 
-  class(out) = "summary.generalize_assess"
+  class(out) <- "summary.generalize_assess"
   return(out)
 }
 

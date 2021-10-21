@@ -32,25 +32,25 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
 
   ### Checks ###
   if (!is.data.frame(data)) {
-    stop(simpleError("Data must be an object of type 'data.frame'."))
+    stop("Data must be an object of type 'data.frame'.", call. = FALSE)
     }
 
-  if(!(outcome %in% data_names)){
-    stop(simpleError(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided!")))
+  if(!(outcome %in% data_names || is.null(outcome))) {
+    stop(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided."), call. = FALSE)
     }
 
-  if(!treatment %in% data_names){
-    stop(simpleError(paste("The treatment variable", blue$bold(treatment), "is not a variable in the data provided!")))
+  if(!(treatment %in% data_names || is.null(treatment))) {
+    stop(paste("The treatment variable", blue$bold(treatment), "is not a variable in the data provided."), call. = FALSE)
     }
 
   invalid_selection_covariates <- selection_covariates %>% setdiff(data_names)
 
-  if(!is_empty(invalid_selection_covariates)){
-    stop(simpleError(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", "))))
+  if(!is_empty(invalid_selection_covariates)) {
+    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
     }
 
-  if(!selection_method %in% c("lr","rf","lasso")){
-    stop(simpleError("Invalid selection method! Please choose one of 'lr', 'rf', or 'lasso' for your selection method."))
+  if(!selection_method %in% c("lr","rf","lasso")) {
+    stop("Invalid selection method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your selection method.", call. = FALSE)
     }
 
   ### Omit rows in which the trial variable or the selection covariates contain missing values from the data ###
@@ -58,100 +58,149 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
 
   ### Generate Participation Probabilities ###
   # Logistic Regression
-  if(selection_method == "lr"){
+  if(selection_method == "lr") {
 
     formula <- paste(trial,
                    paste(selection_covariates, collapse = "+"),
                    sep = "~") %>%
       as.formula()
+
     ps <- formula %>%
       glm(data = data,
           family = "quasibinomial") %>%
       predict(type = "response")
-
   }
 
-  # Random Forests
-  if(selection_method == "rf"){
+  # Random Forest
+  if(selection_method == "rf") {
 
     formula <- paste(
       paste("as.factor(", trial, ")"),
       paste(selection_covariates, collapse = "+"),
       sep = "~") %>%
       as.formula()
+
     ps <- randomForest::randomForest(formula,
                                      data = data,
-                                     na.action = na.omit,
-                                     sampsize = 454,
-                                     ntree = 1500) %>%
+                                     na.action = na.omit) %>%
+                                     #sampsize = 454,
+                                     #ntree = 1500) %>%
       predict(type = "prob") %>%
-      extract2(2)
-
+      as.data.frame() %>%
+      pull("1")
   }
 
   # Lasso
-  if(selection_method == "lasso"){
+  if(selection_method == "lasso") {
 
     test.x <- model.matrix(~ -1 + .,
-                           data = data[,selection_covariates])
-    test.y <- data[,trial]
+                           data = data %>% select(selection_covariates))
+
+    test.y <- data %>% pull(trial)
+
     ps <- glmnet::cv.glmnet(x = test.x,
-                           y = test.y,
-                           family = "binomial") %>%
+                            y = test.y,
+                            family = "binomial") %>%
       predict(newx = test.x,
               s = "lambda.1se",
               type = "response") %>%
       as.numeric()
-
   }
 
   ### Set any participation probabilities of 0 in the trial to the minimum non-zero value ###
-  if(any(ps[which(data[,trial]==1)] == 0)){
-    ps[which(data[,trial] == 1 & ps == 0)] = min(ps[which(data[,trial] == 1 & ps != 0)], na.rm=TRUE)
+
+  if(0 %in% ps) {
+    ps[which(data[,trial] == 1 & ps == 0)] <- min(ps[which(data[,trial] == 1 & ps != 0)], na.rm = TRUE)
   }
 
   ### Generate Weights ###
-  if(is_data_disjoint == TRUE){
-    data$weights = ifelse(data[,trial]==0,0,(1-ps)/ps)
+  if(is_data_disjoint == TRUE) {
+
+    data <- data %>%
+      mutate(weights = ifelse(trial == 0,
+                              0,
+                              (1-ps)/ps
+                              )
+      )
   }
 
-  if(is_data_disjoint == FALSE){
-    data$weights = ifelse(data[,trial]==0,0,1/ps)
+  else {
+
+    data <- data %>%
+      mutate(weights = ifelse(trial == 0,
+                              0,
+                              1/ps
+                              )
+      )
   }
 
   # Trim any of the weights if necessary
-  data$weights[which(data$weights == 0 & data[,trial] == 1)] = quantile(data$weights[which(data[,trial]==1)], 0.01, na.rm=TRUE)
+  data$weights[which(data$weights == 0 & data[,trial] == 1)] <- quantile(data$weights[which(data[,trial] == 1)], 0.01, na.rm = TRUE)
 
-  participation_probs = list(population = ps[which(data[,trial]==0)],
-                             trial = ps[which(data[,trial]==1)])
+  participation_probs <- list(population = ps[which(data[,trial] == 0)],
+                             trial = ps[which(data[,trial] == 1)])
 
-  if (is.null(outcome) & is.null(treatment)) {TATE = NULL}
-  else{
+  if(is.null(outcome) & is.null(treatment)) {TATE <- NULL}
+
+  else {
 
     ##### ESTIMATE POPULATION AVERAGE TREATMENT EFFECT #####
-    TATE_model = lm(as.formula(paste(outcome,treatment,sep="~")),data = data, weights = weights)
 
-    TATE = summary(TATE_model)$coefficients[treatment,"Estimate"]
-    TATE_se = summary(TATE_model)$coefficients[treatment,"Std. Error"]
+    # Model with weights (should outperform model without weights)
+    TATE_model <- paste(outcome, treatment, sep = "~") %>%
+      as.formula() %>%
+      lm(data = data, weights = weights)
 
-    TATE_model_null = lm(as.formula(paste(outcome,treatment,sep="~")),data = data)
+    # Model without weights
+    TATE_model_null <- paste(outcome, treatment, sep = "~") %>%
+      as.formula() %>%
+      lm(data = data)
 
-    TATE_null = summary(TATE_model_null)$coefficients[treatment,"Estimate"]
-    TATE_se_null = summary(TATE_model_null)$coefficients[treatment,"Std. Error"]
+    # Total average treatment effect for model with weights
+    TATE <- TATE_model %>%
+      broom::tidy() %>%
+      filter(term == "treatment") %>%
+      pull(estimate)
 
-    TATE_CI_l = TATE - 1.96*TATE_se
-    TATE_CI_u = TATE + 1.96*TATE_se
+    # Total average treatment effect for model without weights
+    TATE_null <- TATE_model_null %>%
+      broom::tidy() %>%
+      filter(term == "treatment") %>%
+      pull(estimate)
 
-    TATE = list(estimate = TATE, se = TATE_se, CI_l = TATE_CI_l, CI_u = TATE_CI_u,
-                estimate_null = TATE_null, se_null = TATE_se_null)
+    # Standard error of total average treatment effect for model with weights
+    TATE_se <- TATE_model %>%
+      broom::tidy() %>%
+      filter(term == "treatment") %>%
+      pull(std.error)
 
+    # Standard error of total average treatment effect for model without weights
+    TATE_se_null <- TATE_model_null %>%
+      broom::tidy() %>%
+      filter(term == "treatment") %>%
+      pull(std.error)
 
+    # 95% confidence interval for total average treatment effect of model with weights
+    TATE_CI <- TATE + 1.96*TATE_se*c(-1, 1)
+
+    # 95% confidence interval for total average treatment effect of model without weights
+    TATE_CI_null <- TATE_null + 1.96*TATE_se_null*c(-1, 1)
+
+    TATE <- list(estimate = TATE,
+                estimate_null = TATE_null,
+                se = TATE_se,
+                se_null = TATE_se_null,
+                CI = TATE_CI,
+                CI_null = TATE_CI_null)
   }
 
   ##### Items to return out #####
-  out = list(participation_probs = participation_probs,
+  out <- list(participation_probs = participation_probs,
              weights = data$weights,
              TATE = TATE)
 
   return(out)
 }
+
+
+
