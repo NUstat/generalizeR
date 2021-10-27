@@ -181,10 +181,10 @@ weighting <- function(outcome, treatment, trial, selection_covariates, data,
       pull(std.error)
 
     # 95% confidence interval for total average treatment effect of model with weights
-    TATE_CI <- TATE + 1.96*TATE_se*c(-1, 1)
+    TATE_CI <- TATE + 2.262*TATE_se*c(-1, 1)
 
     # 95% confidence interval for total average treatment effect of model without weights
-    TATE_CI_null <- TATE_null + 1.96*TATE_se_null*c(-1, 1)
+    TATE_CI_null <- TATE_null + 2.262*TATE_se_null*c(-1, 1)
 
     TATE <- list(estimate = TATE,
                 estimate_null = TATE_null,

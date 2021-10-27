@@ -42,17 +42,18 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
     stop("Invalid selection method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your selection method.", call. = FALSE)
   }
 
-  if(!missing(seed)){
-    if(!is.numeric(seed)){
+  if(!missing(seed)) {
+    if(!is.numeric(seed)) {
       stop("Seed must be numeric.", call. = FALSE)
     }}
 
-  ##### Clean up data from missing values #####
-  #data = data[rownames(na.omit(data[,c(trial,selection_covariates)])),]
+  ##### Drop missing values from trial and selection covariate columns in data #####
+  data <- data %>%
+    drop_na(trial, selection_covariates)
 
   if(trim_pop == FALSE) {n_excluded = NULL}
 
-  if(trim_pop == TRUE){
+  if(trim_pop == TRUE) {
 
     trim_pop_output <- trim_pop(trial, selection_covariates, data)
 
@@ -67,6 +68,8 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
   participation_probs <- weight_object$participation_probs
 
   weights <- weight_object$weights
+
+  weights
 
   g_index <- gen_index(participation_probs$trial, participation_probs$population)
 
@@ -106,7 +109,7 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
   return(out)
 }
 
-print.generalize_assess <- function(x,...){
+print.generalize_assess <- function(x,...) {
   cat("A generalize_assess object: \n")
   cat(paste0(" - probability of trial participation method: ", x$selection_method, "\n"))
   cat(paste0(" - common covariates included: ", paste(x$selection_covariates, collapse = ", "), "\n"))
@@ -121,21 +124,21 @@ print.generalize_assess <- function(x,...){
 }
 
 summary.generalize_assess <- function(object,...){
-  selection_method_name = c("Logistic Regression","Random Forests","Lasso")
-  selection_method = c("lr","rf","lasso")
+  selection_method_name = c("Logistic Regression", "Random Forests", "Lasso")
+  selection_method = c("lr", "rf", "lasso")
   prob_dist_table = rbind(summary(object$participation_probs$trial),
                           summary(object$participation_probs$population))
-  row.names(prob_dist_table) = paste0(c("Trial","Population"), " (n = ", c(object$n_trial,object$n_pop),")")
+  row.names(prob_dist_table) = paste0(c("Trial","Population"), " (n = ", c(object$n_trial, object$n_pop),")")
 
-  selection_formula = paste0(object$trial_name," ~ ",paste(object$selection_covariates, collapse = " + "))
+  selection_formula = paste0(object$trial_name," ~ ", paste(object$selection_covariates, collapse = " + "))
 
   out = list(
     selection_formula = selection_formula,
     selection_method = selection_method_name[selection_method == object$selection_method],
-    g_index = round(object$g_index,3),
+    g_index = round(object$g_index, 3),
     prob_dist_table = prob_dist_table,
     covariate_table = round(object$covariate_table, 4),
-    weighted_covariate_table = round(object$weighted_covariate_table,4),
+    weighted_covariate_table = round(object$weighted_covariate_table, 4),
     trim_pop = object$trim_pop,
     n_excluded = object$n_excluded
   )
@@ -146,17 +149,19 @@ summary.generalize_assess <- function(object,...){
 
 print.summary.generalize_assess <- function(x,...){
   cat("Probability of Trial Participation: \n \n")
-  cat(paste0("Selection Model: ",x$selection_formula," \n \n"))
+  cat(paste0("Selection Model: ", x$selection_formula," \n \n"))
   print(x$prob_dist_table)
   cat("\n")
-  cat(paste0("Estimated by ",x$selection_method, "\n"))
-  cat(paste0("Generalizability Index: ", round(x$g_index,3), "\n"))
+  cat(paste0("Estimated by ", x$selection_method, "\n"))
+  cat(paste0("Generalizability Index: ", round(x$g_index, 3), "\n"))
   cat("============================================ \n")
-  cat("Covariate Distributions: \n \n")
   if(x$trim_pop == TRUE){
     cat("Population data were trimmed for covariates to not exceed trial covariate bounds \n")
-    cat(paste0("Number excluded from population: ", x$n_excluded ,"\n \n"))
+    cat(paste0("Number excluded from population: ", x$n_excluded , "\n \n"))
   }
-  print(round(x$covariate_table,4))
+  cat("Unweighted Covariate Distributions: \n \n")
+  print(round(x$covariate_table, 4))
+  cat("\n \nWeighted Covariate Distributions: \n \n")
+  print(round(x$weighted_covariate_table, 4))
   invisible(x)
 }

@@ -354,19 +354,9 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     cat(blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n"))
     cat("You can pull up the results anytime by passing your stratify_object into summary().\n\n")
 
-    readline(prompt = "Press [enter] to view the results")
+    readline(prompt = "Press [enter] to view the results.")
 
     print(summary(overall_output))
-
-    # if(menu(choices = c("Yes", "No"), title = cat("\nWould you like to go back and specify a different number of strata? If you specify \n'No' the stratification process will end and you can proceed to use the output in \n'recruit()' provided that it has been assigned to an object.")) == 2){
-    #
-    #   satisfied <- 1
-    #
-    # }else{
-    #
-    #   satisfied <- 0
-    #
-    # }
 
   }
 

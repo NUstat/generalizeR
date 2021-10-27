@@ -13,51 +13,71 @@
 #' @importFrom readr write_csv
 #' @importFrom easycsv choose_dir
 
-recruit <- function(x, guided = TRUE, number = NULL,
-                    save_as_csv = FALSE){
+recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
+
+  if(!inherits(x, "generalizer_output")) {
+
+    stop("Argument 'x' must be an object of class \"generalizer_output\", \ncreated by running stratify().")
+  }
 
   clusterID <- n <- proportion <- NULL
 
-  blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "));
+  blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "))
 
-  if(!inherits(x, "generalizer_output"))
-    stop("Argument 'x' must be an object of class \"generalizer_output\", \ncreated by running stratify().")
+  recruit_data <- x$recruit_data
 
-  cat("The generalizer output you've supplied consists of ", paste((x$summary_stats2 %>% filter(clusterID == "Population") %>% select(n))), " \npopulation units divided into ", paste(x$n_strata), " strata along these \nvariables: ", paste(x$variables, collapse = ", "), ".", sep = "")
+  pop_size <- recruit_data %>% nrow()
 
-  cat("\n\nGiven the number of units that you wish to recruit (your \ndesired sample size), this function can tell you how many units \nto recruit from each stratum and generate recruitment lists.\n\n")
+  cat("The generalizer output you've supplied consists of ", paste(bold(pop_size)), " population units \ndivided into ", paste(bold(x$n_strata)), " strata along these variables:\n", paste(blue$bold(x$variables), collapse = ", "), ".", sep = "")
 
-  if(guided == TRUE){
+  cat("\n\nGiven the number of units that you wish to recruit (your desired sample \nsize), this function can tell you how many units to recruit from each \nstratum and generate recruitment lists.\n\n")
+
+  #### GUIDED VERSION STARTS HERE ####
+
+  if(guided == TRUE) {
 
     satisfied <- 0
 
-    while(satisfied == 0){
-      number <- as.numeric(readline(prompt = "# of units to recruit: "))
+    while(satisfied == 0) {
 
-      if(number >= (x$summary_stats2 %>% filter(clusterID == "Population") %>% select(n))){
+      number <- readline(prompt = "# of units to recruit: ") %>% as.numeric()
 
-        satisfied <- 0
-        cat("You cannot specify a sample size that exceeds the total \nnumber of units in your population.")
+      if(number > pop_size) {
 
-      }else{
+        cat(red("You cannot specify a sample size that exceeds the total \nnumber of units in your population ("),
+            red(pop_size),
+            red(")."),
+            sep = "")
+      }
+
+      else{
 
         satisfied <- 1
-
       }
     }
 
-    new_table <- x$heat_data %>% select(clusterID, n) %>%
-      distinct(clusterID, .keep_all = TRUE) %>%
-      mutate(Proportion = round(n/(dim(x$x2)[1]), digits = 3)) %>%
-      mutate(To_Recruit = round(number * Proportion)) %>%
-      filter(clusterID != "Population") %>%
-      mutate(Cluster_ID = clusterID,
-             Population_Units = n) %>%
-      select(-c(clusterID, n)) %>%
-      select(Cluster_ID, Population_Units, Proportion, To_Recruit) %>%
-      data.frame()
+    recruit_table <- x$heat_data %>% select(Stratum, n) %>%
+      distinct(Stratum, .keep_all = TRUE) %>%
+      mutate(Population_Units = n,
+             Proportion = round(n/(dim(recruit_data)[1]), digits = 3),
+             Number_To_Recruit = round(number * Proportion)) %>%
+      filter(Stratum != "Population") %>%
+      select(Stratum, Population_Units, Proportion, Number_To_Recruit) %>%
+      data.frame() %>%
+      pivot_longer(names_to = "Metric", cols = c(Population_Units, Proportion, Number_To_Recruit)) %>%
+      pivot_wider(names_from = Stratum, names_prefix = "Stratum ") %>%
+      mutate(Metric = c("Population Units", "Proportion", "Number To Recruit"))
 
-    print(new_table, row.names = FALSE)
+    print(recruit_table)
+
+    # recruit_header <- c(1, n_strata)
+    # names(recruit_header) <- c(" ", "Stratum")
+    #
+    # recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
+    #                                        align = "c",
+    #                                        col.names = c("Metric", 1:n_strata)) %>%
+    #   kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    #   add_header_above(recruit_header)
 
     cat("\n")
     cat(paste(x$n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list, \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")

@@ -369,13 +369,15 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                          dataset = data_name,
                          n_strata = n_strata,
                          solution = solution,
+                         summary_stats2 = summary_stats2,
                          recruit_data = x2,
                          recruit_table = recruit_table,
                          recruit_kable = recruit_kable,
                          data_omitted = data_omitted,
                          cont_data_stats = cont_data_stats,
                          cat_data_levels = cat_data_levels,
-                         heat_data = heat_data_simple,
+                         heat_data = heat_data,
+                         heat_data_simple = heat_data_simple,
                          heat_data_kable = heat_data_kable,
                          heat_plot = heat_plot_final
   )
@@ -427,7 +429,7 @@ print.summary.generalizer_output <- function(x,...) {
 
   cat("Covariate Statistics by Stratum: \n \n")
 
-  x$heat_data %>% as.data.frame() %>% print()
+  x$heat_data_simple %>% as.data.frame() %>% print()
 
   x$heat_data_kable %>% print()
 
