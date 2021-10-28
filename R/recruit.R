@@ -28,6 +28,8 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
 
   pop_size <- recruit_data %>% nrow()
 
+  n_strata <- x$n_strata
+
   cat("The generalizer output you've supplied consists of ", paste(bold(pop_size)), " population units \ndivided into ", paste(bold(x$n_strata)), " strata along these variables:\n", paste(blue$bold(x$variables), collapse = ", "), ".", sep = "")
 
   cat("\n\nGiven the number of units that you wish to recruit (your desired sample \nsize), this function can tell you how many units to recruit from each \nstratum and generate recruitment lists.\n\n")
@@ -56,92 +58,126 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
       }
     }
 
+    round_preserve_sum <- function(x, digits = 0) {
+      up <- 10 ^ digits
+      x <- x * up
+      y <- floor(x)
+      indices <- tail(order(x-y), round(sum(x)) - sum(y))
+      y[indices] <- y[indices] + 1
+      y / up
+    }
+
     recruit_table <- x$heat_data %>% select(Stratum, n) %>%
       distinct(Stratum, .keep_all = TRUE) %>%
       mutate(Population_Units = n,
              Proportion = round(n/(dim(recruit_data)[1]), digits = 3),
-             Number_To_Recruit = round(number * Proportion)) %>%
+             Number_To_Recruit = round_preserve_sum(number * Proportion)) %>%
       filter(Stratum != "Population") %>%
       select(Stratum, Population_Units, Proportion, Number_To_Recruit) %>%
-      data.frame() %>%
-      pivot_longer(names_to = "Metric", cols = c(Population_Units, Proportion, Number_To_Recruit)) %>%
+      pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Number_To_Recruit)) %>%
       pivot_wider(names_from = Stratum, names_prefix = "Stratum ") %>%
-      mutate(Metric = c("Population Units", "Proportion", "Number To Recruit"))
+      mutate(" " = c("Population Units", "Proportion", "Number To Recruit")) %>%
+      as.data.frame()
 
-    print(recruit_table)
+    recruit_header <- c(1, n_strata)
+    names(recruit_header) <- c(" ", "Stratum")
 
-    # recruit_header <- c(1, n_strata)
-    # names(recruit_header) <- c(" ", "Stratum")
-    #
-    # recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
-    #                                        align = "c",
-    #                                        col.names = c("Metric", 1:n_strata)) %>%
-    #   kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-    #   add_header_above(recruit_header)
+    recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
+                                           align = "c",
+                                           col.names = c(" ", 1:n_strata)) %>%
+      column_spec(1, bold = TRUE, border_right = TRUE) %>%
+      row_spec(3, background = "#5CC863FF") %>%
+      kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+      add_header_above(recruit_header)
+
+    print(recruit_table, row.names = FALSE)
+    print(recruit_kable)
 
     cat("\n")
-    cat(paste(x$n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list, \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")
+    cat(paste(n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list, \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")
 
-    if(menu(choices = c("Yes", "No"), title = cat("\n\nWould you like to save these lists as .csv files?")) == 1){
+    if(menu(choices = c("Yes", "No"), title = cat("\n\nWould you like to save these lists as .csv files?")) == 1) {
 
       cat("\nThe lists will be saved as 'recruitment_list_for_#', one for \neach stratum. ")
       cat("Where should they be saved?\n\n")
       # filepath <- readline(prompt = "Enter a file path (Example: /Users/xdfdf/Desktop/): ")
       filepath <- easycsv::choose_dir()
 
-      for(i in 1:(x$n_strata)){
-        filename <- paste(filepath, "recruitment_list_for_", i, ".csv", sep="")
+      for(i in 1:(n_strata)) {
+
+        filename <- paste(filepath, "recruitment_list_for_", i, ".csv", sep = "")
         write_csv(x$recruitment_lists[[i]], path = filename)
       }
 
       cat("\nLists saved successfully. You can also access these \nlists later from '", paste(deparse(substitute(x))), "' by using '$recruitment_lists'.", sep = "")
 
-      }else{
+      }
+    else {
 
       cat("You can access these lists later from '", paste(deparse(substitute(x))), "' by using '$recruitment_lists'.", sep = "")
-
     }
+  }
 
-  }else{
+  else {
 
     # Non-guided stuff goes here.
 
-    if(is.null(number)){
+    if(is.null(number)) {
+
       stop("You must specify the number of units that you want to recruit.")
     }
 
-    if(!inherits(x, "generalizer_output"))
+    if(!inherits(x, "generalizer_output")) {
+
       stop("Argument 'x' must be an object of class \"generalizer_output\", \ncreated by running stratify().")
+    }
 
-    cat("The generalizer output you've supplied consists of ", paste((x$summary_stats2 %>% filter(clusterID == "Population") %>% select(n))), " \npopulation units divided into ", paste(x$n_strata), " strata along these \nvariables: ", paste(x$variables, collapse = ", "), ".\n\n", sep = "")
+    cat("The generalizer output you've supplied consists of ", paste(pop_size), " \npopulation units divided into ", paste(n_strata), " strata along these \nvariables: ", paste(x$variables, collapse = ", "), ".\n\n", sep = "")
 
-    new_table <- x$heat_data %>% select(clusterID, n) %>%
-      distinct(clusterID, .keep_all = TRUE) %>%
-      mutate(proportion = round(n/(dim(x$x2)[1]), digits = 3)) %>%
-      mutate(to_recruit = round(number * proportion)) %>%
-      filter(clusterID != "Population") %>%
-      data.frame()
+    recruit_table <- x$heat_data %>% select(Stratum, n) %>%
+      distinct(Stratum, .keep_all = TRUE) %>%
+      mutate(Population_Units = n,
+             Proportion = round(n/(dim(recruit_data)[1]), digits = 3),
+             Number_To_Recruit = round_preserve_sum(number * Proportion)) %>%
+      filter(Stratum != "Population") %>%
+      select(Stratum, Population_Units, Proportion, Number_To_Recruit) %>%
+      pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Number_To_Recruit)) %>%
+      pivot_wider(names_from = Stratum, names_prefix = "Stratum ") %>%
+      mutate(" " = c("Population Units", "Proportion", "Number To Recruit")) %>%
+      as.data.frame()
 
-    print(new_table, row.names = FALSE)
+    recruit_header <- c(1, n_strata)
+    names(recruit_header) <- c(" ", "Stratum")
 
-    cat("\n", paste(x$n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list, \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")
+    recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
+                                           align = "c",
+                                           col.names = c(" ", 1:n_strata)) %>%
+      column_spec(1, bold = TRUE, border_right = TRUE) %>%
+      row_spec(3, background = "#5CC863FF") %>%
+      kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+      add_header_above(recruit_header)
 
-    if(save_as_csv == TRUE){
+    print(recruit_table, row.names = FALSE)
+    print(recruit_kable)
+
+    cat("\n", paste(n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list, \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")
+
+    if(save_as_csv == TRUE) {
 
       cat("\n\nYou've chosen to save these lists as .csv files. \nThe lists will be saved as 'recruitment_list_for_#', one for \neach stratum. They have been saved to your current working directory.")
 
-      for(i in 1:(x$n_strata)){
-        filename <- paste("recruitment_list_for_", i, ".csv", sep="")
+      for(i in 1:(n_strata)) {
+
+        filename <- paste("recruitment_list_for_", i, ".csv", sep = "")
         write_csv(x$recruitment_lists[[i]], path = filename)
       }
+    }
+    else {
 
-    }else{
       cat("You can access these lists later from", paste(deparse(substitute(x))), " by using '$recruitment_lists'.", sep = "")
     }
-
   }
 
-  output <- list(new_table)
+  output <- list(recruit_table)
   return(invisible(output))
-
 }
