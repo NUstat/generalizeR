@@ -58,15 +58,6 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
       }
     }
 
-    round_preserve_sum <- function(x, digits = 0) {
-      up <- 10 ^ digits
-      x <- x * up
-      y <- floor(x)
-      indices <- tail(order(x-y), round(sum(x)) - sum(y))
-      y[indices] <- y[indices] + 1
-      y / up
-    }
-
     recruit_table <- x$heat_data %>% select(Stratum, n) %>%
       distinct(Stratum, .keep_all = TRUE) %>%
       mutate(Population_Units = n,
