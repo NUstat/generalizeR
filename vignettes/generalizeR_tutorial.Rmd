@@ -370,21 +370,25 @@ We have finished the stratifying process!
 
 ## Step 2: Recruit
 
-In each of these examples, our researchers have successfully stratified their inference populations into 4 and 8 clusters, respectively. Their goal is now to sample units from each cluster in such a way that their overall sample will be representative of their entire inference population. The 'recruit()' function is their next step.
+Now that we have separated our inference population into 4 strata, our next goal is to sample units from each stratum in such a way that the overall sample will be representative of the entire population. We can accomplish this task using the `recruit()` function.
 
-Like the 'stratify()' function, 'recruit()' is guided by default; users can simply set 'guided = FALSE' to turn this option off if they choose, but (again) they must specify values for the other function arguments instead.
+Like `stratify()`, `recruit()` is guided by default; we can simply set `guided = FALSE` to turn this option off if we choose, but we must specify values for the other function arguments instead.
 
-Since the results of 'stratify()' were saved to an object, that object can be read into 'recruit()', which automatically learns information about the stratification process.
+Since we assigned the results of `stratify()` to an object, that object can be passed into `recruit()`, which automatically learns information about the stratification process.
 
-### Example
-
-```{r eval=FALSE}
+```{r eval = FALSE}
 recruit(output)
 ```
 
 <img src="sec_2_ex_1_fig_1.png" width="550"/>
 
 <img src="sec_2_ex_1_fig_2.png" width="550"/>
+
+```{r echo = FALSE}
+ recruit(output, guided = FALSE, number = 40)
+#recruit_output$recruit_kable
+```
+
 
 <img src="sec_2_ex_1_fig_3.png" width="550"/>
 
