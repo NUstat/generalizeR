@@ -169,6 +169,8 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
     }
   }
 
-  output <- list(recruit_table, recruit_kable)
+  output <- list(recruit_table = recruit_table,
+                 recruit_kable = recruit_kable)
+
   return(invisible(output))
 }
