@@ -20,7 +20,7 @@ library(crayon)
 library(devtools)
 library(tidyverse)
 # install_github("katiecoburn/generalizeRdata")
-# install_github("beatricechao99/generalizeR")
+# install_github("NUstat/generalizeR")
 library(generalizeRdata)
 library(generalizeR)
 library(ggthemes)
@@ -384,9 +384,13 @@ recruit(output)
 
 <img src="sec_2_ex_1_fig_2.png" width="550"/>
 
+```{r include = FALSE}
+recruit_output <- recruit(output, guided = FALSE, number = 40)
+```
+
+
 ```{r echo = FALSE}
- recruit(output, guided = FALSE, number = 40)
-#recruit_output$recruit_kable
+recruit_output$recruit_kable
 ```
 
 
