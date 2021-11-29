@@ -89,7 +89,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
 
     if(menu(choices = c("Yes", "No"), title = cat("\n\nWould you like to save these lists as .csv files?")) == 1) {
 
-      cat("\nThe lists will be saved as 'recruitment_list_for_#', one for \neach stratum. ")
+      cat("\nThe lists will be saved as 'recruitment_list_#', one for \neach stratum. ")
       cat("Where should they be saved?\n\n")
       # filepath <- readline(prompt = "Enter a file path (Example: /Users/xdfdf/Desktop/): ")
       filepath <- easycsv::choose_dir()
@@ -155,7 +155,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
 
     if(save_as_csv == TRUE) {
 
-      cat("\n\nYou've chosen to save these lists as .csv files. \nThe lists will be saved as 'recruitment_list_for_#', one for \neach stratum. They have been saved to your current working directory.")
+      cat("\n\nYou've chosen to save these lists as .csv files. \nThe lists will be saved as 'recruitment_list_#', one for \neach stratum. They have been saved to your current working directory.")
 
       for(i in 1:(n_strata)) {
 
