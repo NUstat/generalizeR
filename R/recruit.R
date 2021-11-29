@@ -96,7 +96,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
 
       for(i in 1:(n_strata)) {
 
-        filename <- paste(filepath, "recruitment_list_for_", i, ".csv", sep = "")
+        filename <- paste(filepath, "Recruitment_list_", i, ".csv", sep = "")
         write_csv(x$recruitment_lists[[i]], path = filename)
       }
 
@@ -159,7 +159,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
 
       for(i in 1:(n_strata)) {
 
-        filename <- paste("recruitment_list_for_", i, ".csv", sep = "")
+        filename <- paste("Recruitment_list_", i, ".csv", sep = "")
         write_csv(x$recruitment_lists[[i]], path = filename)
       }
     }
