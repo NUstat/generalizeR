@@ -1,5 +1,6 @@
 library(crayon)
 library(tidyverse)
+library(janitor)
 library(cluster)
 library(ClusterR)
 library(kableExtra)
