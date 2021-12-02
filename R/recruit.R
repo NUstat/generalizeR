@@ -151,7 +151,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
     print(recruit_table, row.names = FALSE)
     print(recruit_kable)
 
-    cat("\n", paste(n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list, \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")
+    cat("\n", paste(n_strata), " recruitment lists have been generated, one per stratum. \nEach contains the ID information for the units, ranked in \norder of desirability. \n\nAttempt to recruit the desired proportionate number of units \nper stratum. If unsuccessful, recruit the next unit in the list \nand continue until you have recruited the desired number of \nunits per stratum.", sep = "")
 
     if(save_as_csv == TRUE) {
 
@@ -165,7 +165,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
     }
     else {
 
-      cat("You can access these lists later from", paste(deparse(substitute(x))), " by using '$recruitment_lists'.", sep = "")
+      cat(" You can access these lists later with the \nfollowing line of code: \n'", paste(deparse(substitute(x))), "$recruitment_lists'.", sep = "")
     }
   }
 
