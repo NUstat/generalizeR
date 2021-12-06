@@ -6,14 +6,14 @@
 #'
 #' @param x output from 'stratify()', of S3 class 'generalizer_output'
 #' @param guided logical; defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, must provide values for other arguments below
-#' @param number defaults to NULL. If guided is set to FALSE, must provide a number of units to sample
+#' @param sample_size defaults to NULL. If guided is set to FALSE, must provide a number of units to sample
 #' @param save_as_csv defaults to NULL. If guided is set to FALSE, specify whether or not to save recruitment lists to working directory; TRUE or FALSE
 #' @return A one-element list containing the table that includes the number of units to sample per stratum
 #' @export
 #' @importFrom readr write_csv
 #' @importFrom easycsv choose_dir
 
-recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
+recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   if(!inherits(x, "generalizer_output")) {
 
@@ -45,9 +45,9 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
     while(satisfied == 0) {
 
       cat("\n")
-      number <- readline(prompt = "Number of units to recruit: ") %>% as.numeric()
+      sample_size <- readline(prompt = "Number of units to recruit: ") %>% as.numeric()
 
-      if(number > pop_size) {
+      if(!(sample_size %in% valid_inputs)) {
 
         cat(red("You cannot specify a sample size that exceeds the total \nnumber of units in your population ("),
             red(pop_size),
@@ -66,7 +66,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
 
   else {
 
-    if(is.null(number)) {
+    if(is.null(sample_size)) {
 
       stop("You must specify the number of units that you want to recruit.")
     }
@@ -120,7 +120,7 @@ recruit <- function(x, guided = TRUE, number = NULL, save_as_csv = FALSE) {
     distinct(Stratum, .keep_all = TRUE) %>%
     mutate(Population_Units = n,
            Proportion = round(n/(dim(pop_data_by_stratum)[1]), digits = 3),
-           Recruit_Number = round_preserve_sum(number * Proportion)) %>%
+           Recruit_Number = round_preserve_sum(sample_size * Proportion)) %>%
     filter(Stratum != "Population") %>%
     select(Stratum, Population_Units, Proportion, Recruit_Number) %>%
     pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Recruit_Number)) %>%
