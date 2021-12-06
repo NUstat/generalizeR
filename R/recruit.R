@@ -152,23 +152,23 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     add_header_above(recruit_header)
 
 
-  cat("\nThe following table (also shown in the Viewer pane to the right) displays the \nrecommended sampling proportion and consequent recruitment number for each \nstratum. ")
-  cat("Ideally, units should be recruited across strata according to these \nnumbers.")
-  cat(" Doing so will lead to the least amount of bias and no increase in \nstandard errors. ")
-  cat("Note that the recruitment numbers have been rounded to integers \nin such a way as to ensure their sum equals the desired total sample size.\n\n")
+  cat("\nThe following table (also shown in the Viewer pane to the right) displays \nthe stratum sizes, their proportion relative to the total population size, \nand consequent recruitment number for each stratum. ")
+  cat("Ideally, units should be \nrecruited across strata according to these numbers.")
+  cat(" Doing so will lead to the \nleast amount of bias and no increase in standard errors. ")
+  cat("Note that the \nrecruitment numbers have been rounded to integers in such a way as to ensure \ntheir sum equals the desired total sample size.\n\n")
 
   cat(blue$bold("Recruitment Table\n"))
 
   print(recruit_table, row.names = FALSE)
   print(recruit_kable)
 
-  cat("\nAttempt to recruit units starting from the top of each recruitment list. If you \nare unsuccessful in recruiting a particular unit, move on to the next one in the \nlist and continue until you have reached the ideal recruitment number in each \nstratum.", sep = "")
+  cat("\nAttempt to recruit units starting from the top of each recruitment list. If you \nare unsuccessful in recruiting a particular unit, move on to the next one in the \nlist and continue until you have reached the ideal recruitment number in each \nstratum.\n\n", sep = "")
 
   #### GUIDED VERSION PART 2 ####
 
   if(guided == TRUE) {
 
-    save_as_csv = menu(choices = c("Yes", "No"), title = cat("\n\nWould you like to save the recruitment lists as .csv files?"))
+    save_as_csv = menu(choices = c("Yes", "No"), title = cat("Would you like to save the recruitment lists as .csv files?"))
 
     if(save_as_csv == TRUE) {
 
