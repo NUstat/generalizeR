@@ -8,7 +8,7 @@
 #' @param guided logical; defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, must provide values for other arguments below
 #' @param sample_size defaults to NULL. If guided is set to FALSE, must provide a number of units to sample
 #' @param save_as_csv defaults to NULL. If guided is set to FALSE, specify whether or not to save recruitment lists to working directory; TRUE or FALSE
-#' @return A one-element list containing the table that includes the number of units to sample per stratum
+#' @return A three-element list containing the recruitment lists and the recruitment table/kable
 #' @export
 #' @importFrom readr write_csv
 #' @importFrom easycsv choose_dir
