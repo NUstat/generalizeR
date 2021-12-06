@@ -20,7 +20,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     stop("Argument 'x' must be an object of class \"generalizer_output\", \ncreated by running stratify().")
   }
 
-  clusterID <- n <- proportion <- NULL
+  n <- NULL
 
   blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "))
 
