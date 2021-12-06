@@ -28,6 +28,8 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   pop_size <- pop_data_by_stratum %>% nrow()
 
+  valid_inputs <- 1:pop_size
+
   idnum <- x$idnum
 
   n_strata <- x$n_strata
@@ -49,7 +51,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
       if(!(sample_size %in% valid_inputs)) {
 
-        cat(red("You cannot specify a sample size that exceeds the total \nnumber of units in your population ("),
+        cat(red("Invalid input. The number of units you wish to recruit must be an integer \nbetween 1 and the total number of units in your population ("),
             red(pop_size),
             red(")."),
             sep = "")
@@ -68,7 +70,17 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
     if(is.null(sample_size)) {
 
-      stop("You must specify the number of units that you want to recruit.")
+      stop("You must specify the number of units that you wish to recruit.")
+    }
+
+    if(!(sample_size %in% valid_inputs)) {
+
+      errorMsg = paste("The number of units you wish to recruit must be an integer between 1 and \nthe total number of units in your population (",
+                       pop_size,
+                       ").",
+                       sep = "")
+
+      stop(errorMsg)
     }
 
     if(!inherits(x, "generalizer_output")) {
