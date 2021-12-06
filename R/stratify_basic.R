@@ -142,44 +142,14 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     solution <- KMeans_rcpp(as.matrix(distance), clusters = n_strata, verbose = FALSE)
   }
 
-  x2 <- data.frame(id, data_full, Stratum = solution$clusters) %>%
+  # 5) Create various datasets
+
+  pop_data_by_stratum <- data.frame(id, data_full, Stratum = solution$clusters) %>%
+    select(Stratum, everything()) %>%
+    arrange(Stratum) %>%
     tibble()
 
-  # 5) Create recruitment lists
-
-  recruitment_lists <- list(NULL)
-
-  for(i in 1:n_strata) {
-    dat3 <- x2 %>%
-      dplyr::filter(Stratum == i)
-    idvar <- dat3 %>% select(all_of(idnum))
-    dat4 <- dat3 %>% select(-c(all_of(idnum), Stratum)) %>%
-      mutate_all(as.numeric)
-
-    mu <- dat4 %>% map_dbl(mean)
-    v <- var(dat4)
-    a <- diag(v)
-
-    if(any(a == 0)) { a[which(a == 0)] <- 0.00000001 }
-    cov.dat <- diag(a)
-    ma.s <- mahalanobis(dat4, mu, cov.dat)
-    final_dat4 <- data.frame(idvar, dat4, distance = ma.s, Stratum = dat3$Stratum) %>% tibble()
-    recruitment_lists[[i]] <- final_dat4 %>% # Produces a list of data frames, one per stratum, sorted by
-      # distance (so the top N schools in each data frame are the "best," etc.)
-      arrange(distance) %>%
-      mutate(rank = seq.int(nrow(final_dat4))) %>%
-      select(rank, all_of(idnum))
-  }
-
-  all_lists <- do.call(rbind, recruitment_lists)
-
-  # 6) Save full dataset and heat data
-
-  x2 <- x2 %>% left_join(all_lists, by = all_of(idnum)) %>%
-    select(Stratum, rank, everything()) %>%
-    arrange(Stratum, rank)
-
-  population_summary_stats2 <- x2 %>% select(all_of(var_names)) %>%
+  population_summary_stats2 <- pop_data_by_stratum %>% select(all_of(var_names)) %>%
     summarise_all(list(mean, sd)) %>%
     mutate_all(round, digits = 3)
 
@@ -191,11 +161,11 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     }) %>%
     bind_cols()
 
-  summary_stats <- x2 %>%
+  summary_stats <- pop_data_by_stratum %>%
     select(all_of(var_names), Stratum) %>%
     group_by(Stratum) %>%
     summarize_if(is.numeric, mean) %>%
-    left_join((x2 %>% select(all_of(var_names), Stratum) %>% group_by(Stratum) %>% summarize_if(is.numeric, sd)),
+    left_join((pop_data_by_stratum %>% select(all_of(var_names), Stratum) %>% group_by(Stratum) %>% summarize_if(is.numeric, sd)),
               by = "Stratum", suffix = c("_fn1", "_fn2")) %>%
     mutate_all(round, digits = 3)
 
@@ -210,9 +180,9 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     }) %>%
     bind_cols() %>% mutate(Stratum = summary_stats$Stratum) %>%
     select(Stratum, everything()) %>%
-    left_join((x2 %>% group_by(Stratum) %>% count()), by = "Stratum") %>%
+    left_join((pop_data_by_stratum %>% group_by(Stratum) %>% count()), by = "Stratum") %>%
     mutate(Stratum = as.character(Stratum)) %>%
-    add_row(tibble_row(Stratum = "Population", population_summary_stats, n = dim(x2)[1]))
+    add_row(tibble_row(Stratum = "Population", population_summary_stats, n = dim(pop_data_by_stratum)[1]))
 
   simtab_m <- population_summary_stats2 %>%
     select(contains("fn1"))
@@ -341,39 +311,15 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     theme(legend.title = element_blank()) +
     guides(fill = guide_legend(override.aes = aes(label = "")))
 
-  # 7) Recruit proportions table
-
-  recruit_table <- heat_data %>% select(Stratum, n) %>%
-    distinct(Stratum, .keep_all = TRUE) %>%
-    mutate(Count = n,
-           Proportion = round(n/(dim(x2)[1]), digits = 3)) %>%
-    filter(Stratum != "Population") %>%
-    select(Stratum, Count, Proportion) %>%
-    data.frame() %>%
-    pivot_longer(names_to = "Metric", cols = c(Count, Proportion)) %>%
-    pivot_wider(names_from = Stratum, names_prefix = "Stratum ")
-
-  recruit_header <- c(1, n_strata)
-  names(recruit_header) <- c(" ", "Stratum")
-
-  recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
-                                         align = "c",
-                                         col.names = c("Metric", 1:n_strata)) %>%
-    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-    add_header_above(recruit_header)
-
-  # 8) Save output
+  # 6) Save output
 
   overall_output <- list(idnum = idnum,
                          variables = var_names,
                          dataset = data_name,
                          n_strata = n_strata,
                          solution = solution,
-                         summary_stats2 = summary_stats2,
-                         recruit_data = x2,
-                         recruit_table = recruit_table,
-                         recruit_kable = recruit_kable,
-                         recruitment_lists = recruitment_lists,
+                         pop_data_by_stratum = pop_data_by_stratum,
+                         summary_stats = summary_stats2,
                          data_omitted = data_omitted,
                          cont_data_stats = cont_data_stats,
                          cat_data_levels = cat_data_levels,
@@ -447,22 +393,6 @@ print.summary.generalizer_output <- function(x,...) {
     }
   )
 
-  cat("\n============================================ \n")
-  cat("Recruitment plan: \n \n")
-  cat("A recruitment list has been printed in the Console below as well as in the Viewer \npane to the right. ")
-  cat(paste0("It can be accessed with ", bold("'x$recruit_data'"), ", where ", bold("'x'"), " is the name of \nyour stratify_object. "))
-  cat(paste0("To export it, run ", bold("'write.csv(x$recruit_data)'"),".\n"))
-  cat("\nEach unit is ranked in order of desirability. ")
-  cat("Ideally, units should be recruited \nacross strata according to the proportions below. ")
-  cat("Doing so will lead to the least \namount of bias and no increase in standard errors.\n\n")
-
-  x$recruit_table %>% as.data.frame() %>% print()
-
-  x$recruit_kable %>% print()
-
-
   invisible(x)
-
-
 }
 
