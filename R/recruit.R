@@ -94,10 +94,12 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
   recruitment_lists <- list(NULL)
 
   for(i in 1:n_strata) {
+
     dat1 <- pop_data_by_stratum %>%
-      dplyr::filter(Stratum == i)
+      filter(Stratum == i)
     idvar <- dat1 %>% select(all_of(idnum))
-    dat2 <- dat1 %>% select(-c(all_of(idnum), Stratum)) %>%
+    dat2 <- dat1 %>%
+      select(-c(all_of(idnum), Stratum)) %>%
       mutate_all(as.numeric)
 
     mu <- dat2 %>% map_dbl(mean)
@@ -123,7 +125,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
   if(guided == TRUE) {
 
     cat("\nThe top 6 rows of the first recruitment list are shown below.\n\n")
-    recruitment_lists[[1]] %>% head() %>% print()
+    recruitment_lists[[1]] %>% head() %>% data.frame() %>% print(row.names = FALSE)
   }
 
   #### CREATE RECRUITMENT TABLE ####
@@ -172,7 +174,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
     if(save_as_csv == TRUE) {
 
-      cat("\nThe lists will be saved as 'recruitment_list_#', one for each stratum.\n")
+      cat("\nThe lists will be saved as 'Recruitment_list_#', one for each stratum.\n")
       cat("Where should they be saved?\n\n")
     }
   }
@@ -193,14 +195,14 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
     if(guided == TRUE) {
 
-      cat("Lists saved successfully.\n\n")
+      cat("Lists saved successfully!\n\n")
     }
 
     #### NON-GUIDED VERSION PART 2 ####
 
     if(guided == FALSE) {
 
-      cat("You've chosen to save your recruitment lists as .csv files. The lists have been \nsaved as 'recruitment_list_#', one for each stratum, inside your current working \ndirectory.\n\n")
+      cat("You've chosen to save your recruitment lists as .csv files. The lists have been \nsaved as 'Recruitment_list_#', one for each stratum, inside your current working \ndirectory.\n\n")
     }
   }
 
