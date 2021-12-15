@@ -16,7 +16,7 @@
 #' @importFrom stats as.formula glm lm predict quantile
 #' @importFrom crayon bold blue
 
-weighting <- function(outcome, treatment, trial, selection_covariates, data,
+weighting <- function(data, trial, treatment, outcome, selection_covariates,
                      selection_method = "lr", is_data_disjoint = TRUE, seed = 7835){
 
   weights <- NULL

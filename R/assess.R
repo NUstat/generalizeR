@@ -14,8 +14,8 @@
 #' @export
 
 
-assess <- function(trial, selection_covariates, data, selection_method = "lr",
-                  is_data_disjoint = TRUE, trim_pop = FALSE, seed = 12222){
+assess <- function(data, trial, selection_covariates, selection_method = "lr",
+                  is_data_disjoint = TRUE, trim_pop = FALSE, seed = 1996) {
 
   ##### Set the seed #####
   set.seed(seed)
@@ -104,13 +104,13 @@ assess <- function(trial, selection_covariates, data, selection_method = "lr",
     data = data_output
   )
 
-  class(out) <- "generalize_assess"
+  class(out) <- "generalizer_assess"
 
-  return(out)
+  return(invisible(out))
 }
 
 print.generalize_assess <- function(x,...) {
-  cat("A generalize_assess object: \n")
+  cat("A generalizer_assess object: \n")
   cat(paste0(" - probability of trial participation method: ", x$selection_method, "\n"))
   cat(paste0(" - common covariates included: ", paste(x$selection_covariates, collapse = ", "), "\n"))
   cat(paste0(" - sample size of trial: ", x$n_trial, "\n"))

@@ -313,7 +313,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 
   # 6) Save output
 
-  overall_output <- list(idnum = idnum,
+  out <- list(idnum = idnum,
                          variables = var_names,
                          dataset = data_name,
                          n_strata = n_strata,
@@ -329,9 +329,9 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
                          heat_plot = heat_plot_final
   )
 
-  class(overall_output) <- c("generalizer_output")
+  class(out) <- "generalizer_stratify"
 
-  return(invisible(overall_output))
+  return(invisible(out))
 
 }
 
@@ -339,7 +339,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 print.generalizer_output <- function(x,...) {
 
 
-  cat("A stratify() object: \n")
+  cat("A generalizer_stratify object: \n")
   cat(paste0(" - Dataset used: ", bold(x$dataset),"\n"))
   cat(paste0(" - Stratification variables: "))
   cat(paste0(bold$blue(x$variables)), sep = ", ")

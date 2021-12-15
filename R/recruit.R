@@ -15,9 +15,9 @@
 
 recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
-  if(!inherits(x, "generalizer_output")) {
+  if(!inherits(x, "generalizer_stratify")) {
 
-    stop("Argument 'x' must be an object of class \"generalizer_output\", \ncreated by running stratify().")
+    stop("Argument 'x' must be an object of class \"generalizer_stratify\", \ncreated by running stratify().")
   }
 
   n <- NULL
@@ -142,6 +142,11 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     mutate(" " = c("Population Units", "Sampling Proportion", "Recruitment Number")) %>%
     as.data.frame()
 
+  recruit_numbers <- recruit_table %>%
+    filter(` ` == "Recruitment Number") %>%
+    select(-c(` `)) %>%
+    as.numeric()
+
   recruit_header <- c(1, n_strata)
   names(recruit_header) <- c(" ", "Stratum")
 
@@ -152,7 +157,6 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     row_spec(3, background = "#5CC863FF") %>%
     kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
     add_header_above(recruit_header)
-
 
   cat("\nThe following table (also shown in the Viewer pane to the right) displays \nthe stratum sizes, their proportion relative to the total population size, \nand consequent recruitment number for each stratum. ")
   cat("Ideally, units should be \nrecruited across strata according to these numbers.")
@@ -208,9 +212,12 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   cat("If you have stored the output of 'recruit()' in an object, you can use it to \naccess these lists by typing the name of the object followed by \n'$recruitment_lists'.")
 
-  output <- list(recruitment_lists = recruitment_lists,
+  out <- list(recruitment_lists = recruitment_lists,
                  recruitment_table = recruit_table,
-                 recruitment_kable = recruit_kable)
+                 recruitment_kable = recruit_kable,
+                 recruitment_numbers = recruit_numbers)
+
+  class(out) <- "generalizer_recruit"
 
   return(invisible(output))
 }
