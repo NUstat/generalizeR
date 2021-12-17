@@ -360,7 +360,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
 
   }
 
-  class(overall_output) <- c("generalizer_output")
+  class(overall_output) <- c("generalizer_stratify")
 
   return(invisible(overall_output))
 

@@ -336,7 +336,7 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
 }
 
 
-print.generalizer_output <- function(x,...) {
+print.generalizer_stratify <- function(x,...) {
 
 
   cat("A generalizer_stratify object: \n")
@@ -351,14 +351,14 @@ print.generalizer_output <- function(x,...) {
   invisible(x)
 }
 
-summary.generalizer_output <- function(object,...) {
+summary.generalizer_stratify <- function(object,...) {
   out <- object
 
-  class(out) = "summary.generalizer_output"
+  class(out) = "summary.generalizer_stratify"
   return(out)
 }
 
-print.summary.generalizer_output <- function(x,...) {
+print.summary.generalizer_stratify <- function(x,...) {
 
   cat("============================================ \n")
   cat(paste0("Summary of stratification performed with '", x$dataset,"' dataset:", "\n", "\n"))

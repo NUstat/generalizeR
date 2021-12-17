@@ -17,7 +17,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   if(!inherits(x, "generalizer_stratify")) {
 
-    stop("Argument 'x' must be an object of class \"generalizer_stratify\", \ncreated by running stratify().")
+    stop("Argument 'x' must be an object of class \"generalizer_stratify\", created by running stratify().")
   }
 
   n <- NULL
@@ -81,11 +81,6 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
                        sep = "")
 
       stop(errorMsg)
-    }
-
-    if(!inherits(x, "generalizer_output")) {
-
-      stop("Argument 'x' must be an object of class \"generalizer_output\", \ncreated by running stratify().")
     }
   }
 
@@ -219,5 +214,5 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   class(out) <- "generalizer_recruit"
 
-  return(invisible(output))
+  return(invisible(out))
 }
