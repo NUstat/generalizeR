@@ -21,6 +21,7 @@ gen_index <- function(trial_ps, pop_ps) {
     optim_binwidth = (4*sqrt(var(x))^5/(3*n))^(1/5)
     if(is.na(optim_binwidth) | is.nan(optim_binwidth)){
       optim_binwidth = 0
+  if(var(trial_ps) == 0 & var(pop_ps) == 0) {return(1)}
     }
     if(optim_binwidth < 0.001){ # this yielded a b index of 0.9999501 for (at least one specific case of) "perfectly" stratified data
       optim_binwidth = 0.001
