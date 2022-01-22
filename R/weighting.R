@@ -9,15 +9,13 @@
 #' @param data data frame comprised of "stacked" trial and target population data
 #' @param selection_method method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param is_data_disjoint logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.
-#' @param seed numeric. By default, the seed is set to 7835, otherwise can be specified (such as for simulation purposes).
+#' @param seed numeric. By default, the seed is set to 1996, otherwise can be specified (such as for simulation purposes).
 #' @export
-#' @importFrom glmnet cv.glmnet
-#' @importFrom randomForest randomForest
-#' @importFrom stats as.formula glm lm predict quantile
+#' @importFrom stats quantile
 #' @importFrom crayon bold blue
 
 weighting <- function(data, trial, treatment, outcome, selection_covariates,
-                     selection_method = "lr", is_data_disjoint = TRUE, seed = 7835){
+                     selection_method = "lr", is_data_disjoint = TRUE, seed = 1996){
 
   weights <- NULL
 
@@ -86,10 +84,11 @@ weighting <- function(data, trial, treatment, outcome, selection_covariates,
   # Trim any of the weights if necessary
   data$weights[which(data$weights == 0 & data[,trial] == 1)] <- quantile(data$weights[which(data[,trial] == 1)], 0.01, na.rm = TRUE)
 
-  participation_probs <- list(population = ps[which(data[,trial] == 0)],
-                             trial = ps[which(data[,trial] == 1)])
+  # Add histogram of weights
 
   if(is.null(outcome) & is.null(treatment)) {TATE <- NULL}
+
+  # SPLIT EVERYTHING BELOW INTO NEW FUNCTION
 
   else {
 
@@ -147,6 +146,8 @@ weighting <- function(data, trial, treatment, outcome, selection_covariates,
   out <- list(participation_probs = participation_probs,
              weights = data$weights,
              TATE = TATE)
+
+  ### Add weighted covariate table
 
   return(out)
 }
