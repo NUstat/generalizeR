@@ -49,6 +49,7 @@ Suggests:
     BayesTree,
     gridExtra,
     knitr,
+    patchwork (>= 1.1.1),
     rmarkdown,
     tidyverse,
     tmle,
