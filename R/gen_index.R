@@ -4,8 +4,8 @@
 #'
 #' It calculates the generalizability index, a value between 0 and 1, that represents how generalizable a given sample is to a given population on specified covariates. For more information on calculation and interpretation, please see Tipton (2014).
 #'
-#' @param dat1B vector of probabilities of sample participation among individuals in the trial
-#' @param dat2B vector of probabilities of sample participation among individuals in the population
+#' @param trial_ps vector of probabilities of sample participation among individuals in the trial
+#' @param pop_ps vector of probabilities of sample participation among individuals in the population
 #' @return the generalizability index, a value between 0 and 1, where a higher score indicates greater similarity
 #' @export
 #' @importFrom stats dnorm integrate
@@ -13,7 +13,7 @@
 #' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.
 #' @md
 
-gen_index <- function(dat1B, dat2B) {
+gen_index <- function(trial_ps, pop_ps) {
   ##Baklizi and Eidous (2006) estimator
   # bandwidth
   h = function(x){
