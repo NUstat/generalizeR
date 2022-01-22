@@ -2,11 +2,23 @@ Package: generalizeR
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Katie",
-           family = "Coburn",
-           role = c("aut", "cre"),
-           email = "admin@thegeneralizer.org",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    c(person(given = "Beth",
+             family = "Tipton",
+             role = c("aut", "cre"),
+             email = "tipton@northwestern.edu"),
+      person(given = "Tim",
+             family = "Ruel",
+             role = c("aut", "cre"),
+             email = "timothyruel2024@u.northwestern.edu",
+             comment = c(ORCID = "0000-0002-1916-5003")),
+      person(given = "Katie",
+             family = "Coburn",
+             role = c("aut"),
+             email = "admin@thegeneralizer.org",
+             comment = c(ORCID = "YOUR-ORCID-ID")),
+      person(given = "Beatrice",
+             family = "Chao",
+             role = c("aut")))
 Description: Installing this package will also install the sister package 'generalizeRdata' from GitHub. To access our CCD and IPEDS databases, please run 'library(generalizeRdata)'.
 License: GPL-3
 Encoding: UTF-8
@@ -43,3 +55,4 @@ Imports: crayon (>= 1.3.4),
   randomForest (>= 4.6.14),
   easycsv (>= 1.0.8)
 VignetteBuilder: knitr
+URL: https://nustat.github.io/generalizeR
