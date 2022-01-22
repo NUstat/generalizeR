@@ -1,7 +1,0 @@
----
-output: github_document
----
-
-# GeneralizeR
-
-Welcome!

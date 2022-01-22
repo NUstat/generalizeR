@@ -19,7 +19,7 @@ Authors@R:
       person(given = "Beatrice",
              family = "Chao",
              role = c("aut")))
-Description: Installing this package will also install the sister package 'generalizeRdata' from GitHub. To access our CCD and IPEDS databases, please run 'library(generalizeRdata)'.
+Description: Installing this package will also install the sister package `generalizeRdata` from GitHub. To access our CCD and IPEDS databases, please run `library(generalizeRdata)`.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
