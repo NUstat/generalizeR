@@ -44,7 +44,7 @@ assess_wrap <- function(sample, population, join_var = NULL, grouping_var = NULL
     full_data <- add_row(sample_overall, population_overall)
 
     output <- assess(data = full_data, trial = "trial",
-              is_data_disjoint = TRUE, selection_covariates = selection_vars)
+              is_data_disjoint = TRUE, selection_covariates = selection_vars, guided = FALSE)
   }
   if(!is.null(grouping_var)){
     selection_vars <- colnames(
@@ -56,7 +56,8 @@ assess_wrap <- function(sample, population, join_var = NULL, grouping_var = NULL
       group_map(~ add_row(sample_overall, .x)) %>% # For each group, add the sample data
       map(~ suppressWarnings(tryCatch(assess(data = data.frame(.x),
                                                    trial = "trial",
-                                                   selection_covariates = selection_vars),
+                                                   selection_covariates = selection_vars,
+                                             guided = FALSE),
                                             error = function(err) NA)))
 
     g_indexes <- unlist(map(output, function(x){x["g_index"][[1]]}))
