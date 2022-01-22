@@ -305,7 +305,7 @@ rec_output <- recruit(strat_output)
 ```
 
 ```{r include = FALSE}
-rec_output <- recruit(strat_output, guided = FALSE, number = 40)
+rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
 ```
 
 We are immediately greeted with the following message:
@@ -322,7 +322,7 @@ Next, the function prints a recruitment table that tells us how many units we sh
 
 Here is what the recruitment table looks like in the Viewer pane:
 ```{r echo = FALSE}
-rec_output$recruit_kable
+rec_output$recruitment_kable
 ```
 
 This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.
@@ -330,7 +330,7 @@ This means that our recruitment plan should be to recruit 20 schools from Stratu
 The function then asks us if we want to save the recruitment lists as csv files. 
 <img src="recruit_fig_4.png" width="550"/>
 
-Upon entering '1' to indicate 'Yes', a folder selection widget will appear that will allow us to choose a location on our computer in which to save the lists. Note that this only occurs when using the guided version of the function; in the non-guided version, the lists are automatically saved to our working directory if we set `save_as_csv == TRUE`.
+Upon entering '1' to indicate 'Yes', a folder selection widget will appear that will allow us to choose a location on our computer in which to save the lists. Note that this only occurs when using the guided version of the function; in the non-guided version, the lists are automatically saved to our working directory if we set `save_as_csv = TRUE`.
 
 <img src="recruit_fig_5.png" width="550"/>
 
@@ -340,29 +340,36 @@ We have finished the recruitment process!
 
 ## Step 3: Assess
 
-### Example
+### assess()
 
-The researcher in this example has taken their four recruitment lists and successfully recruited the desired number of units from each stratum: 20, 4, 6, and 11 units from strata 1, 2, 3, and 4, respectively. They have completed their study and are interested in whether their results are generalizable to other states in the US.
+We are now ready to take the results we obtained from `stratify()` and `recruit()` and use them to `assess()` the generalizability of our sample data to the population.
 
-Recall that their inference population consisted of Texas charter high schools. Therefore, they most likely want to know whether their sample can generalize to other charter high schools in the US.
+The generalizer index is a global measure of similarity between the sample and population for a defined set of covariates (between 0 and 1). Can multiply by 100: 0.8 -> 80% similar.
 
-First the researcher specifies the variables that they hope are generalizable:
+
+### assess_wrap()
+
+We have taken our four recruitment lists and successfully recruited the desired number of units from each stratum: 20, 4, 5, and 11 units from strata 1, 2, 3, and 4, respectively. We have completed their study and are now interested in whether our results are generalizable to other states in the US.
+
+Recall that our inference population consisted of Texas charter high schools. Therefore, it is reasonable to wonder whether our sample can generalize to other charter high schools in the US.
+
+First we must specify the variables that we hope are generalizable. These are the same variables we first used to stratify the population.
 
 ```{r}
 selection_vars <- c("pct_female", "pct_black_or_african_american", "pct_free_and_reduced_lunch", "total")
 ```
 
-Then they read in their sample. The way they do this may differ -- for example, they might have their four separate recruitment lists, or one large file, or their original stratify() object. The important thing is to create a data frame with a column that consists of the sample IDs.
+Then we must read in our sample. There are multiple ways to accomplish this, but the important thing is to create a data frame consisting only of the units we have recruited from the population with a column containing the sample IDs. In this example, we will build the data frame from the four recruitment lists we generated earlier.
 
 ```{r, echo=FALSE, include=FALSE}
 output <- test
 ```
 
 ```{r eval=FALSE}
-sample <- tibble(ncessch = c(output$recruitment_lists[[1]]$ncessch[1:20],
-                output$recruitment_lists[[2]]$ncessch[1:4],
-                output$recruitment_lists[[3]]$ncessch[1:6],
-                output$recruitment_lists[[4]]$ncessch[1:11]))
+sample <- tibble(ncessch = c(recruit_output$recruitment_lists[[1]]$ncessch[1:20],
+                recruit_output$recruitment_lists[[2]]$ncessch[1:4],
+                recruit_output$recruitment_lists[[3]]$ncessch[1:5],
+                recruit_output$recruitment_lists[[4]]$ncessch[1:11]))
 ```
 
 They specify their inference population again -- this time a data frame including all states with and without charter high schools. The data frame should include unit IDs, variables of interest, and (if applicable) a grouping variable; since the researcher wants to generalize to US states, the grouping variable is 'st' (state).
@@ -403,11 +410,13 @@ However, the information is easier to assess in the form of a map. There are man
 
 ```{r eval=FALSE, include=FALSE}
 g_overview <- g_overview %>% mutate(g_index = case_when(
-  g_index >= 0.90 ~ "best",
-  (g_index < 0.90 & g_index >= 0.50) ~ "okay",
-  g_index < 0.50 ~ "worst",
-  is.na(g_index) ~ "worst"
-))
+  g_index >= 0.90 ~ "Very High Generalizability",
+  (g_index < 0.90 & g_index >= 0.70) ~ "High Generalizability",
+  (g_index < 0.70 & g_index >= 0.50) ~ "Medium Generalizability",
+  g_index < 0.50 ~ "Ungeneralizable",
+  is.na(g_index) ~ "NA"
+) %>% 
+  factor(levels = c("Very High Generalizability", "High Generalizability", "Medium Generalizability", "Ungeneralizable", "NA")))
 ```
 
 A G-index above 0.90 means that the sample is equivalent to a randomized trial. A G-index between 0.50 and 0.90 means that the sample is not quite a miniature of the population, but statistical adjustments to reweight the sample may make generalization possible. Finally, a G-index below 0.50 means that generalization (based upon the selected covariates) is completely unwarranted, and statistical adjustment cannot help.
@@ -418,7 +427,7 @@ plot_usmap(data = g_overview, values = "g_index", labels = TRUE) +
        subtitle = "Generalizability Index") +
   theme(panel.background = element_rect(color = "black"), 
         legend.position = "right") + 
-  scale_fill_grey()
+  scale_fill_viridis(discrete = TRUE)
 ```
 
 This map tells the researcher a few things. 
@@ -490,3 +499,6 @@ This researcher had a sample size of only 40, but based on careful, stratified s
 <!--         legend.position = "right") +  -->
 <!--   scale_fill_grey() -->
 <!-- ``` -->
+
+
+# Step 4: Weighting
