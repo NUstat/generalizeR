@@ -2,12 +2,12 @@ Package: generalizeR
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: c(
-    person("Beth", "Tipton", , "tipton@northwestern.edu", role = "aut"),
     person("Tim", "Ruel", , "timothyruel2024@u.northwestern.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1916-5003")),
-    person("Katie", "Coburn", , "admin@thegeneralizer.org", role = "aut",
-           comment = c(ORCID = "YOUR-ORCID-ID")),
-    person("Beatrice", "Chao", role = "aut")
+    person("Ben", "Ackerman", role = "aut"),
+    person("Katie", "Coburn", , "admin@thegeneralizer.org", role = "aut"),
+    person("Beatrice", "Chao", role = "aut"),
+    person("Beth", "Tipton", , "tipton@northwestern.edu", role = "aut"),
   )
 Description: Installing this package will also install the sister package
     `generalizeRdata` from GitHub. To access our CCD and IPEDS databases,
