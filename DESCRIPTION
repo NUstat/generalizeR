@@ -7,7 +7,7 @@ Authors@R: c(
     person("Ben", "Ackerman", role = "aut"),
     person("Katie", "Coburn", , "admin@thegeneralizer.org", role = "aut"),
     person("Beatrice", "Chao", role = "aut"),
-    person("Beth", "Tipton", , "tipton@northwestern.edu", role = "aut"),
+    person("Beth", "Tipton", , "tipton@northwestern.edu", role = "aut")
   )
 Description: Installing this package will also install the sister package
     `generalizeRdata` from GitHub. To access our CCD and IPEDS databases,
