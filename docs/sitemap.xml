@@ -4,6 +4,9 @@
     <loc>https://nustat.github.io/generalizeR/404.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/LICENSE.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/articles/generalizeR_tutorial.html</loc>
   </url>
   <url>
@@ -16,9 +19,6 @@
     <loc>https://nustat.github.io/generalizeR/index.html</loc>
   </url>
   <url>
-    <loc>https://nustat.github.io/generalizeR/LICENSE.html</loc>
-  </url>
-  <url>
     <loc>https://nustat.github.io/generalizeR/reference/assess.html</loc>
   </url>
   <url>
@@ -28,6 +28,9 @@
     <loc>https://nustat.github.io/generalizeR/reference/covariate_table.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/gen_index.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/generalize.html</loc>
   </url>
   <url>
@@ -35,9 +38,6 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/generalize_tmle.html</loc>
-  </url>
-  <url>
-    <loc>https://nustat.github.io/generalizeR/reference/gen_index.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/index.html</loc>
