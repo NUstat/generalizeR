@@ -32,7 +32,7 @@ trim_pop <- function(trial, selection_covariates, data){
   ##### Subset trial data covariates #####
   trial_dat <- data %>%
     filter(trial == 1) %>%
-    select(selection_covariates)
+    select(all_of(selection_covariates))
 
   if(length(selection_covariates) == 1) {
 
