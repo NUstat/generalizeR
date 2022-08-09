@@ -197,7 +197,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     missing_obs_table %>% print()
 
     cat("\n")
-    readline(prompt = "Press [enter] to proceed once you have viewed the missing observations.")
+    readline(prompt = "Hit <Return> to proceed once you have viewed the missing observations.")
 
 
 
@@ -284,6 +284,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         par(ask = TRUE)
       }
 
+      readline(prompt = "Hit <Return> to view a table of summary statistics for the continuous variables.")
       sumstats <- cont_data %>%
         map_df(function(x) {
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
@@ -303,6 +304,7 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
     }
     par(ask = FALSE)
 
+    readline(prompt = "Hit <Return> to proceed.")
 
     # 6) Selection of no. of strata -------------------------------------------
 
