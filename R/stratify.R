@@ -250,8 +250,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
     }
 
-
-
     # 5) Overview of cont data ------------------------------------------------
 
     cont_data <- data_subset %>%
@@ -285,6 +283,8 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
       }
 
       readline(prompt = "Hit <Return> to view a table of summary statistics for the continuous variables.")
+
+
       sumstats <- cont_data %>%
         map_df(function(x) {
           tibble(min = min(x), pct50 = median(x), max = max(x), mean = mean(x), sd = sd(x))
@@ -319,7 +319,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
         "from each stratum. Choosing 4-6 strata is \ncommon. \n\nTry a few numbers and choose the 'best' one for you.",
         sep = "")
 
-
     ## Catch ##
 
     n_strata_correct <- FALSE
@@ -341,7 +340,6 @@ stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
   }
 
   # here is where guided_loop ENDS.
-
 
   # 7) Stratify_basic call  -------------------------------------------------
 
