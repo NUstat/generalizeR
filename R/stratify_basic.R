@@ -10,8 +10,19 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
     stop(simpleError("You must specify n_strata, variables, and idnum as arguments if you are running the non-guided version of this function."))
   }
 
+  tryCatch(
+    {
+      n_strata %% 1 == 0
+    },
+
+    error = function(cond) {
+      message("The number of strata must be an integer greater than or equal to 2.")
+      stop()
+    }
+  )
+
   if(!is.numeric(n_strata)) {
-    stop(simpleError("The number of strata must be a number."))
+    stop(simpleError("The number of strata must be an integer greater than or equal to 2."))
   }
 
   if((length(n_strata) > 1)) {
@@ -314,19 +325,19 @@ stratify_basic <- function(data, n_strata = NULL, variables = NULL,
   # 6) Save output
 
   out <- list(idnum = idnum,
-                         variables = var_names,
-                         dataset = data_name,
-                         n_strata = n_strata,
-                         solution = solution,
-                         pop_data_by_stratum = pop_data_by_stratum,
-                         summary_stats = summary_stats2,
-                         data_omitted = data_omitted,
-                         cont_data_stats = cont_data_stats,
-                         cat_data_levels = cat_data_levels,
-                         heat_data = heat_data,
-                         heat_data_simple = heat_data_simple,
-                         heat_data_kable = heat_data_kable,
-                         heat_plot = heat_plot_final
+              variables = var_names,
+              dataset = data_name,
+              n_strata = n_strata,
+              solution = solution,
+              pop_data_by_stratum = pop_data_by_stratum,
+              summary_stats = summary_stats2,
+              data_omitted = data_omitted,
+              cont_data_stats = cont_data_stats,
+              cat_data_levels = cat_data_levels,
+              heat_data = heat_data,
+              heat_data_simple = heat_data_simple,
+              heat_data_kable = heat_data_kable,
+              heat_plot = heat_plot_final
   )
 
   class(out) <- "generalizer_stratify"
@@ -366,7 +377,7 @@ print.summary.generalizer_stratify <- function(x,...) {
   cat(paste0(blue$bold(x$variables)), sep = ", ")
   cat("\n")
   cat(paste0("Observations dropped due to missing data: ", bold(nrow(x$data_omitted)), " (see $data_omitted)\n"))
-  cat(paste0("Population size: ", bold(nrow(x$recruit_data)),"\n"))
+  cat(paste0("Population size: ", bold(nrow(x$pop_data_by_stratum)),"\n"))
   cat(paste0("Number of strata specified: ", bold(x$n_strata), "\n"))
   cat(paste0("Proportion of variation in population explained by strata: "))
   cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
@@ -386,7 +397,7 @@ print.summary.generalizer_stratify <- function(x,...) {
     },
 
     error = function(cond) {
-      message("Your Plots pane is too small for the heat map to be displayed. \nIf you still want to view the plot, try resizing the pane and \nthen running 'x$heat_plot' where 'x' is the name of your stratify_object.")
+      message("Your Plots pane is too small for the heat map to be displayed. \nIf you still want to view the plot, try resizing the pane and \nthen running 'x$heat_plot' where 'x' is the name assigned to your generalizer_stratify object.")
       message("Here's the original error message:")
       message(cond)
       return(NA)
