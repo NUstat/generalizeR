@@ -9,11 +9,11 @@
 
 stratify_guided = function(data) {
 
-  source("R/stratify/helper functions/make_var_overview.R")
-  source("R/stratify/helper functions/select_list.R")
-  source("R/stratify/helper functions/round_preserve_sum.R")
-  source("R/stratify/helper functions/check_factor_levels.R")
-  source("R/stratify/helper functions/make_cont_data_tbl.R")
+  # source("R/stratify/helper functions/make_var_overview.R")
+  # source("R/stratify/helper functions/select_list.R")
+  # source("R/stratify/helper functions/round_preserve_sum.R")
+  # source("R/stratify/helper functions/check_factor_levels.R")
+  # source("R/stratify/helper functions/make_cont_data_tbl.R")
 
   # 1) Introduction -----------------------------------------------------------
 

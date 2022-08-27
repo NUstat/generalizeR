@@ -66,7 +66,7 @@ stratify_unguided = function(data,
 
   # Check if there are any factor variables with more than 4 levels ---------
 
-  source("R/stratify/helper functions/check_factor_levels.R")
+  #source("R/stratify/helper functions/check_factor_levels.R")
 
   invalid_factors = data %>%
     select(all_of(variables)) %>%
