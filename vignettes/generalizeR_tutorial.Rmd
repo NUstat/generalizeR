@@ -247,7 +247,7 @@ The results begin with a brief review of the stratification process. We are info
 A similar table is printed in the Viewer pane:
 
 ```{r include=FALSE}
-strat_output <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idvar = "ncessch")
+strat_output <- stratify(inference_pop, guided = FALSE, n_strata = 4, variables = c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch"), idnum = "ncessch")
 ```
 
 ```{r echo = FALSE}
@@ -450,7 +450,7 @@ This researcher had a sample size of only 40, but based on careful, stratified s
 <!-- output <- stratify(inference_pop, guided = FALSE, n_strata = 6,  -->
 <!--                    variables = c("control_level", "pct_female", -->
 <!--                                  "remedial_services"),  -->
-<!--                    idvar = "unitid") -->
+<!--                    idnum = "unitid") -->
 <!-- ``` -->
 
 <!-- Most of their assessment process is the same as the previous example; they specify the variables that they want to generalize on, read in their sample data, and create their inference population: -->

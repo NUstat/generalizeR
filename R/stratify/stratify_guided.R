@@ -5,6 +5,8 @@
 #' @return
 #' @details
 #'
+#' @export
+#'
 #' @md
 
 stratify_guided = function(data) {

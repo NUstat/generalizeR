@@ -8,8 +8,8 @@
 <meta name="description" content="generalizeR">
 <title>generalizeR Tutorial • generalizeR</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="generalizeR Tutorial">
 <meta property="og:description" content="generalizeR">
@@ -33,7 +33,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -62,9 +62,12 @@
     
   </div>
 </nav><div class="container template-article">
+
+
+
 <script src="generalizeR_tutorial_files/kePrint-0.0.1/kePrint.js"></script><link href="generalizeR_tutorial_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
-  <main id="main"><div class="page-header">
+  <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>generalizeR Tutorial</h1>
             
       
@@ -74,9 +77,9 @@
 
     
     
-<div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
+<div class="section level3">
+<h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h3>
 <p>Welcome to the generalizeR! This package is designed to guide
 education researchers through:</p>
 <ul>
@@ -89,9 +92,9 @@ sampling process: you can start at the beginning and use the package to
 obtain a stratified sample, or you can start at the end with your
 previously obtained sample data and assess its generalizability.</p>
 </div>
-<div class="section level2">
-<h2 id="step-1-stratify">Step 1: Stratify<a class="anchor" aria-label="anchor" href="#step-1-stratify"></a>
-</h2>
+<div class="section level3">
+<h3 id="step-1-stratify">Step 1: Stratify<a class="anchor" aria-label="anchor" href="#step-1-stratify"></a>
+</h3>
 <p>The <code><a href="../reference/stratify.html">stratify()</a></code> function defaults to ‘guided’ mode,
 meaning that it prints text throughout and prompts the user to enter
 information with a question-and-answer format. This is intentional, in
@@ -104,9 +107,9 @@ off by using the argument ‘guided = FALSE’. If they do so, however, they
 must be sure to specify values for all the other function arguments, as
 those would otherwise be obtained from user input later.</p>
 <p>This tutorial will follow a hypothetical example.</p>
-<div class="section level3">
-<h3 id="filtering-the-inference-population">Filtering the Inference Population<a class="anchor" aria-label="anchor" href="#filtering-the-inference-population"></a>
-</h3>
+<div class="section level4">
+<h4 id="filtering-the-inference-population">Filtering the Inference Population<a class="anchor" aria-label="anchor" href="#filtering-the-inference-population"></a>
+</h4>
 <p>Suppose we are a team of education researchers who want to test the
 effect of an intervention on SAT scores. We have somewhat limited
 resources, so we plan on using a sample size of 40 schools. We want to
@@ -123,27 +126,27 @@ school size</em> as well.</p>
 database provided in ‘generalizeRdata’. For information on each of the
 columns and the source of the data, run <code><a href="https://rdrr.io/pkg/generalizeRdata/man/cc.html" class="external-link">?cc</a></code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cc</span></code></pre></div>
-<pre><code><span class="co">## <span style="color: #949494;"># A tibble: 98,563 × 43</span></span>
-<span class="co">##        ncessch sch_name  st    mstreet1  mcity  phone website  lea_name sch_type</span>
-<span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">## <span style="color: #BCBCBC;"> 1</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>870 Ala Aven… AL    600 E Al… Alber… (256… http://… Albertv…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 2</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>871 Albertvi… AL    402 E Mc… Alber… (256… http://… Albertv…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 3</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>879 Evans El… AL    901 W Mc… Alber… (256… http://… Albertv…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 4</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>889 Albertvi… AL    1100 Hor… Alber… (256… http://… Albertv…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 5</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">501</span>616 Big Spri… AL    257 Coun… Alber… (256… http://… Albertv…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 6</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">502</span>150 Albertvi… AL    1100 Hor… Alber… (256… http://… Albertv…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 7</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>193 Kate Dun… AL    6077 Mai… Grant  (256… http://… Marshal…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 8</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>872 Asbury S… AL    1990 Asb… Alber… (256… http://… Marshal…        1</span>
-<span class="co">## <span style="color: #BCBCBC;"> 9</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>876 Claysvil… AL    140 Clay… Gunte… (256… http://… Marshal…        1</span>
-<span class="co">## <span style="color: #BCBCBC;">10</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>877 Douglas … AL    P O Box … Dougl… (256… http://… Marshal…        1</span>
-<span class="co">## <span style="color: #949494;"># … with 98,553 more rows, and 34 more variables: g_pk_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_kg_offered &lt;chr&gt;, g_1_offered &lt;chr&gt;, g_2_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_3_offered &lt;chr&gt;, g_4_offered &lt;chr&gt;, g_5_offered &lt;chr&gt;, g_6_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_7_offered &lt;chr&gt;, g_8_offered &lt;chr&gt;, g_9_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;, g_12_offered &lt;chr&gt;, level &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   leaid &lt;int&gt;, charter &lt;dbl&gt;, titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   nslp_status &lt;chr&gt;, total &lt;int&gt;, …</span></span></code></pre>
+<code class="sourceCode R"><span><span class="va">cc</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 98,563 × 43</span></span></span>
+<span><span class="co">##        ncessch sch_n…¹ st    mstre…² mcity phone website lea_n…³ sch_t…⁴ g_pk_…⁵</span></span>
+<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>870 Ala Av… AL    600 E … Albe… (256… http:/… Albert…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>871 Albert… AL    402 E … Albe… (256… http:/… Albert…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>879 Evans … AL    901 W … Albe… (256… http:/… Albert…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>889 Albert… AL    1100 H… Albe… (256… http:/… Albert…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">501</span>616 Big Sp… AL    257 Co… Albe… (256… http:/… Albert…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">502</span>150 Albert… AL    1100 H… Albe… (256… http:/… Albert…       1 Yes    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>193 Kate D… AL    6077 M… Grant (256… http:/… Marsha…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>872 Asbury… AL    1990 A… Albe… (256… http:/… Marsha…       1 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>876 Claysv… AL    140 Cl… Gunt… (256… http:/… Marsha…       1 Yes    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>877 Dougla… AL    P O Bo… Doug… (256… http:/… Marsha…       1 Yes    </span></span>
+<span><span class="co">## <span style="color: #949494;"># … with 98,553 more rows, 33 more variables: g_kg_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_1_offered &lt;chr&gt;, g_2_offered &lt;chr&gt;, g_3_offered &lt;chr&gt;, g_4_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_5_offered &lt;chr&gt;, g_6_offered &lt;chr&gt;, g_7_offered &lt;chr&gt;, g_8_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_9_offered &lt;chr&gt;, g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_12_offered &lt;chr&gt;, level &lt;chr&gt;, leaid &lt;int&gt;, charter &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;, nslp_status &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   total &lt;int&gt;, pct_american_indian_or_alaska_native &lt;dbl&gt;, pct_asian &lt;dbl&gt;, …</span></span></span></code></pre>
 <p>By looking at the <code>st</code> column, we can already see a
 problem here. The data frame contains schools from all states in the US,
 but we are interested in a much narrower inference population.
@@ -151,8 +154,8 @@ Therefore, there is some filtering we must do first.</p>
 <p>To identify Texas schools, we can select those rows with
 <code>st</code> equal to <code>TX</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span></span></code></pre></div>
 <p>To filter out the non-charter schools, we can use the variable in our
 data frame called <code>charter</code> that takes on the value of 0 for
 non-charter schools and 1 for charter schools. Finally, to select high
@@ -160,42 +163,42 @@ schools (which almost always include grades 9 to 12), we can use one of
 the grade indicator variables, say <code>g_10_offered</code>. After
 combining all of these filters, we get:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span>
-<span class="va">inference_pop</span></code></pre></div>
-<pre><code><span class="co">## <span style="color: #949494;"># A tibble: 330 × 43</span></span>
-<span class="co">##         ncessch sch_name   st    mstreet1  mcity phone website lea_name sch_type</span>
-<span class="co">##           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">## <span style="color: #BCBCBC;"> 1</span> <span style="text-decoration: underline;">480</span>000<span style="text-decoration: underline;">407</span>173 POR VIDA … TX    1135 MIS… SAN … (210… <span style="color: #949494;">"</span>http:… POR VID…        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 2</span> <span style="text-decoration: underline;">480</span>000<span style="text-decoration: underline;">409</span>116 CORPUS CH… TX    1135 MIS… SAN … (361… <span style="color: #949494;">"</span>http:… POR VID…        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 3</span> <span style="text-decoration: underline;">480</span>000<span style="text-decoration: underline;">409</span>460 CESAR E C… TX    3701 MUE… CORP… (361… <span style="color: #949494;">"</span>http:… POR VID…        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 4</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">407</span>174 GEORGE GE… TX    6944 SUN… SAN … (210… <span style="color: #949494;">""</span>      GEORGE …        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 5</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">607</span>239 DALLAS CA… TX    4621 ROS… DALL… (214… <span style="color: #949494;">"</span>http:… TEXANS …        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 6</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">607</span>847 DALLAS CA… TX    325 W 12… DALL… (214… <span style="color: #949494;">"</span>http:… TEXANS …        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 7</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">607</span>910 HOUSTON C… TX    325 W 12… DALL… (214… <span style="color: #949494;">"</span>http:… TEXANS …        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 8</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">608</span>434 SAN ANTON… TX    325 W 12… DALL… (210… <span style="color: #949494;">"</span>http:… TEXANS …        4</span>
-<span class="co">## <span style="color: #BCBCBC;"> 9</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">608</span>908 FORT WORT… TX    6220 WES… FORT… (817… <span style="color: #949494;">"</span>http:… TEXANS …        4</span>
-<span class="co">## <span style="color: #BCBCBC;">10</span> <span style="text-decoration: underline;">480</span>001<span style="text-decoration: underline;">609</span>028 FORT WORT… TX    325 W 12… DALL… (817… <span style="color: #949494;">"</span>http:… TEXANS …        4</span>
-<span class="co">## <span style="color: #949494;"># … with 320 more rows, and 34 more variables: g_pk_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_kg_offered &lt;chr&gt;, g_1_offered &lt;chr&gt;, g_2_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_3_offered &lt;chr&gt;, g_4_offered &lt;chr&gt;, g_5_offered &lt;chr&gt;, g_6_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_7_offered &lt;chr&gt;, g_8_offered &lt;chr&gt;, g_9_offered &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;, g_12_offered &lt;chr&gt;, level &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   leaid &lt;int&gt;, charter &lt;dbl&gt;, titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;,</span></span>
-<span class="co">## <span style="color: #949494;">#   nslp_status &lt;chr&gt;, total &lt;int&gt;, …</span></span></code></pre>
+<code class="sourceCode R"><span><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span></span>
+<span><span class="va">inference_pop</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 330 × 43</span></span></span>
+<span><span class="co">##        ncessch sch_n…¹ st    mstre…² mcity phone website lea_n…³ sch_t…⁴ g_pk_…⁵</span></span>
+<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     4.80<span style="color: #949494;">e</span>11 POR VI… TX    1135 M… SAN … (210… <span style="color: #949494;">"</span>http:… POR VI…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     4.80<span style="color: #949494;">e</span>11 CORPUS… TX    1135 M… SAN … (361… <span style="color: #949494;">"</span>http:… POR VI…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     4.80<span style="color: #949494;">e</span>11 CESAR … TX    3701 M… CORP… (361… <span style="color: #949494;">"</span>http:… POR VI…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     4.80<span style="color: #949494;">e</span>11 GEORGE… TX    6944 S… SAN … (210… <span style="color: #949494;">""</span>      GEORGE…       4 Yes    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     4.80<span style="color: #949494;">e</span>11 DALLAS… TX    4621 R… DALL… (214… <span style="color: #949494;">"</span>http:… TEXANS…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     4.80<span style="color: #949494;">e</span>11 DALLAS… TX    325 W … DALL… (214… <span style="color: #949494;">"</span>http:… TEXANS…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     4.80<span style="color: #949494;">e</span>11 HOUSTO… TX    325 W … DALL… (214… <span style="color: #949494;">"</span>http:… TEXANS…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     4.80<span style="color: #949494;">e</span>11 SAN AN… TX    325 W … DALL… (210… <span style="color: #949494;">"</span>http:… TEXANS…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     4.80<span style="color: #949494;">e</span>11 FORT W… TX    6220 W… FORT… (817… <span style="color: #949494;">"</span>http:… TEXANS…       4 No     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     4.80<span style="color: #949494;">e</span>11 FORT W… TX    325 W … DALL… (817… <span style="color: #949494;">"</span>http:… TEXANS…       4 No     </span></span>
+<span><span class="co">## <span style="color: #949494;"># … with 320 more rows, 33 more variables: g_kg_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_1_offered &lt;chr&gt;, g_2_offered &lt;chr&gt;, g_3_offered &lt;chr&gt;, g_4_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_5_offered &lt;chr&gt;, g_6_offered &lt;chr&gt;, g_7_offered &lt;chr&gt;, g_8_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_9_offered &lt;chr&gt;, g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   g_12_offered &lt;chr&gt;, level &lt;chr&gt;, leaid &lt;int&gt;, charter &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;, nslp_status &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   total &lt;int&gt;, pct_american_indian_or_alaska_native &lt;dbl&gt;, pct_asian &lt;dbl&gt;, …</span></span></span></code></pre>
 <p>The size of our inference population has dropped from over 98,000
 schools to about 350 schools. It now only includes Texas charter high
 schools (or schools that offer 10th grade).</p>
 </div>
-<div class="section level3">
-<h3 id="running-the-function">Running the Function<a class="anchor" aria-label="anchor" href="#running-the-function"></a>
-</h3>
+<div class="section level4">
+<h4 id="running-the-function">Running the Function<a class="anchor" aria-label="anchor" href="#running-the-function"></a>
+</h4>
 <p>We are now ready to run <code><a href="../reference/stratify.html">stratify()</a></code> on our inference
 population. We enter:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stratify.html">stratify</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">inference_pop</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stratify.html">stratify</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">inference_pop</span><span class="op">)</span></span></code></pre></div>
 <p>We are greeted with the following:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_1.png" width="550"></p>
 <p>If we need to make adjustments to our inference population or if we
@@ -205,9 +208,9 @@ called <code>output</code>) – we may enter <code>2</code> to stop the
 function and do so. We have already taken care of both those items,
 however, so we enter <code>1</code> to proceed.</p>
 </div>
-<div class="section level3">
-<h3 id="selecting-the-id-variable">Selecting the ID Variable<a class="anchor" aria-label="anchor" href="#selecting-the-id-variable"></a>
-</h3>
+<div class="section level4">
+<h4 id="selecting-the-id-variable">Selecting the ID Variable<a class="anchor" aria-label="anchor" href="#selecting-the-id-variable"></a>
+</h4>
 <p>The next prompt requires us to enter the name of the ID variable we
 wish to use. We enter the name of the column that contains the unique
 NCES school IDs in the CCD database – <code>ncessch</code>.</p>
@@ -307,9 +310,9 @@ factor
 </tfoot>
 </table>
 </div>
-<div class="section level3">
-<h3 id="selecting-the-stratification-variables">Selecting the Stratification Variables<a class="anchor" aria-label="anchor" href="#selecting-the-stratification-variables"></a>
-</h3>
+<div class="section level4">
+<h4 id="selecting-the-stratification-variables">Selecting the Stratification Variables<a class="anchor" aria-label="anchor" href="#selecting-the-stratification-variables"></a>
+</h4>
 <p>Next we receive a prompt asking us to select our stratification
 variables and a menu showing us all the variables available in our
 dataset. We are also given a warning that we must select at least two
@@ -333,9 +336,9 @@ reasonable, we indicate that they are correct by entering
 <code>1</code>.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_4.png" width="550"></p>
 </div>
-<div class="section level3">
-<h3 id="missing-observations">Missing Observations<a class="anchor" aria-label="anchor" href="#missing-observations"></a>
-</h3>
+<div class="section level4">
+<h4 id="missing-observations">Missing Observations<a class="anchor" aria-label="anchor" href="#missing-observations"></a>
+</h4>
 <p>We are now shown a table (also available in the Viewer pane) that
 breaks down how many missing observations each variable contains,
 including our id variable <code>ncessch</code>. These observations will
@@ -343,9 +346,9 @@ be dropped from the inference population before the stratification is
 performed.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_5.png" width="550"></p>
 </div>
-<div class="section level3">
-<h3 id="descriptive-statistics">Descriptive Statistics<a class="anchor" aria-label="anchor" href="#descriptive-statistics"></a>
-</h3>
+<div class="section level4">
+<h4 id="descriptive-statistics">Descriptive Statistics<a class="anchor" aria-label="anchor" href="#descriptive-statistics"></a>
+</h4>
 <p>Next, the function prints out the descriptive statistics of the
 stratification variables chosen, both categorical and continuous. In
 this case, all the variables are continuous. Plots of the variables –
@@ -354,9 +357,9 @@ one at a time.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_6.png" width="550"></p>
 <p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="1458.33333333333"></p>
 </div>
-<div class="section level3">
-<h3 id="choosing-the-number-of-strata">Choosing the Number of Strata<a class="anchor" aria-label="anchor" href="#choosing-the-number-of-strata"></a>
-</h3>
+<div class="section level4">
+<h4 id="choosing-the-number-of-strata">Choosing the Number of Strata<a class="anchor" aria-label="anchor" href="#choosing-the-number-of-strata"></a>
+</h4>
 <p>Now we are ready to choose the number of strata in which to divide
 our population. <code><a href="../reference/stratify.html">stratify()</a></code> prints some information, similar
 to that presented by the <a href="https://www.thegeneralizer.org/" class="external-link">Generalizer Web application</a>,
@@ -374,12 +377,12 @@ process, which prints out the within-cluster sum of squares at each
 iteration until the stratifying process converges:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_8.png" width="550"></p>
 </div>
-<div class="section level3">
-<h3 id="understanding-the-results">Understanding the Results<a class="anchor" aria-label="anchor" href="#understanding-the-results"></a>
-</h3>
 <div class="section level4">
-<h4 id="stratification-review">Stratification Review<a class="anchor" aria-label="anchor" href="#stratification-review"></a>
+<h4 id="understanding-the-results">Understanding the Results<a class="anchor" aria-label="anchor" href="#understanding-the-results"></a>
 </h4>
+<div class="section level5">
+<h5 id="stratification-review">Stratification Review<a class="anchor" aria-label="anchor" href="#stratification-review"></a>
+</h5>
 <p>The results begin with a brief review of the stratification process.
 We are informed of the stratification variables, the observations
 dropped due to missing data, the population size (after missing
@@ -390,9 +393,9 @@ strata would increase the percentage explained and result in more
 homogeneous strata but would also require more resources.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_9.png" width="550"></p>
 </div>
-<div class="section level4">
-<h4 id="covariate-statistics">Covariate Statistics<a class="anchor" aria-label="anchor" href="#covariate-statistics"></a>
-</h4>
+<div class="section level5">
+<h5 id="covariate-statistics">Covariate Statistics<a class="anchor" aria-label="anchor" href="#covariate-statistics"></a>
+</h5>
 <p><code><a href="../reference/stratify.html">stratify()</a></code> then provides us with a table of the
 within-stratum means and standard deviations for each of the stratifying
 variables, as well as a count of the total number of units in each
@@ -409,22 +412,22 @@ Covariate Statistics by Stratum
 </th>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
 <div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
-Stratum 1<br>n = 161
+Stratum 1<br>n = 46
 </div>
 </th>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
 <div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
-Stratum 2<br>n = 30
+Stratum 2<br>n = 161
 </div>
 </th>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
 <div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
-Stratum 3<br>n = 46
+Stratum 3<br>n = 87
 </div>
 </th>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
 <div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
-Stratum 4<br>n = 87
+Stratum 4<br>n = 30
 </div>
 </th>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
@@ -475,28 +478,28 @@ Standard Deviation
 total
 </td>
 <td style="text-align:center;">
-433.925
-</td>
-<td style="text-align:center;">
-316.029
-</td>
-<td style="text-align:center;">
-362.300
-</td>
-<td style="text-align:center;">
-1074.626
-</td>
-<td style="text-align:center;">
 333.804
 </td>
 <td style="text-align:center;">
 466.237
 </td>
 <td style="text-align:center;">
+433.925
+</td>
+<td style="text-align:center;">
+316.029
+</td>
+<td style="text-align:center;">
 434.218
 </td>
 <td style="text-align:center;">
 451.636
+</td>
+<td style="text-align:center;">
+362.300
+</td>
+<td style="text-align:center;">
+1074.626
 </td>
 <td style="text-align:center;">
 413.157
@@ -510,28 +513,28 @@ total
 pct_black_or_african_american
 </td>
 <td style="text-align:center;">
-0.076
-</td>
-<td style="text-align:center;">
-0.081
-</td>
-<td style="text-align:center;">
-0.525
-</td>
-<td style="text-align:center;">
-0.279
-</td>
-<td style="text-align:center;">
 0.316
 </td>
 <td style="text-align:center;">
 0.141
 </td>
 <td style="text-align:center;">
+0.076
+</td>
+<td style="text-align:center;">
+0.081
+</td>
+<td style="text-align:center;">
 0.116
 </td>
 <td style="text-align:center;">
 0.114
+</td>
+<td style="text-align:center;">
+0.525
+</td>
+<td style="text-align:center;">
+0.279
 </td>
 <td style="text-align:center;">
 0.163
@@ -545,28 +548,28 @@ pct_black_or_african_american
 pct_female
 </td>
 <td style="text-align:center;">
-0.522
-</td>
-<td style="text-align:center;">
-0.052
-</td>
-<td style="text-align:center;">
-0.324
-</td>
-<td style="text-align:center;">
-0.299
-</td>
-<td style="text-align:center;">
 0.480
 </td>
 <td style="text-align:center;">
 0.164
 </td>
 <td style="text-align:center;">
+0.522
+</td>
+<td style="text-align:center;">
+0.052
+</td>
+<td style="text-align:center;">
 0.533
 </td>
 <td style="text-align:center;">
 0.098
+</td>
+<td style="text-align:center;">
+0.324
+</td>
+<td style="text-align:center;">
+0.299
 </td>
 <td style="text-align:center;">
 0.501
@@ -580,28 +583,28 @@ pct_female
 pct_free_and_reduced_lunch
 </td>
 <td style="text-align:center;">
-0.789
-</td>
-<td style="text-align:center;">
-0.133
-</td>
-<td style="text-align:center;">
-0.805
-</td>
-<td style="text-align:center;">
-0.276
-</td>
-<td style="text-align:center;">
 0.857
 </td>
 <td style="text-align:center;">
 0.106
 </td>
 <td style="text-align:center;">
+0.789
+</td>
+<td style="text-align:center;">
+0.133
+</td>
+<td style="text-align:center;">
 0.293
 </td>
 <td style="text-align:center;">
 0.154
+</td>
+<td style="text-align:center;">
+0.805
+</td>
+<td style="text-align:center;">
+0.276
 </td>
 <td style="text-align:center;">
 0.667
@@ -613,9 +616,9 @@ pct_free_and_reduced_lunch
 </tbody>
 </table>
 </div>
-<div class="section level4">
-<h4 id="heat-map">Heat Map<a class="anchor" aria-label="anchor" href="#heat-map"></a>
-</h4>
+<div class="section level5">
+<h5 id="heat-map">Heat Map<a class="anchor" aria-label="anchor" href="#heat-map"></a>
+</h5>
 <p>The function also prints a heat map:</p>
 <p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-15-1.png" width="768"></p>
 <p>Each column of the heat map corresponds to a stratum. We can read the
@@ -644,13 +647,13 @@ right cells differs when both seem to have a mean of 10%. This is
 because of the scale of the variable, the size of the population mean,
 and rounding.)</p>
 </div>
-<div class="section level4">
-<h4 id="summary-and-print">Summary and Print<a class="anchor" aria-label="anchor" href="#summary-and-print"></a>
-</h4>
+<div class="section level5">
+<h5 id="summary-and-print">Summary and Print<a class="anchor" aria-label="anchor" href="#summary-and-print"></a>
+</h5>
 <p>If we wish to look at the results of <code><a href="../reference/stratify.html">stratify()</a></code> again,
 we can run the following code:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>Note that <code>output</code> is the name we have assigned to our
 <code>stratify_object</code> in this example; users should replace it
 with their own name they have chosen.</p>
@@ -661,9 +664,9 @@ Doing so yields:</p>
 </div>
 </div>
 </div>
-<div class="section level2">
-<h2 id="step-2-recruit">Step 2: Recruit<a class="anchor" aria-label="anchor" href="#step-2-recruit"></a>
-</h2>
+<div class="section level3">
+<h3 id="step-2-recruit">Step 2: Recruit<a class="anchor" aria-label="anchor" href="#step-2-recruit"></a>
+</h3>
 <p>Now that we have separated our inference population into 4 strata,
 our next goal is to sample units from each stratum in such a way that
 the overall sample will be representative of the entire population. We
@@ -676,7 +679,7 @@ function arguments instead.</p>
 object, that object can then be passed directly into
 <code><a href="../reference/recruit.html">recruit()</a></code>, like so:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">rec_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recruit.html">recruit</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">rec_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recruit.html">recruit</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>We are immediately greeted with the following message:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_1.png" width="550"></p>
 <p>Our desired sample size is 40 schools, so we enter ‘40’ for the
@@ -735,16 +738,16 @@ Stratum
 Population Units
 </td>
 <td style="text-align:center;">
-161.000
-</td>
-<td style="text-align:center;">
-30.000
-</td>
-<td style="text-align:center;">
 46.000
 </td>
 <td style="text-align:center;">
+161.000
+</td>
+<td style="text-align:center;">
 87.000
+</td>
+<td style="text-align:center;">
+30.000
 </td>
 </tr>
 <tr>
@@ -752,16 +755,16 @@ Population Units
 Sampling Proportion
 </td>
 <td style="text-align:center;">
-0.497
-</td>
-<td style="text-align:center;">
-0.093
-</td>
-<td style="text-align:center;">
 0.142
 </td>
 <td style="text-align:center;">
+0.497
+</td>
+<td style="text-align:center;">
 0.269
+</td>
+<td style="text-align:center;">
+0.093
 </td>
 </tr>
 <tr>
@@ -769,16 +772,16 @@ Sampling Proportion
 Recruitment Number
 </td>
 <td style="text-align:center;background-color: rgba(92, 200, 99, 1) !important;">
-20.000
-</td>
-<td style="text-align:center;background-color: rgba(92, 200, 99, 1) !important;">
-4.000
-</td>
-<td style="text-align:center;background-color: rgba(92, 200, 99, 1) !important;">
 5.000
 </td>
 <td style="text-align:center;background-color: rgba(92, 200, 99, 1) !important;">
+20.000
+</td>
+<td style="text-align:center;background-color: rgba(92, 200, 99, 1) !important;">
 11.000
+</td>
+<td style="text-align:center;background-color: rgba(92, 200, 99, 1) !important;">
+4.000
 </td>
 </tr>
 </tbody>
@@ -800,12 +803,12 @@ be accessed from its output, provided that it has been stored in an
 object.</p>
 <p>We have finished the recruitment process!</p>
 </div>
-<div class="section level2">
-<h2 id="step-3-assess">Step 3: Assess<a class="anchor" aria-label="anchor" href="#step-3-assess"></a>
-</h2>
 <div class="section level3">
-<h3 id="assess">assess()<a class="anchor" aria-label="anchor" href="#assess"></a>
+<h3 id="step-3-assess">Step 3: Assess<a class="anchor" aria-label="anchor" href="#step-3-assess"></a>
 </h3>
+<div class="section level4">
+<h4 id="assess">assess()<a class="anchor" aria-label="anchor" href="#assess"></a>
+</h4>
 <p>We are now ready to take the results we obtained from
 <code><a href="../reference/stratify.html">stratify()</a></code> and <code><a href="../reference/recruit.html">recruit()</a></code> and use them to
 <code><a href="../reference/assess.html">assess()</a></code> the generalizability of our sample data to the
@@ -814,9 +817,9 @@ population.</p>
 sample and population for a defined set of covariates (between 0 and 1).
 Can multiply by 100: 0.8 -&gt; 80% similar.</p>
 </div>
-<div class="section level3">
-<h3 id="assess_wrap">assess_wrap()<a class="anchor" aria-label="anchor" href="#assess_wrap"></a>
-</h3>
+<div class="section level4">
+<h4 id="assess_wrap">assess_wrap()<a class="anchor" aria-label="anchor" href="#assess_wrap"></a>
+</h4>
 <p>We have taken our four recruitment lists and successfully recruited
 the desired number of units from each stratum: 20, 4, 5, and 11 units
 from strata 1, 2, 3, and 4, respectively. We have completed their study
@@ -829,27 +832,27 @@ generalize to other charter high schools in the US.</p>
 These are the same variables we first used to stratify the
 population.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">selection_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pct_female"</span>, <span class="st">"pct_black_or_african_american"</span>, <span class="st">"pct_free_and_reduced_lunch"</span>, <span class="st">"total"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">selection_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pct_female"</span>, <span class="st">"pct_black_or_african_american"</span>, <span class="st">"pct_free_and_reduced_lunch"</span>, <span class="st">"total"</span><span class="op">)</span></span></code></pre></div>
 <p>Then we must read in our sample. There are multiple ways to
 accomplish this, but the important thing is to create a data frame
 consisting only of the units we have recruited from the population with
 a column containing the sample IDs. In this example, we will build the
 data frame from the four recruitment lists we generated earlier.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>ncessch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>,
-                <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,
-                <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,
-                <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>ncessch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>,</span>
+<span>                <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
+<span>                <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,</span>
+<span>                <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>They specify their inference population again – this time a data
 frame including all states with and without charter high schools. The
 data frame should include unit IDs, variables of interest, and (if
 applicable) a grouping variable; since the researcher wants to
 generalize to US states, the grouping variable is ‘st’ (state).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">select</span><span class="op">(</span><span class="va">ncessch</span>, <span class="fu">all_of</span><span class="op">(</span><span class="va">selection_vars</span><span class="op">)</span>, <span class="va">st</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">ncessch</span>, <span class="fu">all_of</span><span class="op">(</span><span class="va">selection_vars</span><span class="op">)</span>, <span class="va">st</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, they feed their sample and populatiuon data frames, the name
 of the ID variable, and the name of the grouping variable to
 ‘assess_wrap()’ – a wrapper of the included ‘assess()’ function for ease
@@ -941,9 +944,9 @@ states.</p>
 <!-- ``` -->
 </div>
 </div>
-<div class="section level1">
-<h1 id="step-4-weighting">Step 4: Weighting<a class="anchor" aria-label="anchor" href="#step-4-weighting"></a>
-</h1>
+<div class="section level2">
+<h2 id="step-4-weighting">Step 4: Weighting<a class="anchor" aria-label="anchor" href="#step-4-weighting"></a>
+</h2>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
@@ -953,14 +956,12 @@ states.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Tim Ruel, Benjamin Ackerman, Katie Coburn, Beatrice
-Chao, Beth Tipton.</p>
+<p>Developed by Tim Ruel, Benjamin Ackerman, Katie Coburn, Beatrice Chao, Beth Tipton.</p>
 </div>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>

@@ -6,6 +6,8 @@
 #' @return
 #' @details
 #'
+#' @export
+#'
 #' @md
 
 stratify_unguided = function(data,

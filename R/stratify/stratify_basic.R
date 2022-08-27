@@ -1,3 +1,14 @@
+#' Wrapper function for \code{stratify()}
+#'
+#' The function \code{stratify_basic()} performs the actual stratification of the user's dataframe within \code{stratify()}. It is intended to be called only within \code{stratify()} when users specify 'guided == FALSE', never as a standalone function.
+#' @param data data.frame object containing the population data to be stratified.
+#' @return
+#' @details
+#'
+#' @export
+#'
+#' @md
+
 stratify_basic = function(data,
                           n_strata = NULL,
                           variables = NULL,

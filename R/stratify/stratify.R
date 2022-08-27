@@ -14,7 +14,6 @@
 #' \itemize{
 #' \item{\code{pop_data_by_stratum}: }{a tibble with number of rows equal to the number of rows in the inference population (\code{data}) and number of columns equal to the number of stratifying variables (dummy-coded if applicable) plus the ID column (\code{idvar}) and a column representing stratum membership, \code{Stratum}}
 #' }
-#' @export
 #' @importFrom graphics par
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu select.list
@@ -87,7 +86,7 @@ stratify = function(data = NULL,
   # Begin guided version ------------------------------------------------------
   if(guided == TRUE) {
 
-    source("R/stratify/stratify_guided.R")
+    #source("R/stratify/stratify_guided.R")
 
     inputs = stratify_guided(data)
 
@@ -101,7 +100,7 @@ stratify = function(data = NULL,
   # Begin unguided version ----------------------------------------------------
   else {
 
-    source("R/stratify/stratify_unguided.R")
+    #source("R/stratify/stratify_unguided.R")
 
     stratify_unguided(data = data,
                       n_strata = n_strata,
@@ -111,7 +110,7 @@ stratify = function(data = NULL,
 
   # Pass arguments to stratify_basic() where actual stratification is performed
 
-  source("R/stratify/stratify_basic.R")
+  #source("R/stratify/stratify_basic.R")
 
   output = stratify_basic(data = data,
                           n_strata = n_strata,
