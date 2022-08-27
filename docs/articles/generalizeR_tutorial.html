@@ -77,25 +77,51 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Welcome to the generalizeR! This package is designed to guide education researchers through:</p>
+<p>Welcome to the generalizeR! This package is designed to guide
+education researchers through:</p>
 <ul>
 <li>Selecting important features of their inference population</li>
 <li>Developing a recruitment plan for a future evaluation</li>
 <li>Assessing the generalizability of a completed evaluation</li>
 </ul>
-<p>Note that it is possible to use the package at either end of the sampling process: you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously obtained sample data and assess its generalizability.</p>
+<p>Note that it is possible to use the package at either end of the
+sampling process: you can start at the beginning and use the package to
+obtain a stratified sample, or you can start at the end with your
+previously obtained sample data and assess its generalizability.</p>
 </div>
 <div class="section level2">
 <h2 id="step-1-stratify">Step 1: Stratify<a class="anchor" aria-label="anchor" href="#step-1-stratify"></a>
 </h2>
-<p>The <code><a href="../reference/stratify.html">stratify()</a></code> function defaults to ‘guided’ mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of <a href="http://thegeneralizer.org/" class="external-link uri">http://thegeneralizer.org/</a> and in part because we intend for this R package to be as accessible as possible for people with limited R experience.</p>
-<p>Users who are running <code><a href="../reference/stratify.html">stratify()</a></code> multiple times, who are familiar with R, or who simply dislike the guided feature can turn it off by using the argument ‘guided = FALSE’. If they do so, however, they must be sure to specify values for all the other function arguments, as those would otherwise be obtained from user input later.</p>
+<p>The <code><a href="../reference/stratify.html">stratify()</a></code> function defaults to ‘guided’ mode,
+meaning that it prints text throughout and prompts the user to enter
+information with a question-and-answer format. This is intentional, in
+part to mimic the nature of <a href="http://thegeneralizer.org/" class="external-link uri">http://thegeneralizer.org/</a> and in part because we intend
+for this R package to be as accessible as possible for people with
+limited R experience.</p>
+<p>Users who are running <code><a href="../reference/stratify.html">stratify()</a></code> multiple times, who are
+familiar with R, or who simply dislike the guided feature can turn it
+off by using the argument ‘guided = FALSE’. If they do so, however, they
+must be sure to specify values for all the other function arguments, as
+those would otherwise be obtained from user input later.</p>
 <p>This tutorial will follow a hypothetical example.</p>
 <div class="section level3">
 <h3 id="filtering-the-inference-population">Filtering the Inference Population<a class="anchor" aria-label="anchor" href="#filtering-the-inference-population"></a>
 </h3>
-<p>Suppose we are a team of education researchers who want to test the effect of an intervention on SAT scores. We have somewhat limited resources, so we plan on using a sample size of 40 schools. We want to estimate the average effect of our intervention in Texas charter high schools. Thus, our <strong>inference population</strong> consists of <em>all Texas charter high schools</em>. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so we select a few <strong>stratifying variables</strong> – <em>percentage female</em>, <em>percentage black</em>, and <em>percentage free and reduced lunch</em>. We also think school size might result in treatment differences, so we include the <em>total school size</em> as well.</p>
-<p>Since we are working with high schools, we can use the Common Core database provided in ‘generalizeRdata’. For information on each of the columns and the source of the data, run <code><a href="https://rdrr.io/pkg/generalizeRdata/man/cc.html" class="external-link">?cc</a></code>.</p>
+<p>Suppose we are a team of education researchers who want to test the
+effect of an intervention on SAT scores. We have somewhat limited
+resources, so we plan on using a sample size of 40 schools. We want to
+estimate the average effect of our intervention in Texas charter high
+schools. Thus, our <strong>inference population</strong> consists of
+<em>all Texas charter high schools</em>. Previous literature suggests
+that gender, minority status, and social class might affect gaps in
+achievement, so we select a few <strong>stratifying variables</strong> –
+<em>percentage female</em>, <em>percentage black</em>, and
+<em>percentage free and reduced lunch</em>. We also think school size
+might result in treatment differences, so we include the <em>total
+school size</em> as well.</p>
+<p>Since we are working with high schools, we can use the Common Core
+database provided in ‘generalizeRdata’. For information on each of the
+columns and the source of the data, run <code><a href="https://rdrr.io/pkg/generalizeRdata/man/cc.html" class="external-link">?cc</a></code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cc</span></code></pre></div>
 <pre><code><span class="co">## <span style="color: #949494;"># A tibble: 98,563 × 43</span></span>
@@ -118,12 +144,21 @@
 <span class="co">## <span style="color: #949494;">#   g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;, g_12_offered &lt;chr&gt;, level &lt;chr&gt;,</span></span>
 <span class="co">## <span style="color: #949494;">#   leaid &lt;int&gt;, charter &lt;dbl&gt;, titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;,</span></span>
 <span class="co">## <span style="color: #949494;">#   nslp_status &lt;chr&gt;, total &lt;int&gt;, …</span></span></code></pre>
-<p>By looking at the <code>st</code> column, we can already see a problem here. The data frame contains schools from all states in the US, but we are interested in a much narrower inference population. Therefore, there is some filtering we must do first.</p>
-<p>To identify Texas schools, we can select those rows with <code>st</code> equal to <code>TX</code>:</p>
+<p>By looking at the <code>st</code> column, we can already see a
+problem here. The data frame contains schools from all states in the US,
+but we are interested in a much narrower inference population.
+Therefore, there is some filtering we must do first.</p>
+<p>To identify Texas schools, we can select those rows with
+<code>st</code> equal to <code>TX</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span></code></pre></div>
-<p>To filter out the non-charter schools, we can use the variable in our data frame called <code>charter</code> that takes on the value of 0 for non-charter schools and 1 for charter schools. Finally, to select high schools (which almost always include grades 9 to 12), we can use one of the grade indicator variables, say <code>g_10_offered</code>. After combining all of these filters, we get:</p>
+<p>To filter out the non-charter schools, we can use the variable in our
+data frame called <code>charter</code> that takes on the value of 0 for
+non-charter schools and 1 for charter schools. Finally, to select high
+schools (which almost always include grades 9 to 12), we can use one of
+the grade indicator variables, say <code>g_10_offered</code>. After
+combining all of these filters, we get:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
@@ -150,24 +185,42 @@
 <span class="co">## <span style="color: #949494;">#   g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;, g_12_offered &lt;chr&gt;, level &lt;chr&gt;,</span></span>
 <span class="co">## <span style="color: #949494;">#   leaid &lt;int&gt;, charter &lt;dbl&gt;, titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;,</span></span>
 <span class="co">## <span style="color: #949494;">#   nslp_status &lt;chr&gt;, total &lt;int&gt;, …</span></span></code></pre>
-<p>The size of our inference population has dropped from over 98,000 schools to about 350 schools. It now only includes Texas charter high schools (or schools that offer 10th grade).</p>
+<p>The size of our inference population has dropped from over 98,000
+schools to about 350 schools. It now only includes Texas charter high
+schools (or schools that offer 10th grade).</p>
 </div>
 <div class="section level3">
 <h3 id="running-the-function">Running the Function<a class="anchor" aria-label="anchor" href="#running-the-function"></a>
 </h3>
-<p>We are now ready to run <code><a href="../reference/stratify.html">stratify()</a></code> on our inference population. We enter:</p>
+<p>We are now ready to run <code><a href="../reference/stratify.html">stratify()</a></code> on our inference
+population. We enter:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stratify.html">stratify</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">inference_pop</span><span class="op">)</span></code></pre></div>
 <p>We are greeted with the following:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_1.png" width="550"></p>
-<p>If we need to make adjustments to our inference population or if we have forgotten to store our results – that is, to use the assignment operator <code>&lt;-</code> to assign our results to an object (here called <code>output</code>) – we may enter <code>2</code> to stop the function and do so. We have already taken care of both those items, however, so we enter <code>1</code> to proceed.</p>
+<p>If we need to make adjustments to our inference population or if we
+have forgotten to store our results – that is, to use the assignment
+operator <code>&lt;-</code> to assign our results to an object (here
+called <code>output</code>) – we may enter <code>2</code> to stop the
+function and do so. We have already taken care of both those items,
+however, so we enter <code>1</code> to proceed.</p>
 </div>
 <div class="section level3">
 <h3 id="selecting-the-id-variable">Selecting the ID Variable<a class="anchor" aria-label="anchor" href="#selecting-the-id-variable"></a>
 </h3>
-<p>The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database – <code>ncessch</code>.</p>
+<p>The next prompt requires us to enter the name of the ID variable we
+wish to use. We enter the name of the column that contains the unique
+NCES school IDs in the CCD database – <code>ncessch</code>.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_2.png" width="550"></p>
-<p>We then receive a message informing us that <code><a href="../reference/stratify.html">stratify()</a></code> has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table displaying an overview of the variables in our data frame has been printed in the Viewer pane. A preview of that same table is shown below. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.</p>
+<p>We then receive a message informing us that <code><a href="../reference/stratify.html">stratify()</a></code>
+has converted all the character variables in our data frame to factor
+variables. This means some factor variables will have a large number of
+levels if their original character versions had many distinct
+observations. We are also told a table displaying an overview of the
+variables in our data frame has been printed in the Viewer pane. A
+preview of that same table is shown below. In general, whenever a table
+is printed to the console, there will be one printed in the Viewer pane
+as well.</p>
 <table style="NAborder-bottom: 0; margin-left: auto; margin-right: auto;" class="table table table-striped table-hover table-condensed">
 <caption>
 Variable Overview
@@ -257,31 +310,68 @@ factor
 <div class="section level3">
 <h3 id="selecting-the-stratification-variables">Selecting the Stratification Variables<a class="anchor" aria-label="anchor" href="#selecting-the-stratification-variables"></a>
 </h3>
-<p>Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can’t choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit <code><a href="../reference/stratify.html">stratify()</a></code> and re-code our desired factor levels from that variable as indicator variables within our data frame (the package <code>fastDummies</code> may be of use).</p>
+<p>Next we receive a prompt asking us to select our stratification
+variables and a menu showing us all the variables available in our
+dataset. We are also given a warning that we must select at least two
+variables and we can’t choose any factor variable containing more than 4
+levels. These restrictions are put in place to prevent errors and ensure
+the stratification process goes smoothly. If we wish to use a factor
+variable with more than 4 levels for stratification, we must first exit
+<code><a href="../reference/stratify.html">stratify()</a></code> and re-code our desired factor levels from that
+variable as indicator variables within our data frame (the package
+<code>fastDummies</code> may be of use).</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_3.png" width="700"></p>
-<p>For our stratifying variables of interest, we have chosen <code>pct_female</code>, <code>pct_black_or_african_american</code>, <code>pct_free_and_reduced_lunch</code>, and <code>total</code>. We enter: <code>29 32 38 42</code>. The function prints out a list of these variables with their names highlighted in blue, as well as a table displaying each variable’s type and number of levels. This is done so we can look them over, confirm what we selected, and make sure the variables are the types we expected. Since these results seem reasonable, we indicate that they are correct by entering <code>1</code>.</p>
+<p>For our stratifying variables of interest, we have chosen
+<code>pct_female</code>, <code>pct_black_or_african_american</code>,
+<code>pct_free_and_reduced_lunch</code>, and <code>total</code>. We
+enter: <code>29 32 38 42</code>. The function prints out a list of these
+variables with their names highlighted in blue, as well as a table
+displaying each variable’s type and number of levels. This is done so we
+can look them over, confirm what we selected, and make sure the
+variables are the types we expected. Since these results seem
+reasonable, we indicate that they are correct by entering
+<code>1</code>.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_4.png" width="550"></p>
 </div>
 <div class="section level3">
 <h3 id="missing-observations">Missing Observations<a class="anchor" aria-label="anchor" href="#missing-observations"></a>
 </h3>
-<p>We are now shown a table (also available in the Viewer pane) that breaks down how many missing observations each variable contains, including our id variable <code>ncessch</code>. These observations will be dropped from the inference population before the stratification is performed.</p>
+<p>We are now shown a table (also available in the Viewer pane) that
+breaks down how many missing observations each variable contains,
+including our id variable <code>ncessch</code>. These observations will
+be dropped from the inference population before the stratification is
+performed.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_5.png" width="550"></p>
 </div>
 <div class="section level3">
 <h3 id="descriptive-statistics">Descriptive Statistics<a class="anchor" aria-label="anchor" href="#descriptive-statistics"></a>
 </h3>
-<p>Next, the function prints out the descriptive statistics of the stratification variables chosen, both categorical and continuous. In this case, all the variables are continuous. Plots of the variables – histograms or bar charts, as appropriate – are generated and displayed one at a time.</p>
+<p>Next, the function prints out the descriptive statistics of the
+stratification variables chosen, both categorical and continuous. In
+this case, all the variables are continuous. Plots of the variables –
+histograms or bar charts, as appropriate – are generated and displayed
+one at a time.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_6.png" width="550"></p>
 <p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="1458.33333333333"></p>
 </div>
 <div class="section level3">
 <h3 id="choosing-the-number-of-strata">Choosing the Number of Strata<a class="anchor" aria-label="anchor" href="#choosing-the-number-of-strata"></a>
 </h3>
-<p>Now we are ready to choose the number of strata in which to divide our population. <code><a href="../reference/stratify.html">stratify()</a></code> prints some information, similar to that presented by the <a href="https://www.thegeneralizer.org/" class="external-link">Generalizer Web application</a>, explaining what the choice represents and giving us some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.</p>
-<p>Since we are only planning on using a sample size of 40 schools, we’ll try a smaller number – 4 strata:</p>
+<p>Now we are ready to choose the number of strata in which to divide
+our population. <code><a href="../reference/stratify.html">stratify()</a></code> prints some information, similar
+to that presented by the <a href="https://www.thegeneralizer.org/" class="external-link">Generalizer Web application</a>,
+explaining what the choice represents and giving us some guidance. While
+choosing more strata is generally better, the practical demand placed on
+the sampling process increases with the number of strata, because units
+must be sampled from each stratum.</p>
+<p>Since we are only planning on using a sample size of 40 schools,
+we’ll try a smaller number – 4 strata:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_7.png" width="550"></p>
-<p>The process of stratifying can take some time. If the function were to run silently, users might fear that R had frozen and quit. As a sort of progress bar, we have turned on “verbose” mode for the clustering process, which prints out the within-cluster sum of squares at each iteration until the stratifying process converges:</p>
+<p>The process of stratifying can take some time. If the function were
+to run silently, users might fear that R had frozen and quit. As a sort
+of progress bar, we have turned on “verbose” mode for the clustering
+process, which prints out the within-cluster sum of squares at each
+iteration until the stratifying process converges:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_8.png" width="550"></p>
 </div>
 <div class="section level3">
@@ -290,13 +380,23 @@ factor
 <div class="section level4">
 <h4 id="stratification-review">Stratification Review<a class="anchor" aria-label="anchor" href="#stratification-review"></a>
 </h4>
-<p>The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources.</p>
+<p>The results begin with a brief review of the stratification process.
+We are informed of the stratification variables, the observations
+dropped due to missing data, the population size (after missing
+observations have been dropped), the number of strata, and the
+proportion of variation in the population explained by the strata. In
+this case, that proportion was about 66%. Increasing the number of
+strata would increase the percentage explained and result in more
+homogeneous strata but would also require more resources.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_9.png" width="550"></p>
 </div>
 <div class="section level4">
 <h4 id="covariate-statistics">Covariate Statistics<a class="anchor" aria-label="anchor" href="#covariate-statistics"></a>
 </h4>
-<p><code><a href="../reference/stratify.html">stratify()</a></code> then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum.</p>
+<p><code><a href="../reference/stratify.html">stratify()</a></code> then provides us with a table of the
+within-stratum means and standard deviations for each of the stratifying
+variables, as well as a count of the total number of units in each
+stratum.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_10.png" width="550"></p>
 <p>A similar table is printed in the Viewer pane:</p>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -518,25 +618,44 @@ pct_free_and_reduced_lunch
 </h4>
 <p>The function also prints a heat map:</p>
 <p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-15-1.png" width="768"></p>
-<p>Each column of the heat map corresponds to a stratum. We can read the map by going down the columns, assessing each stratum in relation to the population. Remember that the goal is to sample independently within each stratum in order to obtain a sample that is representative of the population as a whole. To that end, each stratum has been made as homogeneous as possible within itself (i.e. the within-stratum variances have been minimized) while also maintaining as much heterogeneity as possible across strata (i.e. the between-stratum variance has been maximized).</p>
-<p>Looking at the first column, we see that Stratum 1 contains 161 Texas charter high schools. These schools are:</p>
+<p>Each column of the heat map corresponds to a stratum. We can read the
+map by going down the columns, assessing each stratum in relation to the
+population. Remember that the goal is to sample independently within
+each stratum in order to obtain a sample that is representative of the
+population as a whole. To that end, each stratum has been made as
+homogeneous as possible within itself (i.e. the within-stratum variances
+have been minimized) while also maintaining as much heterogeneity as
+possible across strata (i.e. the between-stratum variance has been
+maximized).</p>
+<p>Looking at the first column, we see that Stratum 1 contains 161 Texas
+charter high schools. These schools are:</p>
 <ul>
 <li>close to the population mean in number of students (about 430),</li>
-<li>above the population mean in the percentage of students on free or reduced lunch (80%),</li>
-<li>close to the population mean in percentage of female students (50%),</li>
-<li>and below the population mean in percentage of black students (10%).</li>
+<li>above the population mean in the percentage of students on free or
+reduced lunch (80%),</li>
+<li>close to the population mean in percentage of female students
+(50%),</li>
+<li>and below the population mean in percentage of black students
+(10%).</li>
 </ul>
 <p>The other columns may be interpreted in exactly the same manner.</p>
-<p>(Users may wonder why the shade of red for the bottom left and bottom right cells differs when both seem to have a mean of 10%. This is because of the scale of the variable, the size of the population mean, and rounding.)</p>
+<p>(Users may wonder why the shade of red for the bottom left and bottom
+right cells differs when both seem to have a mean of 10%. This is
+because of the scale of the variable, the size of the population mean,
+and rounding.)</p>
 </div>
 <div class="section level4">
 <h4 id="summary-and-print">Summary and Print<a class="anchor" aria-label="anchor" href="#summary-and-print"></a>
 </h4>
-<p>If we wish to look at the results of <code><a href="../reference/stratify.html">stratify()</a></code> again, we can run the following code:</p>
+<p>If we wish to look at the results of <code><a href="../reference/stratify.html">stratify()</a></code> again,
+we can run the following code:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></code></pre></div>
-<p>Note that <code>output</code> is the name we have assigned to our <code>stratify_object</code> in this example; users should replace it with their own name they have chosen.</p>
-<p>There is also an option to print our <code>stratify_object</code>. Doing so yields:</p>
+<p>Note that <code>output</code> is the name we have assigned to our
+<code>stratify_object</code> in this example; users should replace it
+with their own name they have chosen.</p>
+<p>There is also an option to print our <code>stratify_object</code>.
+Doing so yields:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/stratify_fig_12.png" width="550"></p>
 <p>We have finished the stratifying process!</p>
 </div>
@@ -545,16 +664,38 @@ pct_free_and_reduced_lunch
 <div class="section level2">
 <h2 id="step-2-recruit">Step 2: Recruit<a class="anchor" aria-label="anchor" href="#step-2-recruit"></a>
 </h2>
-<p>Now that we have separated our inference population into 4 strata, our next goal is to sample units from each stratum in such a way that the overall sample will be representative of the entire population. We can accomplish this task using the <code><a href="../reference/recruit.html">recruit()</a></code> function.</p>
-<p>Like <code><a href="../reference/stratify.html">stratify()</a></code>, <code><a href="../reference/recruit.html">recruit()</a></code> is guided by default; we can simply set <code>guided = FALSE</code> to turn this option off if we choose, but we must specify values for the other function arguments instead.</p>
-<p>Since we assigned the results of <code><a href="../reference/stratify.html">stratify()</a></code> to an object, that object can then be passed directly into <code><a href="../reference/recruit.html">recruit()</a></code>, like so:</p>
+<p>Now that we have separated our inference population into 4 strata,
+our next goal is to sample units from each stratum in such a way that
+the overall sample will be representative of the entire population. We
+can accomplish this task using the <code><a href="../reference/recruit.html">recruit()</a></code> function.</p>
+<p>Like <code><a href="../reference/stratify.html">stratify()</a></code>, <code><a href="../reference/recruit.html">recruit()</a></code> is guided by
+default; we can simply set <code>guided = FALSE</code> to turn this
+option off if we choose, but we must specify values for the other
+function arguments instead.</p>
+<p>Since we assigned the results of <code><a href="../reference/stratify.html">stratify()</a></code> to an
+object, that object can then be passed directly into
+<code><a href="../reference/recruit.html">recruit()</a></code>, like so:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rec_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recruit.html">recruit</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></code></pre></div>
 <p>We are immediately greeted with the following message:</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_1.png" width="550"></p>
-<p>Our desired sample size is 40 schools, so we enter ‘40’ for the number of units we wish to recruit. The function then generates a recruitment list for each stratum. It also displays a sample of one of the recruitment lists so we immediately know what they look like. Each row in a stratum’s recruitment list corresponds to a different unit in the stratum, and the units have been ranked in ascending order of their <a href="https://en.wikipedia.org/wiki/Mahalanobis_distance" class="external-link">Mahalanobis distances</a> from the mean vector of the stratifying variables. The idea is that the units with the smallest Mahalanobis distances are most likely to be “representative” of the population and so should be chosen first to be part of the sample.</p>
+<p>Our desired sample size is 40 schools, so we enter ‘40’ for the
+number of units we wish to recruit. The function then generates a
+recruitment list for each stratum. It also displays a sample of one of
+the recruitment lists so we immediately know what they look like. Each
+row in a stratum’s recruitment list corresponds to a different unit in
+the stratum, and the units have been ranked in ascending order of their
+<a href="https://en.wikipedia.org/wiki/Mahalanobis_distance" class="external-link">Mahalanobis
+distances</a> from the mean vector of the stratifying variables. The
+idea is that the units with the smallest Mahalanobis distances are most
+likely to be “representative” of the population and so should be chosen
+first to be part of the sample.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_2.png" width="550"></p>
-<p>Next, the function prints a recruitment table that tells us how many units we should recruit from each stratum. It arrives at these numbers by multiplying the sampling proportion (which is equal to the ratio of the stratum size to the total population size) for each stratum by the desired sample size, in this case 40.</p>
+<p>Next, the function prints a recruitment table that tells us how many
+units we should recruit from each stratum. It arrives at these numbers
+by multiplying the sampling proportion (which is equal to the ratio of
+the stratum size to the total population size) for each stratum by the
+desired sample size, in this case 40.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_3.png" width="550"></p>
 Here is what the recruitment table looks like in the Viewer pane:
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -642,11 +783,21 @@ Recruitment Number
 </tr>
 </tbody>
 </table>
-<p>This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.</p>
-<p>The function then asks us if we want to save the recruitment lists as csv files. <img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_4.png" width="550"></p>
-<p>Upon entering ‘1’ to indicate ‘Yes’, a folder selection widget will appear that will allow us to choose a location on our computer in which to save the lists. Note that this only occurs when using the guided version of the function; in the non-guided version, the lists are automatically saved to our working directory if we set <code>save_as_csv = TRUE</code>.</p>
+<p>This means that our recruitment plan should be to recruit 20 schools
+from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum
+4.</p>
+<p>The function then asks us if we want to save the recruitment lists as
+csv files. <img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_4.png" width="550"></p>
+<p>Upon entering ‘1’ to indicate ‘Yes’, a folder selection widget will
+appear that will allow us to choose a location on our computer in which
+to save the lists. Note that this only occurs when using the guided
+version of the function; in the non-guided version, the lists are
+automatically saved to our working directory if we set
+<code>save_as_csv = TRUE</code>.</p>
 <p><img src="../../../STEPP%20Center/generalizeR/articles/recruit_fig_5.png" width="550"></p>
-<p>Lastly, the function reminds us that the recruitment lists can also be accessed from its output, provided that it has been stored in an object.</p>
+<p>Lastly, the function reminds us that the recruitment lists can also
+be accessed from its output, provided that it has been stored in an
+object.</p>
 <p>We have finished the recruitment process!</p>
 </div>
 <div class="section level2">
@@ -655,39 +806,90 @@ Recruitment Number
 <div class="section level3">
 <h3 id="assess">assess()<a class="anchor" aria-label="anchor" href="#assess"></a>
 </h3>
-<p>We are now ready to take the results we obtained from <code><a href="../reference/stratify.html">stratify()</a></code> and <code><a href="../reference/recruit.html">recruit()</a></code> and use them to <code><a href="../reference/assess.html">assess()</a></code> the generalizability of our sample data to the population.</p>
-<p>The generalizer index is a global measure of similarity between the sample and population for a defined set of covariates (between 0 and 1). Can multiply by 100: 0.8 -&gt; 80% similar.</p>
+<p>We are now ready to take the results we obtained from
+<code><a href="../reference/stratify.html">stratify()</a></code> and <code><a href="../reference/recruit.html">recruit()</a></code> and use them to
+<code><a href="../reference/assess.html">assess()</a></code> the generalizability of our sample data to the
+population.</p>
+<p>The generalizer index is a global measure of similarity between the
+sample and population for a defined set of covariates (between 0 and 1).
+Can multiply by 100: 0.8 -&gt; 80% similar.</p>
 </div>
 <div class="section level3">
 <h3 id="assess_wrap">assess_wrap()<a class="anchor" aria-label="anchor" href="#assess_wrap"></a>
 </h3>
-<p>We have taken our four recruitment lists and successfully recruited the desired number of units from each stratum: 20, 4, 5, and 11 units from strata 1, 2, 3, and 4, respectively. We have completed their study and are now interested in whether our results are generalizable to other states in the US.</p>
-<p>Recall that our inference population consisted of Texas charter high schools. Therefore, it is reasonable to wonder whether our sample can generalize to other charter high schools in the US.</p>
-<p>First we must specify the variables that we hope are generalizable. These are the same variables we first used to stratify the population.</p>
+<p>We have taken our four recruitment lists and successfully recruited
+the desired number of units from each stratum: 20, 4, 5, and 11 units
+from strata 1, 2, 3, and 4, respectively. We have completed their study
+and are now interested in whether our results are generalizable to other
+states in the US.</p>
+<p>Recall that our inference population consisted of Texas charter high
+schools. Therefore, it is reasonable to wonder whether our sample can
+generalize to other charter high schools in the US.</p>
+<p>First we must specify the variables that we hope are generalizable.
+These are the same variables we first used to stratify the
+population.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">selection_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pct_female"</span>, <span class="st">"pct_black_or_african_american"</span>, <span class="st">"pct_free_and_reduced_lunch"</span>, <span class="st">"total"</span><span class="op">)</span></code></pre></div>
-<p>Then we must read in our sample. There are multiple ways to accomplish this, but the important thing is to create a data frame consisting only of the units we have recruited from the population with a column containing the sample IDs. In this example, we will build the data frame from the four recruitment lists we generated earlier.</p>
+<p>Then we must read in our sample. There are multiple ways to
+accomplish this, but the important thing is to create a data frame
+consisting only of the units we have recruited from the population with
+a column containing the sample IDs. In this example, we will build the
+data frame from the four recruitment lists we generated earlier.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>ncessch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>,
                 <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,
                 <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,
                 <span class="va">recruit_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>They specify their inference population again – this time a data frame including all states with and without charter high schools. The data frame should include unit IDs, variables of interest, and (if applicable) a grouping variable; since the researcher wants to generalize to US states, the grouping variable is ‘st’ (state).</p>
+<p>They specify their inference population again – this time a data
+frame including all states with and without charter high schools. The
+data frame should include unit IDs, variables of interest, and (if
+applicable) a grouping variable; since the researcher wants to
+generalize to US states, the grouping variable is ‘st’ (state).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">select</span><span class="op">(</span><span class="va">ncessch</span>, <span class="fu">all_of</span><span class="op">(</span><span class="va">selection_vars</span><span class="op">)</span>, <span class="va">st</span><span class="op">)</span></code></pre></div>
-<p>Finally, they feed their sample and populatiuon data frames, the name of the ID variable, and the name of the grouping variable to ‘assess_wrap()’ – a wrapper of the included ‘assess()’ function for ease of use.</p>
-<p>They can view a table of their results across states. This code extracts the ‘st’ variable as a factor and retains unique values, one row per state:</p>
-<p>Then that information is bound together with the generalizability indexes:</p>
-<p>However, the information is easier to assess in the form of a map. There are many mapping tools in R. First, we use the tidyverse to turn the generalizability index values into a categorical variable representing the three levels of generalizability.</p>
-<p>A G-index above 0.90 means that the sample is equivalent to a randomized trial. A G-index between 0.50 and 0.90 means that the sample is not quite a miniature of the population, but statistical adjustments to reweight the sample may make generalization possible. Finally, a G-index below 0.50 means that generalization (based upon the selected covariates) is completely unwarranted, and statistical adjustment cannot help.</p>
+<p>Finally, they feed their sample and populatiuon data frames, the name
+of the ID variable, and the name of the grouping variable to
+‘assess_wrap()’ – a wrapper of the included ‘assess()’ function for ease
+of use.</p>
+<p>They can view a table of their results across states. This code
+extracts the ‘st’ variable as a factor and retains unique values, one
+row per state:</p>
+<p>Then that information is bound together with the generalizability
+indexes:</p>
+<p>However, the information is easier to assess in the form of a map.
+There are many mapping tools in R. First, we use the tidyverse to turn
+the generalizability index values into a categorical variable
+representing the three levels of generalizability.</p>
+<p>A G-index above 0.90 means that the sample is equivalent to a
+randomized trial. A G-index between 0.50 and 0.90 means that the sample
+is not quite a miniature of the population, but statistical adjustments
+to reweight the sample may make generalization possible. Finally, a
+G-index below 0.50 means that generalization (based upon the selected
+covariates) is completely unwarranted, and statistical adjustment cannot
+help.</p>
 <p>This map tells the researcher a few things.</p>
-<p>Their results are equivalent to a randomized controlled trial for generalizations to charter high schools in California and Texas. Texas is to be expected here, since their entire sample came from Texas. California most likely has a charter high school population that is very similar to Texas in terms of the stratifying variables (pct_female, pct_black_or_african_american, pct_free_and_reduced_lunch, and total number of students).</p>
-<p>With statistical adjustments, they could make generalizations to the populations of charter high schools in: Washington, Nevada, Utah, Arizona, Colorado, Kansas, Oklahoma, Minnesota, Indiana, Wisconsin, Michigan, Ohio, Pennsylvania, New York, Connecticut, North and South Carolina, Georgia, Florida, and Arkansas.</p>
-<p>Generalizations to the remaining states would be completely unwarranted; in some cases this is because there are no charter high schools in the state (labeled ‘NA’).</p>
-<p>This researcher had a sample size of only 40, but based on careful, stratified sampling (and with some adjustment), they should be able to generalize their intervention results to the populations of 22 US states.</p>
+<p>Their results are equivalent to a randomized controlled trial for
+generalizations to charter high schools in California and Texas. Texas
+is to be expected here, since their entire sample came from Texas.
+California most likely has a charter high school population that is very
+similar to Texas in terms of the stratifying variables (pct_female,
+pct_black_or_african_american, pct_free_and_reduced_lunch, and total
+number of students).</p>
+<p>With statistical adjustments, they could make generalizations to the
+populations of charter high schools in: Washington, Nevada, Utah,
+Arizona, Colorado, Kansas, Oklahoma, Minnesota, Indiana, Wisconsin,
+Michigan, Ohio, Pennsylvania, New York, Connecticut, North and South
+Carolina, Georgia, Florida, and Arkansas.</p>
+<p>Generalizations to the remaining states would be completely
+unwarranted; in some cases this is because there are no charter high
+schools in the state (labeled ‘NA’).</p>
+<p>This researcher had a sample size of only 40, but based on careful,
+stratified sampling (and with some adjustment), they should be able to
+generalize their intervention results to the populations of 22 US
+states.</p>
 <!-- ### Example Two -->
 <!-- The researcher in this example conducted a survey of higher education institutions in California, New York, and Florida. They intended to have a sample size of 500. They ended up having more resources than originally expected, so they recruited a larger sample from one of the strata; instead of 74 units from cluster 4, they recruited 200, for a total sample size of 626. -->
 <!-- ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE} -->
@@ -751,12 +953,14 @@ Recruitment Number
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Tim Ruel, Benjamin Ackerman, Katie Coburn, Beatrice Chao, Beth Tipton.</p>
+<p>Developed by Tim Ruel, Benjamin Ackerman, Katie Coburn, Beatrice
+Chao, Beth Tipton.</p>
 </div>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.1.</p>
 </div>
 
     </footer>
