@@ -1,14 +1,3 @@
-#' Unguided wrapper function for \code{stratify()}
-#'
-#' The function \code{stratify_unguided()} provides the unguided version of \code{stratify()}. It is intended to be called only within \code{stratify()} when users specify 'guided == FALSE', never as a standalone function.
-#' Its primary purpose is to check the validity of the various inputs the user passed to \code{stratify()}.
-#' @param data data.frame object containing the population data to be stratified.
-#' @return
-#' @details
-#'
-#' @export
-#'
-#' @md
 
 stratify_unguided = function(data,
                              n_strata = NULL,

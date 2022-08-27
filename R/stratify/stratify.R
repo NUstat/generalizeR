@@ -8,12 +8,13 @@
 #' @param variables character, defaults to NULL. If guided is set to FALSE, must provide a character vector of the names of stratifying variables (from population data frame)
 #' @param idvar integer, defaults to NULL. If guided is set to FALSE, must provide a character vector of the name of the ID variable (from population data frame)
 #' @param verbose logical, defaults to TRUE.
-#' @return The function returns a list of class "generalizer_output" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+#' @return The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 #' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 #'
 #' \itemize{
 #' \item{\code{pop_data_by_stratum}: }{a tibble with number of rows equal to the number of rows in the inference population (\code{data}) and number of columns equal to the number of stratifying variables (dummy-coded if applicable) plus the ID column (\code{idvar}) and a column representing stratum membership, \code{Stratum}}
 #' }
+#' @export
 #' @importFrom graphics par
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu select.list
