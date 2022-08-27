@@ -69,6 +69,7 @@ stratify = function(data = NULL,
     stop(simpleError("argument 'data' is missing. You must specify the dataframe containing the \ninference population you wish to stratify."))
   }
 
+
   # Check whether data object is of type 'data.frame'
   if(!is.data.frame(data)) {
 
