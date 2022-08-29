@@ -70,6 +70,7 @@ stratify = function(data = NULL,
   }
 
 
+
   # Check whether data object is of type 'data.frame'
   if(!is.data.frame(data)) {
 
