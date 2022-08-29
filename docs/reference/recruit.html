@@ -54,7 +54,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recruit</span><span class="op">(</span><span class="va">x</span>, guided <span class="op">=</span> <span class="cn">TRUE</span>, number <span class="op">=</span> <span class="cn">NULL</span>, save_as_csv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recruit</span><span class="op">(</span><span class="va">x</span>, guided <span class="op">=</span> <span class="cn">TRUE</span>, sample_size <span class="op">=</span> <span class="cn">NULL</span>, save_as_csv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,7 +67,7 @@
 <dd><p>logical; defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, must provide values for other arguments below</p></dd>
 
 
-<dt>number</dt>
+<dt>sample_size</dt>
 <dd><p>defaults to NULL. If guided is set to FALSE, must provide a number of units to sample</p></dd>
 
 
@@ -79,7 +79,7 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A one-element list containing the table that includes the number of units to sample per stratum</p>
+<p>A three-element list containing the recruitment lists and the recruitment table/kable</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

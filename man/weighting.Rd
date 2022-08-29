@@ -5,32 +5,32 @@
 \title{Estimate Weights for Generalizing Average Treatment Effect}
 \usage{
 weighting(
-  outcome,
-  treatment,
-  trial,
-  selection_covariates,
   data,
+  trial,
+  treatment,
+  outcome,
+  selection_covariates,
   selection_method = "lr",
   is_data_disjoint = TRUE,
-  seed
+  seed = 1996
 )
 }
 \arguments{
-\item{outcome}{variable name denoting outcome}
-
-\item{treatment}{variable name denoting binary treatment assignment (ok if only available in trial, not population)}
+\item{data}{data frame comprised of "stacked" trial and target population data}
 
 \item{trial}{variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)}
 
+\item{treatment}{variable name denoting binary treatment assignment (ok if only available in trial, not population)}
+
+\item{outcome}{variable name denoting outcome}
+
 \item{selection_covariates}{vector of covariate names in data set that predict trial participation}
 
-\item{data}{data frame comprised of "stacked" trial and target population data}
+\item{selection_method}{method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
 
-\item{selection_method}{method to estimate the probability of trial participation.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
+\item{is_data_disjoint}{logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.}
 
-\item{is_data_disjoint}{logical. If TRUE, then trial and population data are considered independent.  This affects calculation of the weights - see details for more information.}
-
-\item{seed}{numeric. By default, the seed is set to 13783, otherwise can be specified (such as for simulation purposes).}
+\item{seed}{numeric. By default, the seed is set to 1996, otherwise can be specified (such as for simulation purposes).}
 }
 \description{
 This function is designed for use within 'covariate_table()' and 'assess()'.

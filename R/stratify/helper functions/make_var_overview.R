@@ -1,4 +1,3 @@
-#' @export
 
 make_var_overview = function(dataset, print_to_console = FALSE) {
 

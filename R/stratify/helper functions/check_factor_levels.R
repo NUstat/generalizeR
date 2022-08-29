@@ -1,4 +1,3 @@
-#' @export
 
 check_factor_levels = function(data, maxlevels = 4L) {
 

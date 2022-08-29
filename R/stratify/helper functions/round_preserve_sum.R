@@ -1,4 +1,3 @@
-#' @export
 
 round_preserve_sum <- function(x, digits = 0) {
   up <- 10 ^ digits

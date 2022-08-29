@@ -4,19 +4,19 @@
 \alias{recruit}
 \title{Recruit Units from a Population for Sampling}
 \usage{
-recruit(x, guided = TRUE, number = NULL, save_as_csv = FALSE)
+recruit(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE)
 }
 \arguments{
 \item{x}{output from 'stratify()', of S3 class 'generalizer_output'}
 
 \item{guided}{logical; defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, must provide values for other arguments below}
 
-\item{number}{defaults to NULL. If guided is set to FALSE, must provide a number of units to sample}
+\item{sample_size}{defaults to NULL. If guided is set to FALSE, must provide a number of units to sample}
 
 \item{save_as_csv}{defaults to NULL. If guided is set to FALSE, specify whether or not to save recruitment lists to working directory; TRUE or FALSE}
 }
 \value{
-A one-element list containing the table that includes the number of units to sample per stratum
+A three-element list containing the recruitment lists and the recruitment table/kable
 }
 \description{
 This function works with the output of 'stratify()'. The user provides the number of units they wish to sample from their population dataset. The function tells the user how many to sample from each stratum and generates recruitment lists, one per stratum, which can either be saved to .csv files in any given directory or accessed later on.

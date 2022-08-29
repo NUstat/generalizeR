@@ -4,12 +4,12 @@
 \alias{gen_index}
 \title{Calculate Generalizability Index}
 \usage{
-gen_index(dat1B, dat2B)
+gen_index(trial_ps, pop_ps)
 }
 \arguments{
-\item{dat1B}{vector of probabilities of sample participation among individuals in the trial}
+\item{trial_ps}{vector of probabilities of sample participation among individuals in the trial}
 
-\item{dat2B}{vector of probabilities of sample participation among individuals in the population}
+\item{pop_ps}{vector of probabilities of sample participation among individuals in the population}
 }
 \value{
 the generalizability index, a value between 0 and 1, where a higher score indicates greater similarity

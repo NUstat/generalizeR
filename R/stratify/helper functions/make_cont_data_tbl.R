@@ -1,4 +1,3 @@
-#' @export
 
 make_cont_data_tbl = function(cont_data) {
 
