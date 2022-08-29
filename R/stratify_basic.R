@@ -1,4 +1,4 @@
-#' @export
+
 
 stratify_basic = function(data,
                           n_strata = NULL,

@@ -1,4 +1,4 @@
-#' @export
+
 
 stratify_unguided = function(data,
                              n_strata = NULL,

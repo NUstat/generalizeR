@@ -1,4 +1,4 @@
-#' @export
+
 
 stratify_guided = function(data) {
 
