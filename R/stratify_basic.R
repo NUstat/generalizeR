@@ -6,7 +6,7 @@ stratify_basic = function(data,
                           idvar = NULL,
                           verbose = TRUE) {
 
-  source("R/stratify/helper functions/make_cont_data_tbl.R")
+  source("R/make_cont_data_tbl.R")
 
   # 1) Store all information given by user
 
