@@ -20,7 +20,7 @@ make_cont_data_tbl = function(cont_data) {
     mutate(variable = names(cont_data)) %>%
     select(variable, everything()) %>%
     data.frame() %>%
-    clean_names()
+    janitor::clean_names()
 
   return(cont_data_tbl)
 }
