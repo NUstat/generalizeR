@@ -305,7 +305,7 @@ rec_output <- recruit(strat_output)
 ```
 
 ```{r include = FALSE}
-rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
+#rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
 ```
 
 We are immediately greeted with the following message:
@@ -322,7 +322,7 @@ Next, the function prints a recruitment table that tells us how many units we sh
 
 Here is what the recruitment table looks like in the Viewer pane:
 ```{r echo = FALSE}
-rec_output$recruitment_kable
+#rec_output$recruitment_kable
 ```
 
 This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.
