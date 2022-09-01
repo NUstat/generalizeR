@@ -490,7 +490,7 @@ old_stratify <- function(data, guided = TRUE, n_strata = NULL, variables = NULL,
                              align = "c",
                              col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata+1))) %>%
         kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-        add_header_above(header) %>%
+        kableExtra::add_header_above(header) %>%
         print()
 
       simtab_m <- population_summary_stats2 %>%

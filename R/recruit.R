@@ -151,7 +151,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     column_spec(1, bold = TRUE, border_right = TRUE) %>%
     row_spec(3, background = "#5CC863FF") %>%
     kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-    add_header_above(recruit_header)
+    kableExtra::add_header_above(recruit_header)
 
   cat("\nThe following table (also shown in the Viewer pane to the right) displays \nthe stratum sizes, their proportion relative to the total population size, \nand consequent recruitment number for each stratum. ")
   cat("Ideally, units should be \nrecruited across strata according to these numbers.")

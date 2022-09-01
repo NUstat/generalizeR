@@ -388,7 +388,7 @@ stratify = function(data = NULL,
         col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata + 1))) %>%
     kable_styling(c("striped", "hover"),
                   fixed_thead = TRUE) %>%
-    add_header_above(header)
+    kableExtra::add_header_above(header)
 
   stratum_labels = "Population"
 
