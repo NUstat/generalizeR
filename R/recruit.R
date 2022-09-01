@@ -30,7 +30,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   valid_inputs <- 1:pop_size
 
-  idnum <- x$idnum
+  idvar <- x$idvar
 
   n_strata <- x$n_strata
 
@@ -92,9 +92,10 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
     dat1 <- pop_data_by_stratum %>%
       filter(Stratum == i)
-    idvar <- dat1 %>% select(all_of(idnum))
+    idvar_values <- dat1 %>% select(all_of(idvar))
+
     dat2 <- dat1 %>%
-      select(-c(all_of(idnum), Stratum)) %>%
+      select(-c(all_of(idvar), Stratum)) %>%
       mutate_all(as.numeric)
 
     mu <- dat2 %>% map_dbl(mean)
@@ -103,14 +104,16 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
     if(any(a == 0)) { a[which(a == 0)] <- 0.00000001 }
     cov.dat <- diag(a)
+
     ma.s <- mahalanobis(dat2, mu, cov.dat)
-    dat3 <- data.frame(idvar, dat2, distance = ma.s, Stratum = dat1$Stratum) %>% tibble()
+
+    dat3 <- data.frame(idvar_values, dat2, distance = ma.s, Stratum = dat1$Stratum) %>% tibble()
 
     recruitment_lists[[i]] <- dat3 %>% # Produces a list of data frames, one per stratum, sorted by
       # distance (so the top N schools in each data frame are the "best," etc.)
       arrange(distance) %>%
       mutate(rank = seq.int(nrow(dat3))) %>%
-      select(rank, all_of(idnum))
+      select(rank, all_of(idvar))
   }
 
   cat("\n")
