@@ -30,7 +30,9 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   valid_inputs <- 1:pop_size
 
-  idnum <- x$idnum
+  idvar <- x$idvar
+
+  cat("\n idvar init is",idvar,"\n")
 
   n_strata <- x$n_strata
 
@@ -86,31 +88,59 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   #### CREATE RECRUITMENT LISTS ####
 
+  cat("Creating recruitment lists.")
+
   recruitment_lists <- list(NULL)
 
   for(i in 1:n_strata) {
 
+    cat("\n \n Strata: ",i,"\n")
+
     dat1 <- pop_data_by_stratum %>%
       filter(Stratum == i)
-    idvar <- dat1 %>% select(all_of(idnum))
+    idvar_values <- dat1 %>% select(all_of(idvar))
+
+    dat1_global <<- dat1
+    idvar_global <<- idvar
+    idvar_values_global <<- idvar_values
+
+    cat("\n idvar:",idvar,"\n")
+
     dat2 <- dat1 %>%
-      select(-c(all_of(idnum), Stratum)) %>%
+      select(-c(all_of(idvar), Stratum)) %>%
       mutate_all(as.numeric)
 
     mu <- dat2 %>% map_dbl(mean)
     v <- var(dat2)
     a <- diag(v)
 
-    if(any(a == 0)) { a[which(a == 0)] <- 0.00000001 }
-    cov.dat <- diag(a)
-    ma.s <- mahalanobis(dat2, mu, cov.dat)
-    dat3 <- data.frame(idvar, dat2, distance = ma.s, Stratum = dat1$Stratum) %>% tibble()
+    dat2_global <<- dat2
+    mu_global <<- mu
+    v_global <<- v
+    a_global <<- a
+
+    #0.00000001
+
+    cat("\n \n Getting dims:",dim(dat2),"\n",
+        "\n Getting rank:",qr(dat2)$rank,"\n \n")
+
+    for (imputed_val in 10^(-3:-15)){
+      cat("Trying imputation of ",imputed_val,"\n")
+
+      if(any(a == 0)) { a[which(a == 0)] <- imputed_val }
+      cov.dat <- diag(a)
+
+      ma.s <- try(mahalanobis(dat2, mu, cov.dat))
+    }
+
+    dat3 <- data.frame(idvar_values, dat2, distance = ma.s, Stratum = dat1$Stratum) %>% tibble()
+    dat3_global <<- dat3
 
     recruitment_lists[[i]] <- dat3 %>% # Produces a list of data frames, one per stratum, sorted by
       # distance (so the top N schools in each data frame are the "best," etc.)
       arrange(distance) %>%
       mutate(rank = seq.int(nrow(dat3))) %>%
-      select(rank, all_of(idnum))
+      select(rank, all_of(idvar))
   }
 
   cat("\n")
