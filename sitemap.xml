@@ -28,6 +28,15 @@
     <loc>https://nustat.github.io/generalizeR/reference/covariate_table.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.calculate.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.guided.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.unguided.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/gen_index.html</loc>
   </url>
   <url>
@@ -40,10 +49,16 @@
     <loc>https://nustat.github.io/generalizeR/reference/generalize_tmle.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/generate_ps.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/index.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/recruit.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/select.list_CUSTOMIZED.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/stratify.html</loc>
