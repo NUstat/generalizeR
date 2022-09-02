@@ -601,7 +601,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   # 1) Introduction -----------------------------------------------------------
 
-  cat(bold("\nWelcome to stratify()! \n\n"))
+  cat(crayon::bold("\nWelcome to stratify()! \n\n"))
 
   cat("Your chosen inference population is the '",
     data_name,
