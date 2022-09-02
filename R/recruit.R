@@ -15,10 +15,8 @@
 
 recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
-  if(!inherits(x, "generalizer_stratify")) {
-
-    stop("Argument 'x' must be an object of class \"generalizer_stratify\", created by running stratify().")
-  }
+  stopifnot("Argument 'x' must be an object of class \"generalizer_stratify\", created by running stratify()." =
+              inherits(x, "generalizer_stratify"))
 
   n <- NULL
 
@@ -38,50 +36,36 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   cat("\n\nGiven the number of units that you wish to recruit (your desired sample size), \nthis function can tell you how many units to recruit from each stratum and \ngenerate recruitment lists.\n")
 
-  #### GUIDED VERSION PART 1 ####
-
   if(guided == TRUE) {
 
-    satisfied <- 0
+    #### GUIDED VERSION PART 1 ####
 
-    while(satisfied == 0) {
+    repeat {
 
       cat("\n")
       sample_size <- readline(prompt = "Number of units to recruit: ") %>% as.numeric()
 
-      if(!(sample_size %in% valid_inputs)) {
-
-        cat(red("Invalid input. The number of units you wish to recruit must be an integer \nbetween 1 and the total number of units in your population ("),
-            red(pop_size),
-            red(")."),
-            sep = "")
-      }
-
-      else {
-
-        satisfied <- 1
+      if (sample_size %in% valid_inputs) {
+        break
+      } else {
+        stop(cat(red("Invalid input. The number of units you wish to recruit must be an integer \nbetween 1 and the total number of units in your population ("),
+                 red(pop_size),
+                 red(")."),
+                 sep = ""))
       }
     }
-  }
+  } else {
 
-  #### NON-GUIDED VERSION PART 1 ####
+    #### NON-GUIDED VERSION PART 1 ####
 
-  else {
+    stopifnot("You must specify the number of units that you wish to recruit." = !is.null(sample_size))
 
-    if(is.null(sample_size)) {
+    recruit_num_error_msg <- paste("The number of units you wish to recruit must be an integer between 1 and \nthe total number of units in your population (",
+                                   pop_size,
+                                   ").",
+                                   sep = "")
+    stopifnot(recruit_num_error_msg = (sample_size %in% valid_inputs))
 
-      stop("You must specify the number of units that you wish to recruit.")
-    }
-
-    if(!(sample_size %in% valid_inputs)) {
-
-      errorMsg = paste("The number of units you wish to recruit must be an integer between 1 and \nthe total number of units in your population (",
-                       pop_size,
-                       ").",
-                       sep = "")
-
-      stop(errorMsg)
-    }
   }
 
   #### CREATE RECRUITMENT LISTS ####
@@ -132,7 +116,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     distinct(Stratum, .keep_all = TRUE) %>%
     mutate(Population_Units = n,
            Proportion = round(n/(dim(pop_data_by_stratum)[1]), digits = 3),
-           Recruit_Number = round_preserve_sum(sample_size * Proportion)) %>%
+           Recruit_Number = .round.preserve.sum(sample_size * Proportion)) %>%
     filter(Stratum != "Population") %>%
     select(Stratum, Population_Units, Proportion, Recruit_Number) %>%
     pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Recruit_Number)) %>%
