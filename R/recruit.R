@@ -13,14 +13,13 @@
 #' @importFrom readr write_csv
 #' @importFrom easycsv choose_dir
 
-recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
+recruit <- function(x,
+                    guided = TRUE,
+                    sample_size = NULL,
+                    save_as_csv = FALSE) {
 
   stopifnot("Argument 'x' must be an object of class \"generalizer_stratify\", created by running stratify()." =
               inherits(x, "generalizer_stratify"))
-
-  n <- NULL
-
-  blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width") - 1L), collapse = " "))
 
   pop_data_by_stratum <- x$pop_data_by_stratum
 
@@ -32,9 +31,11 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   n_strata <- x$n_strata
 
-  cat("The generalizer output you've supplied consists of ", paste(bold(pop_size)), " population units \ndivided into ", paste(bold(x$n_strata)), " strata along these variables:\n", paste(blue$bold(x$variables), collapse = ", "), ".", sep = "")
+  cat(crayon::bold("\nWelcome to recruit()! \n\n"))
 
-  cat("\n\nGiven the number of units that you wish to recruit (your desired sample size), \nthis function can tell you how many units to recruit from each stratum and \ngenerate recruitment lists.\n")
+  cat("The 'generalizer_stratify' object you've supplied consists of ", paste(bold(pop_size)), " population units \ndivided into ", paste(bold(x$n_strata)), " strata along these variables:\n\n", paste(blue$bold(x$variables), collapse = ", "), ".", sep = "")
+
+  cat("\n\nGiven the number of units that you wish to recruit (your desired sample size), this \nfunction can tell you how many units to recruit from each stratum and generate \nrecruitment lists.\n")
 
   if(guided == TRUE) {
 
@@ -207,4 +208,142 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
   class(out) <- "generalizer_recruit"
 
   return(invisible(out))
+}
+
+#'
+#' Internal function that performs recruitment calculations
+#'
+
+.recruit.calculate <- function(x) {
+
+  pop_data_by_stratum <- x$pop_data_by_stratum
+
+  pop_size <- pop_data_by_stratum %>% nrow()
+
+  valid_inputs <- 1:pop_size
+
+  idvar <- x$idvar
+
+  n_strata <- x$n_strata
+
+  #### CREATE RECRUITMENT LISTS ####
+
+  recruitment_lists <- list(NULL)
+
+  for(i in 1:n_strata) {
+
+    dat1 <- pop_data_by_stratum %>%
+      dplyr::filter(Stratum == i)
+    idvar_values <- dat1 %>% dplyr::select(all_of(idvar))
+
+    dat2 <- dat1 %>%
+      dplyr::select(-c(all_of(idvar), Stratum)) %>%
+      dplyr::mutate_all(as.numeric)
+
+    mu <- dat2 %>% purrr::map_dbl(mean)
+    v <- var(dat2)
+    a <- diag(v)
+
+    if(any(a == 0)) { a[which(a == 0)] <- 0.00000001 }
+    cov.dat <- diag(a)
+
+    ma.s <- stats::mahalanobis(dat2, mu, cov.dat)
+
+    dat3 <- data.frame(idvar_values, dat2, distance = ma.s, Stratum = dat1$Stratum) %>%
+      dplyr::tibble()
+
+    recruitment_lists[[i]] <- dat3 %>% # Produces a list of data frames, one per stratum, sorted by
+      # distance (so the top N schools in each data frame are the "best," etc.)
+      dplyr::arrange(distance) %>%
+      dplyr::mutate(rank = seq.int(nrow(dat3))) %>%
+      dplyr::select(rank, all_of(idvar))
+  }
+
+  cat("\n")
+  cat(paste(n_strata), "recruitment lists have been generated, one per stratum.")
+  cat(" Each list contains \nthe ID information for the units, ranked in order of desirability.\n")
+
+  if(guided == TRUE) {
+
+    cat("\nThe top 6 rows of the first recruitment list are shown below.\n\n")
+    recruitment_lists[[1]] %>%
+      dplyr::head() %>%
+      dplyr::data.frame() %>%
+      dplyr::print(row.names = FALSE)
+  }
+
+  #### CREATE RECRUITMENT TABLE ####
+
+  recruit_table <- x$heat_data %>% dplyr::select(Stratum, n) %>%
+    dplyr::distinct(Stratum, .keep_all = TRUE) %>%
+    dplyr::mutate(Population_Units = n,
+                  Proportion = round(n/(dim(pop_data_by_stratum)[1]), digits = 3),
+                  Recruit_Number = .round.preserve.sum(sample_size * Proportion)) %>%
+    dplyr::filter(Stratum != "Population") %>%
+    dplyr::select(Stratum, Population_Units, Proportion, Recruit_Number) %>%
+    tidyr::pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Recruit_Number)) %>%
+    tidyr::pivot_wider(names_from = Stratum, names_prefix = "Stratum ") %>%
+    dplyr::mutate(" " = c("Population Units", "Sampling Proportion", "Recruitment Number")) %>%
+    as.data.frame()
+
+  recruit_numbers <- recruit_table %>%
+    dplyr::filter(` ` == "Recruitment Number") %>%
+    dplyr::select(-c(` `)) %>%
+    as.numeric()
+
+  recruit_header <- c(1, n_strata)
+  names(recruit_header) <- c(" ", "Stratum")
+
+  recruit_kable <- recruit_table %>% kableExtra::kbl(caption = "Recruitment Table",
+                                                     align = "c",
+                                                     col.names = c(" ", 1:n_strata)) %>%
+    kableExtra::column_spec(1, bold = TRUE, border_right = TRUE) %>%
+    kableExtra::row_spec(3, background = "#5CC863FF") %>%
+    kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    kableExtra::add_header_above(recruit_header)
+
+  cat("\nThe following table (also shown in the Viewer pane to the right) displays \nthe stratum sizes, their proportion relative to the total population size, \nand consequent recruitment number for each stratum. ")
+  cat("Ideally, units should be \nrecruited across strata according to these numbers.")
+  cat(" Doing so will lead to the \nleast amount of bias and no increase in standard errors. ")
+  cat("Note that the \nrecruitment numbers have been rounded to integers in such a way as to ensure \ntheir sum equals the desired total sample size.\n\n")
+
+  cat(blue$bold("Recruitment Table\n"))
+
+  print(recruit_table, row.names = FALSE)
+  print(recruit_kable)
+
+  cat("\nAttempt to recruit units starting from the top of each recruitment list. If you \nare unsuccessful in recruiting a particular unit, move on to the next one in the \nlist and continue until you have reached the ideal recruitment number in each \nstratum.\n\n", sep = "")
+
+}
+
+#'
+#' Guided helper function
+#'
+
+.recruit.guided <- function(x) {
+
+  pop_data_by_stratum <- x$pop_data_by_stratum
+
+  pop_size <- pop_data_by_stratum %>% nrow()
+
+  valid_inputs <- 1:pop_size
+
+  idvar <- x$idvar
+
+  n_strata <- x$n_strata
+
+  cat(crayon::bold("\nWelcome to recruit()! \n\n"))
+
+  cat("The 'generalizer_stratify' object you've supplied consists of ", paste(bold(pop_size)), " population units \ndivided into ", paste(bold(x$n_strata)), " strata along these variables:\n\n", paste(blue$bold(x$variables), collapse = ", "), ".", sep = "")
+
+  cat("\n\nGiven the number of units that you wish to recruit (your desired sample size), this \nfunction can tell you how many units to recruit from each stratum and generate \nrecruitment lists.\n")
+}
+
+#'
+#' Unguided helper function
+#'
+
+.recruit.unguided <- function(x) {
+
+
 }
