@@ -49,8 +49,7 @@ library(generalizeRdata)
 stratify(ipeds)
 
 # Not guided:
-stratify(ipeds, guided = FALSE, n_strata = 4,
-   variables = c("pct_female", "pct_white"), idvar= "unitid")
+stratify(ipeds, guided = FALSE, n_strata = 4, variables = c("pct_female", "pct_white"), idvar= "unitid")
 }
 }
 }

@@ -75,29 +75,30 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
   for(i in 1:n_strata) {
 
     dat1 <- pop_data_by_stratum %>%
-      filter(Stratum == i)
-    idvar_values <- dat1 %>% select(all_of(idvar))
+      dplyr::filter(Stratum == i)
+    idvar_values <- dat1 %>% dplyr::select(all_of(idvar))
 
     dat2 <- dat1 %>%
-      select(-c(all_of(idvar), Stratum)) %>%
-      mutate_all(as.numeric)
+      dplyr::select(-c(all_of(idvar), Stratum)) %>%
+      dplyr::mutate_all(as.numeric)
 
-    mu <- dat2 %>% map_dbl(mean)
+    mu <- dat2 %>% purrr::map_dbl(mean)
     v <- var(dat2)
     a <- diag(v)
 
     if(any(a == 0)) { a[which(a == 0)] <- 0.00000001 }
     cov.dat <- diag(a)
 
-    ma.s <- mahalanobis(dat2, mu, cov.dat)
+    ma.s <- stats::mahalanobis(dat2, mu, cov.dat)
 
-    dat3 <- data.frame(idvar_values, dat2, distance = ma.s, Stratum = dat1$Stratum) %>% tibble()
+    dat3 <- data.frame(idvar_values, dat2, distance = ma.s, Stratum = dat1$Stratum) %>%
+      dplyr::tibble()
 
     recruitment_lists[[i]] <- dat3 %>% # Produces a list of data frames, one per stratum, sorted by
       # distance (so the top N schools in each data frame are the "best," etc.)
-      arrange(distance) %>%
-      mutate(rank = seq.int(nrow(dat3))) %>%
-      select(rank, all_of(idvar))
+      dplyr::arrange(distance) %>%
+      dplyr::mutate(rank = seq.int(nrow(dat3))) %>%
+      dplyr::select(rank, all_of(idvar))
   }
 
   cat("\n")
@@ -107,37 +108,40 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
   if(guided == TRUE) {
 
     cat("\nThe top 6 rows of the first recruitment list are shown below.\n\n")
-    recruitment_lists[[1]] %>% head() %>% data.frame() %>% print(row.names = FALSE)
+    recruitment_lists[[1]] %>%
+      dplyr::head() %>%
+      dplyr::data.frame() %>%
+      dplyr::print(row.names = FALSE)
   }
 
   #### CREATE RECRUITMENT TABLE ####
 
-  recruit_table <- x$heat_data %>% select(Stratum, n) %>%
-    distinct(Stratum, .keep_all = TRUE) %>%
-    mutate(Population_Units = n,
+  recruit_table <- x$heat_data %>% dplyr::select(Stratum, n) %>%
+    dplyr::distinct(Stratum, .keep_all = TRUE) %>%
+    dplyr::mutate(Population_Units = n,
            Proportion = round(n/(dim(pop_data_by_stratum)[1]), digits = 3),
            Recruit_Number = .round.preserve.sum(sample_size * Proportion)) %>%
-    filter(Stratum != "Population") %>%
-    select(Stratum, Population_Units, Proportion, Recruit_Number) %>%
-    pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Recruit_Number)) %>%
-    pivot_wider(names_from = Stratum, names_prefix = "Stratum ") %>%
-    mutate(" " = c("Population Units", "Sampling Proportion", "Recruitment Number")) %>%
+    dplyr::filter(Stratum != "Population") %>%
+    dplyr::select(Stratum, Population_Units, Proportion, Recruit_Number) %>%
+    tidyr::pivot_longer(names_to = " ", cols = c(Population_Units, Proportion, Recruit_Number)) %>%
+    tidyr::pivot_wider(names_from = Stratum, names_prefix = "Stratum ") %>%
+    dplyr::mutate(" " = c("Population Units", "Sampling Proportion", "Recruitment Number")) %>%
     as.data.frame()
 
   recruit_numbers <- recruit_table %>%
-    filter(` ` == "Recruitment Number") %>%
-    select(-c(` `)) %>%
+    dplyr::filter(` ` == "Recruitment Number") %>%
+    dplyr::select(-c(` `)) %>%
     as.numeric()
 
   recruit_header <- c(1, n_strata)
   names(recruit_header) <- c(" ", "Stratum")
 
-  recruit_kable <- recruit_table %>% kbl(caption = "Recruitment Table",
+  recruit_kable <- recruit_table %>% kableExtra::kbl(caption = "Recruitment Table",
                                          align = "c",
                                          col.names = c(" ", 1:n_strata)) %>%
-    column_spec(1, bold = TRUE, border_right = TRUE) %>%
-    row_spec(3, background = "#5CC863FF") %>%
-    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    kableExtra::column_spec(1, bold = TRUE, border_right = TRUE) %>%
+    kableExtra::row_spec(3, background = "#5CC863FF") %>%
+    kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
     kableExtra::add_header_above(recruit_header)
 
   cat("\nThe following table (also shown in the Viewer pane to the right) displays \nthe stratum sizes, their proportion relative to the total population size, \nand consequent recruitment number for each stratum. ")
@@ -156,7 +160,8 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
 
   if(guided == TRUE) {
 
-    save_as_csv = menu(choices = c("Yes", "No"), title = cat("Would you like to save the recruitment lists as .csv files?"))
+    save_as_csv = utils::menu(choices = c("Yes", "No"),
+                              title = cat("Would you like to save the recruitment lists as .csv files?"))
 
     if(save_as_csv == TRUE) {
 
@@ -174,7 +179,7 @@ recruit <- function(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE) {
     for(i in 1:(n_strata)) {
 
       filename <- paste(filepath, "Recruitment_list_", i, ".csv", sep = "")
-      write_csv(recruitment_lists[[i]], file = filename)
+      readr::write_csv(recruitment_lists[[i]], file = filename)
     }
 
     #### GUIDED VERSION PART 3 ####
