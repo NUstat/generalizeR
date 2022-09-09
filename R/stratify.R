@@ -191,20 +191,20 @@ stratify <- function(data = NULL,
   if (verbose == TRUE) {
     cat("\nThis might take a little while. Please bear with us.")
 
-    distance <- daisy(data_full, metric = "gower") %>%
+    distance <- cluster::daisy(data_full, metric = "gower") %>%
       suppressWarnings()
 
     cat("\n\nCalculated distance matrix.\n")
 
-    solution <- KMeans_rcpp(as.matrix(distance),
+    solution <- ClusterR::KMeans_rcpp(as.matrix(distance),
       clusters = n_strata,
       verbose = TRUE
     )
   } else {
-    distance <- daisy(data_full, metric = "gower") %>%
+    distance <- cluster::daisy(data_full, metric = "gower") %>%
       suppressWarnings()
 
-    solution <- KMeans_rcpp(as.matrix(distance),
+    solution <- ClusterR::KMeans_rcpp(as.matrix(distance),
       clusters = n_strata,
       verbose = FALSE
     )
