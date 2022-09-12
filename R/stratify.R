@@ -958,7 +958,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # n_strata
   is_n_strata_valid <- function(n_strata) {
 
-    is.count(n_strata) && n_strata > 1
+   (n_strata %% 1 == 0) && (n_strata > 1)
   }
 
   assertthat::on_failure(is_n_strata_valid) <- function(call, env) {
