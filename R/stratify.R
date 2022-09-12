@@ -1070,6 +1070,26 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   assertthat::assert_that(is_empty(invalid_factors))
 
+  # Verify that there are no variables with all obs. missing --------
+  na_variables <- data %>%
+    sapply(function(x) sum(!is.na(x))) %>%
+    data.frame() %>%
+    dplyr::filter(.==0) %>%
+    row.names()
+
+  assertthat::on_failure(.check.no.na.cols) <- function(call, env) {
+
+    paste0(
+      crayon::red("ERROR: This function will not allow a variable with all observations missing.\n\n"),
+      crayon::red("All observations are missing for the following variables:\n\n"),
+      paste(crayon::blue$bold(na_variables), collapse = ", "),
+      crayon::red("\n\nPlease choose a different set of variables.\n"),
+      sep = ""
+    )
+  }
+
+  assertthat::assert_that(.check.no.na.cols(na_variables))
+
   output <- .stratify.calculate(
     data = data,
     n_strata = n_strata,
@@ -1091,6 +1111,11 @@ print.summary.generalizer_stratify <- function(x, ...) {
     names()
 
   return(invalid_factors)
+}
+
+.check.no.na.cols <- function(na_col_list){
+  cat("TJM_Test Asserting no na cols")
+  is_empty(na_col_list)
 }
 
 .select.list <- function(choices,
@@ -1247,3 +1272,4 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   return(cont_data_tbl)
 }
+
