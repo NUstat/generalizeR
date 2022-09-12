@@ -18,8 +18,9 @@
 #' }
 #' @export
 #' @importFrom graphics par
+#' @importFrom assertthat assert_that not_empty
 #' @importFrom stats mahalanobis median na.omit sd var
-#' @importFrom utils menu select.list
+#' @importFrom utils menu
 #' @importFrom crayon red yellow blue bold
 #' @importFrom janitor clean_names
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
@@ -64,15 +65,12 @@ stratify <- function(data = NULL,
                      idvar = NULL,
                      verbose = TRUE) {
 
-  # Check whether 'data' argument has been specified
-  if (is.null(data)) {
-    stop(simpleError("argument 'data' is missing. You must specify the dataframe containing the \ninference population you wish to stratify."))
+  # Check whether data object is of type 'data.frame'
+  assertthat::on_failure(is.data.frame) <- function(call, env) {
+    "You must pass an object of type 'data.frame' to the 'data' argument."
   }
 
-  # Check whether data object is of type 'data.frame'
-  if (!is.data.frame(data)) {
-    stop(simpleError("Your data object must be of type 'data.frame'."))
-  }
+  assertthat::assert_that(is.data.frame(data))
 
   # Store name of data as global variable so it can be accessed by stratify_basic(). Must be done before function argument 'data' is evaluated for the first time.
   data_name <<- data %>%
@@ -80,7 +78,7 @@ stratify <- function(data = NULL,
 
   # Immediately convert all character variables to factors
   data <- data %>%
-    mutate(across(where(is_character), as_factor))
+    dplyr::mutate(dplyr::across(where(rlang::is_character), forcats::as_factor))
 
   # Call guided version ------------------------------------------------------
   if (guided == TRUE) {
@@ -182,7 +180,7 @@ stratify <- function(data = NULL,
         )
       }
     ) %>%
-    mutate(Variable = names(cat_data)) %>%
+    dplyr::mutate(Variable = names(cat_data)) %>%
     select(Variable, everything()) %>%
     data.frame()
 
@@ -216,14 +214,14 @@ stratify <- function(data = NULL,
     data_full,
     Stratum = solution$clusters
   ) %>%
-    select(Stratum, everything()) %>%
-    arrange(Stratum) %>%
+    dplyr::select(Stratum, tidyselect::everything()) %>%
+    dplyr::arrange(Stratum) %>%
     tibble()
 
   population_summary_stats2 <- pop_data_by_stratum %>%
-    select(all_of(var_names)) %>%
-    summarise_all(list(mean, sd)) %>%
-    mutate_all(round, digits = 3)
+    dplyr::select(tidyselect::all_of(var_names)) %>%
+    dplyr::summarise_all(list(mean, sd)) %>%
+    dplyr::mutate_all(round, digits = 3)
 
   population_summary_stats <- population_summary_stats2 %>%
     names() %>%
@@ -243,92 +241,92 @@ stratify <- function(data = NULL,
     bind_cols()
 
   summary_stats <- pop_data_by_stratum %>%
-    select(all_of(var_names), Stratum) %>%
-    group_by(Stratum) %>%
-    summarize_if(is.numeric, mean) %>%
-    left_join(
+    dplyr::select(tidyselect::all_of(var_names), Stratum) %>%
+    dplyr::group_by(Stratum) %>%
+    dplyr::summarize_if(is.numeric, mean) %>%
+    dplyr::left_join(
 
       (pop_data_by_stratum %>%
-        select(all_of(var_names), Stratum) %>%
-        group_by(Stratum) %>%
-        summarize_if(is.numeric, sd)),
+         dplyr::select(tidyselect::all_of(var_names), Stratum) %>%
+         dplyr::group_by(Stratum) %>%
+         dplyr::summarize_if(is.numeric, sd)),
       by = "Stratum",
       suffix = c("_fn1", "_fn2")
     ) %>%
-    mutate_all(round, digits = 3)
+    dplyr::mutate_all(round, digits = 3)
 
   summary_stats2 <- summary_stats %>%
-    select(-Stratum) %>%
+    dplyr::select(-Stratum) %>%
     names() %>%
     str_sub(end = -5) %>%
     unique() %>%
     lapply(
       function(x) {
-        unite(summary_stats,
+        tidyr::unite(summary_stats,
           {{ x }},
           grep(x, names(summary_stats), value = TRUE),
           sep = " / ",
           remove = TRUE
         ) %>%
-          select(all_of(x))
+          dplyr::select(tidyselect::all_of(x))
       }
     ) %>%
     bind_cols() %>%
-    mutate(Stratum = summary_stats$Stratum) %>%
-    select(Stratum, everything()) %>%
-    left_join(
+    dplyr::mutate(Stratum = summary_stats$Stratum) %>%
+    dplyr::select(Stratum, tidyselect::everything()) %>%
+    dplyr::left_join(
 
       (pop_data_by_stratum %>%
-        group_by(Stratum) %>%
-        count()),
+         dplyr::group_by(Stratum) %>%
+         dplyr::count()),
       by = "Stratum"
     ) %>%
-    mutate(Stratum = as.character(Stratum)) %>%
-    add_row(tibble_row(
+    dplyr::mutate(Stratum = as.character(Stratum)) %>%
+    tibble::add_row(tibble::tibble_row(
       Stratum = "Population",
       population_summary_stats,
       n = dim(pop_data_by_stratum)[1]
     ))
 
   simtab_m <- population_summary_stats2 %>%
-    select(contains("fn1"))
+    dplyr::select(contains("fn1"))
 
   names(simtab_m) <- names(simtab_m) %>%
     str_sub(end = -5)
 
   sd_tab <- summary_stats %>%
-    select(contains("fn2")) %>%
-    add_row(tibble_row((population_summary_stats2 %>% select(contains("fn2")))))
+    dplyr::select(contains("fn2")) %>%
+    tibble::add_row(tibble::tibble_row((population_summary_stats2 %>% dplyr::select(tidyselect::contains("fn2")))))
 
   names(sd_tab) <- names(sd_tab) %>%
     str_sub(end = -5)
 
   sd_tab <- sd_tab %>%
-    mutate(Stratum = summary_stats2$Stratum) %>%
-    pivot_longer(-Stratum,
+    dplyr::mutate(Stratum = summary_stats2$Stratum) %>%
+    tidyr::pivot_longer(-Stratum,
       names_to = "Variable",
       values_to = "sd"
     )
 
   mean_tab <- summary_stats %>%
-    select(contains("fn1")) %>%
-    add_row(tibble_row((population_summary_stats2 %>% select(contains("fn1")))))
+    dplyr::select(contains("fn1")) %>%
+    tibble::add_row(tibble::tibble_row((population_summary_stats2 %>% dplyr::select(tidyselect::contains("fn1")))))
 
   names(mean_tab) <- names(mean_tab) %>%
     str_sub(end = -5)
 
   mean_tab <- mean_tab %>%
-    mutate(Stratum = summary_stats2$Stratum) %>%
-    pivot_longer(-Stratum, names_to = "Variable", values_to = "mn")
+    dplyr::mutate(Stratum = summary_stats2$Stratum) %>%
+    tidyr::pivot_longer(-Stratum, names_to = "Variable", values_to = "mn")
 
   counts_tab <- summary_stats2 %>%
-    select(Stratum, n)
+    dplyr::select(Stratum, n)
 
-  heat_data <- left_join(mean_tab, sd_tab, by = c("Stratum", "Variable")) %>%
-    filter(Variable != "rank")
+  heat_data <- dplyr::left_join(mean_tab, sd_tab, by = c("Stratum", "Variable")) %>%
+    dplyr::filter(Variable != "rank")
 
   heat_data <- heat_data %>%
-    left_join(counts_tab, by = "Stratum")
+    dplyr::left_join(counts_tab, by = "Stratum")
 
   temporary_df <- data.frame(
     Variable = unique(heat_data$Variable),
@@ -336,34 +334,34 @@ stratify <- function(data = NULL,
     pop_sd = (heat_data %>% filter(Stratum == "Population") %>% select(sd)),
     pop_n = (heat_data %>% filter(Stratum == "Population") %>% select(n))
   ) %>%
-    mutate(
+    dplyr::mutate(
       pop_mean = mn,
       pop_sd = sd,
       pop_n = n
     ) %>%
-    select(-mn, -sd, -n)
+    dplyr::select(-mn, -sd, -n)
 
   heat_data <- heat_data %>%
-    left_join(temporary_df,
+    dplyr::left_join(temporary_df,
       by = "Variable"
     ) %>%
-    mutate(deviation = case_when(
+    dplyr::mutate(deviation = dplyr::case_when(
       (mn - pop_mean) / pop_mean >= 0.7 ~ 0.7,
       (mn - pop_mean) / pop_mean <= -0.7 ~ -0.7,
       TRUE ~ (mn - pop_mean) / pop_mean
     ))
 
   heat_data_simple <- heat_data %>%
-    select(Stratum, Variable, mn, sd) %>%
-    pivot_wider(
+    dplyr::select(Stratum, Variable, mn, sd) %>%
+    tidyr::pivot_wider(
       names_from = Stratum,
       values_from = c(mn, sd),
       names_glue = "{Stratum}_{.value}"
     )
 
   heat_data_simple <- heat_data_simple %>%
-    select(order(colnames(heat_data_simple))) %>%
-    select(Variable, everything())
+    dplyr::select(order(colnames(heat_data_simple))) %>%
+    dplyr::select(Variable, tidyselect::everything())
 
   header <- c(1, rep(2, n_strata + 1))
   header_names <- " "
@@ -386,12 +384,12 @@ stratify <- function(data = NULL,
     ))
 
   heat_data_kable <- heat_data_simple %>%
-    kbl(
+    kableExtra::kbl(
       caption = "Covariate Statistics by Stratum",
       align = "c",
       col.names = c("Variable", rep(c("Mean", "Standard Deviation"), n_strata + 1))
     ) %>%
-    kable_styling(c("striped", "hover"),
+    kableExtra::kable_styling(c("striped", "hover"),
       fixed_thead = TRUE
     ) %>%
     kableExtra::add_header_above(header)
@@ -402,7 +400,7 @@ stratify <- function(data = NULL,
     stratum_labels[i] <- paste("Stratum", (i - 1))
   }
 
-  heat_plot <- ggplot(data = heat_data) +
+  heat_plot <- ggplot2::ggplot(data = heat_data) +
     geom_tile(aes(x = Stratum, y = Variable, fill = deviation), color = "black", width = 0.95) +
     geom_text(aes(x = Stratum, y = ((ncol(summary_stats) + 1) / 2 - 0.15), label = paste(n, "\nunits")), size = 3.4) +
     scale_fill_gradientn(
@@ -437,12 +435,12 @@ stratify <- function(data = NULL,
     )
 
   longer_heat_data <- heat_data %>%
-    pivot_longer(
+    tidyr::pivot_longer(
       cols = c("mn", "sd"),
       names_to = "mn_or_sd",
       values_to = "values"
     ) %>%
-    mutate(values = values %>% round(1))
+    dplyr::mutate(values = values %>% round(1))
 
   heat_plot_final <- heat_plot +
     new_scale("fill") +
@@ -617,29 +615,29 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   is_valid_id_name <- FALSE
 
-  while (is_valid_id_name == FALSE) {
+  repeat {
     idvar <- readline(prompt = "Enter the name of the ID Variable in your dataframe: ")
 
     ## Check ##
-    if (!idvar %in% names(data)) {
-      cat(crayon::red("\nERROR: We could not find that variable. Your ID variable must be one of the variables \nin the '"),
+    if (idvar %in% names(data)) {
+
+      break
+    }
+
+    cat(crayon::red("\nERROR: We could not find that variable. Your ID variable must be one of the variables \nin the '"),
         crayon::red(data_name),
         crayon::red("' dataframe.\n\n"),
         sep = ""
-      )
-      next
-    }
-
-    is_valid_id_name <- TRUE
+    )
   }
 
   id <- data %>%
-    select(all_of(idvar))
+    dplyr::select(tidyselect::all_of(idvar))
 
   # 3) Selection of variables for stratification ------------------------------
 
   data_subset <- data %>%
-    select(-all_of(idvar))
+    dplyr::select(-tidyselect::all_of(idvar))
 
   data_subset %>%
     .make.var.overview()
@@ -661,9 +659,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   var_names <- data_subset %>%
     names()
 
-  variables_are_correct <- FALSE
-
-  while (variables_are_correct == FALSE) {
+  repeat {
     variables <- .select.list(
       choices = var_names,
       graphics = FALSE,
@@ -672,10 +668,10 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
     # Verify that there are no factor variables with more than 4 levels
     invalid_factors <- data_subset %>%
-      select(all_of(variables)) %>%
+      dplyr::select(tidyselect::all_of(variables)) %>%
       .check.factor.levels()
 
-    if (!is_empty(invalid_factors)) {
+    if (!rlang::is_empty(invalid_factors)) {
       cat(crayon::red("ERROR: This function will not allow a factor variable to have more than 4 levels.\n\n"),
         crayon::red("The following factor variables have more than 4 levels:\n\n"),
         paste(crayon::blue$bold(invalid_factors), collapse = ", "),
@@ -695,19 +691,20 @@ print.summary.generalizer_stratify <- function(x, ...) {
     )
 
     data_subset %>%
-      select(all_of(variables)) %>%
+      dplyr::select(tidyselect::all_of(variables)) %>%
       .make.var.overview(print_to_console = TRUE)
 
-    if (menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
-      variables_are_correct <- TRUE
-    } else {
-      data_subset %>%
-        .make.var.overview()
+    if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
+
+      break
     }
+
+    data_subset %>%
+      .make.var.overview()
   }
 
   data_subset <- data_subset %>%
-    select(all_of(variables))
+    dplyr::select(tidyselect::all_of(variables))
 
   # 4) Let user know about missing observations -------------------------------
 
@@ -715,25 +712,25 @@ print.summary.generalizer_stratify <- function(x, ...) {
     sapply(function(x) sum(is.na(x))) %>%
     as.data.frame() %>%
     `colnames<-`("n_missing") %>%
-    rownames_to_column("variable")
+    tibble::rownames_to_column("variable")
 
   n_missing <- data.frame(id, data_subset) %>%
-    filter(if_any(everything(), is.na)) %>%
+    dplyr::filter(dplyr::if_any(tidyselect::everything(), is.na)) %>%
     nrow()
 
   data_subset <- data.frame(id, data_subset) %>%
-    drop_na() %>%
-    select(-all_of(idvar))
+    tidyr::drop_na() %>%
+    dplyr::select(-tidyselect::all_of(idvar))
 
   cat("\nThe following table shows how many observations are missing for the variables you have \nchosen.\n\n")
 
   missing_obs_table %>%
-    kbl(
+    kableExtra::kbl(
       caption = "Missing Observations by Variable",
       align = "l",
       col.names = c("Variable", "Number Missing")
     ) %>%
-    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
     print()
 
   missing_obs_table %>%
@@ -748,7 +745,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # 5) Overview of categorical variables --------------------------------------
 
   cat_data <- data_subset %>%
-    select_if(is.factor)
+    dplyr::select_if(is.factor)
 
   cat_data_vars <- names(cat_data)
 
@@ -762,7 +759,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
     n_cat_vars <- ncol(cat_data_plot)
 
-    fill_colors_cat <- plasma(n_cat_vars,
+    fill_colors_cat <- viridis::plasma(n_cat_vars,
       alpha = 0.7,
       direction = sample(c(-1, 1),
         size = 1
@@ -770,7 +767,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
     ) %>%
       sample()
 
-    outline_colors_cat <- turbo(n_cat_vars) %>%
+    outline_colors_cat <- viridis::turbo(n_cat_vars) %>%
       sample()
 
     for (i in 1:n_cat_vars) {
@@ -779,10 +776,10 @@ print.summary.generalizer_stratify <- function(x, ...) {
       levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
 
       barfig <- cat_data_plot %>%
-        group_by(across(all_of(var_name))) %>%
-        summarise(count = n()) %>%
-        mutate(ordered_factor = fct_reorder(.[[var_name]], count)) %>%
-        ggplot(aes(x = ordered_factor, y = count)) +
+        dplyr::group_by(dplyr::across(tidyselect::all_of(var_name))) %>%
+        dplyr::summarise(count = n()) %>%
+        dplyr::mutate(ordered_factor = forcats::fct_reorder(.[[var_name]], count)) %>%
+        ggplot2::ggplot(aes(x = ordered_factor, y = count)) +
         geom_col(
           fill = fill_colors_cat[i],
           color = outline_colors_cat[i]
@@ -810,12 +807,12 @@ print.summary.generalizer_stratify <- function(x, ...) {
         print(row.names = FALSE)
 
       cat_data_table %>%
-        kbl(
+        kableExtra::kbl(
           col.names = c("Level", "Frequency"),
           caption = paste("Number of Observations in Levels of Factor ", var_name),
           align = "l"
         ) %>%
-        kable_styling(c("striped", "hover")) %>%
+        kableExtra::kable_styling(c("striped", "hover")) %>%
         print()
     }
 
@@ -827,7 +824,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # 6) Overview of continuous variables ---------------------------------------
 
   cont_data <- data_subset %>%
-    select_if(negate(is.factor))
+    dplyr::select_if(negate(is.factor))
 
   cont_data_vars <- cont_data %>%
     names()
@@ -837,7 +834,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
     n_cont_vars <- ncol(cont_data)
 
-    fill_colors_cont <- viridis(n_cont_vars,
+    fill_colors_cont <- viridis::viridis(n_cont_vars,
       alpha = 0.7,
       direction = sample(c(-1, 1),
         size = 1
@@ -845,12 +842,12 @@ print.summary.generalizer_stratify <- function(x, ...) {
     ) %>%
       sample()
 
-    outline_colors_cont <- turbo(n_cont_vars) %>%
+    outline_colors_cont <- viridis::turbo(n_cont_vars) %>%
       sample()
 
     for (i in 1:n_cont_vars) {
       hist <- cont_data %>%
-        ggplot(aes(x = cont_data[, i])) +
+        ggplot2::ggplot(aes(x = cont_data[, i])) +
         geom_histogram(
           bins = 30,
           fill = fill_colors_cont[i],
@@ -875,8 +872,8 @@ print.summary.generalizer_stratify <- function(x, ...) {
       print(row.names = FALSE)
 
     sumstats %>%
-      kbl(col.names = c("Variable", "Min", "Pct50", "Max", "Mean", "SD")) %>%
-      kable_styling(c("striped", "hover")) %>%
+      kableExtra::kbl(col.names = c("Variable", "Min", "Pct50", "Max", "Mean", "SD")) %>%
+      kableExtra::kable_styling(c("striped", "hover")) %>%
       print()
   }
 
@@ -959,66 +956,79 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # Check user arguments for invalid specifications -------------------------
 
   # n_strata
-  if (is.null(n_strata)) {
-    stop(simpleError("argument 'n_strata' is missing. You must specify the number of strata in which to divide your population if you are running the unguided version of this function."))
+  is_n_strata_valid <- function(n_strata) {
+
+    is.count(n_strata) && n_strata > 1
   }
 
-  if (!is.numeric(n_strata) || n_strata <= 1 || n_strata %% 1 != 0) {
-    stop(simpleError("invalid 'n_strata' argument. The number of strata must be an integer greater \nthan 1."))
+  assertthat::on_failure(is_n_strata_valid) <- function(call, env) {
+
+    "You must pass a single integer greater than 1 to the 'n_strata' argument if you are running the unguided version of this function."
   }
+
+  assertthat::assert_that(is_n_strata_valid(n_strata))
 
   # variables
-  if (is.null(variables)) {
-    stop(simpleError("argument 'variables' is missing. You must specify your stratification variables if you are running the unguided version of this function."))
+  are_variables_valid <- function(variables) {
+
+    is.character(variables) && length(variables) > 1
   }
 
-  if (!is.character(variables)) {
-    stop(simpleError("invalid 'variables' argument. You must provide a character vector consisting of the names of the variables in your dataframe by which you wish to stratify your inference population."))
+  assertthat::on_failure(are_variables_valid) <- function(call, env) {
+
+    "You must pass a character vector consisting of two or more column names from your dataframe to the 'variables' argument if you are running the unguided version of this function."
   }
 
-  if (length(variables) <= 1) {
-    stop(simpleError("invalid 'variables' argument. You must choose at least 2 variables from your dataframe for stratification."))
-  }
+  assertthat::assert_that(are_variables_valid(variables))
 
   # idvar
-  if (is.null(idvar)) {
-    stop(simpleError("argument 'idvar' is missing. You must specify your ID variable if you are running the unguided version of this function."))
+  is_idvar_valid <- function(idvar) {
+
+    is.character(idvar)
   }
 
-  if (!is.character(idvar)) {
-    stop(simpleError("invalid 'idvar' argument. The name of your ID variable must be a character string."))
+  assertthat::on_failure(is_idvar_valid) <- function(call, env) {
+
+    "You must pass one of the column names from your dataframe as a character string to the 'idvar' argument if you are running the unguided version of this function."
   }
+
+  assertthat::assert_that(is_idvar_valid(idvar))
 
   # Check for invalid variable names ----------------------------------------
   invalid_vars <- c(variables, idvar) %>%
     setdiff(names(data))
 
-  if (!is_empty(invalid_vars)) {
-    stop(simpleError(paste(
+  assertthat::on_failure(is_empty) <- function(call, env) {
+
+    paste(
       "The following variables are not columns in the dataframe you specified:\n",
       paste(crayon::blue$bold(invalid_vars),
-        collapse = ", "
+            collapse = ", "
       )
-    )))
+    )
   }
+
+  assertthat::assert_that(is_empty(invalid_vars))
 
   # Check if there are any factor variables with more than 4 levels ---------
 
   invalid_factors <- data %>%
-    select(all_of(variables)) %>%
-    select_if(is.factor) %>%
+    dplyr::select(tidyselect::all_of(variables)) %>%
+    dplyr::select_if(is.factor) %>%
     .check.factor.levels()
 
-  if (!is_empty(invalid_factors)) {
-    stop(simpleError(
-      paste0(
-        "This function will not allow a factor variable to have more than 4 levels.\n",
-        "The following factor variables have more than 4 levels:\n",
-        paste(crayon::blue$bold(invalid_factors), collapse = ", "),
-        "\nPlease re-code your desired factor levels from these variables as dummy variables (see \nthe package 'fastDummies')."
-      )
-    ))
+
+  assertthat::on_failure(is_empty) <- function(call, env) {
+
+    paste0(
+      "This function will not allow a factor variable to have more than 4 levels.\n",
+      "The following factor variables have more than 4 levels:\n",
+      paste(crayon::blue$bold(invalid_factors), collapse = ", "),
+      "\nPlease re-code your desired factor levels from these variables as dummy variables (see \nthe package 'fastDummies')."
+    )
   }
+
+  assertthat::assert_that(is_empty(invalid_factors))
 
   output <- .stratify.calculate(
     data = data,
@@ -1034,7 +1044,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 .check.factor.levels <- function(data,
                                  maxlevels = 4L) {
   invalid_factors <- data %>%
-    select_if(is.factor) %>%
+    dplyr::select_if(is.factor) %>%
     sapply(nlevels) %>%
     `>`(maxlevels) %>%
     which() %>%
@@ -1124,7 +1134,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
         error = identity
       )
 
-      if (!inherits(res, "error") && length(res) >= 2L) {
+      if (!inherits(res, "error") && length(res) >= 2L && all(res %in% 1:length(choices))) {
         break
       }
 
@@ -1158,8 +1168,8 @@ print.summary.generalizer_stratify <- function(x, ...) {
         Levels = nlevels(x)
       )
     }) %>%
-    mutate(Variable = names(dataset)) %>%
-    select(Variable, everything()) %>%
+    dplyr::mutate(Variable = names(dataset)) %>%
+    dplyr::select(Variable, everything()) %>%
     data.frame()
 
   var_overview %>%
@@ -1189,9 +1199,9 @@ print.summary.generalizer_stratify <- function(x, ...) {
         )
       }
     ) %>%
-    mutate_all(round, digits = 3) %>%
-    mutate(variable = names(cont_data)) %>%
-    select(variable, everything()) %>%
+    dplyr::mutate_all(round, digits = 3) %>%
+    dplyr::mutate(variable = names(cont_data)) %>%
+    dplyr::select(variable, everything()) %>%
     data.frame() %>%
     janitor::clean_names()
 
