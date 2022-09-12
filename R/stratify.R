@@ -706,6 +706,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
     # Verify that there are no variables with all obs. missing
     na_variables <- data_subset %>%
+      dplyr::select(tidyselect::all_of(variables)) %>%
       sapply(function(x) sum(!is.na(x))) %>%
       data.frame() %>%
       dplyr::filter(.==0) %>%
@@ -942,8 +943,8 @@ print.summary.generalizer_stratify <- function(x, ...) {
   while (!n_strata_correct) {
     n_strata <- suppressWarnings(as.numeric(readline(prompt = "Number of strata: ")))
 
-    if (is.na(n_strata) || !is.numeric(n_strata) || n_strata <= 1 || n_strata %% 1 != 0) {
-      cat(red("\nERROR: The number of strata must be a single positive integer greater than 1.\n\n"))
+    if (is.na(n_strata) || !is.numeric(n_strata) || n_strata <= 1 || n_strata %% 1 != 0 || n_strata >= (nrow(data_subset)) - 1) {
+      cat(red("\nERROR: The number of strata must be a single positive integer greater than 1 and at most 2 less than the the number of observations.\n\n"))
 
       next
     }
@@ -996,17 +997,17 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # Check user arguments for invalid specifications -------------------------
 
   # n_strata
-  is_n_strata_valid <- function(n_strata) {
+  is_n_strata_valid <- function(n_strata, data, variables, idvar) {
 
-   (n_strata %% 1 == 0) && (n_strata > 1)
+   (n_strata %% 1 == 0) && (n_strata > 1) && .n.strata.less.than.max(n_strata, data, variables, idvar)
   }
 
   assertthat::on_failure(is_n_strata_valid) <- function(call, env) {
 
-    "You must pass a single integer greater than 1 to the 'n_strata' argument if you are running the unguided version of this function."
+    "You must pass a single integer greater than 1 and at least 2 less than the number of non-missing observations to the 'n_strata' argument if you are running the unguided version of this function."
   }
 
-  assertthat::assert_that(is_n_strata_valid(n_strata))
+  assertthat::assert_that(is_n_strata_valid(n_strata, data, variables, idvar))
 
   # variables
   are_variables_valid <- function(variables) {
@@ -1274,3 +1275,9 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(cont_data_tbl)
 }
 
+.n.strata.less.than.max <- function(n_strata, data_interest, variables, idvar){
+  data_interest %>%
+    dplyr::select(tidyselect::all_of(variables) & c(idvar)) %>%
+    tidyr::drop_na() %>%
+    nrow() - 1 > n_strata
+}
