@@ -664,7 +664,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat("\nIn the Viewer pane to the right you will find a table that displays each variable in \nthe '",
     data_name,
-    "' dataframe along with its data type and number of levels (only relevant \nfor factor variables).\n\n",
+    "' dataframe along with its data type and number of levels (only \nrelevant for factor variables).\n\n",
     sep = ""
   )
 
