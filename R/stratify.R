@@ -1072,6 +1072,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   # Verify that there are no variables with all obs. missing --------
   na_variables <- data %>%
+    dplyr::select(tidyselect::all_of(variables)) %>%
     sapply(function(x) sum(!is.na(x))) %>%
     data.frame() %>%
     dplyr::filter(.==0) %>%
