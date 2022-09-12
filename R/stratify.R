@@ -245,7 +245,7 @@ stratify <- function(data = NULL,
 
   population_summary_stats <- population_summary_stats2 %>%
     names() %>%
-    str_sub(end = -5) %>%
+    stringr::str_sub(end = -5) %>%
     unique() %>%
     lapply(
       function(x) {
@@ -278,7 +278,7 @@ stratify <- function(data = NULL,
   summary_stats2 <- summary_stats %>%
     dplyr::select(-Stratum) %>%
     names() %>%
-    str_sub(end = -5) %>%
+    stringr::str_sub(end = -5) %>%
     unique() %>%
     lapply(
       function(x) {
@@ -312,14 +312,14 @@ stratify <- function(data = NULL,
     dplyr::select(contains("fn1"))
 
   names(simtab_m) <- names(simtab_m) %>%
-    str_sub(end = -5)
+    stringr::str_sub(end = -5)
 
   sd_tab <- summary_stats %>%
     dplyr::select(contains("fn2")) %>%
     tibble::add_row(tibble::tibble_row((population_summary_stats2 %>% dplyr::select(tidyselect::contains("fn2")))))
 
   names(sd_tab) <- names(sd_tab) %>%
-    str_sub(end = -5)
+    stringr::str_sub(end = -5)
 
   sd_tab <- sd_tab %>%
     dplyr::mutate(Stratum = summary_stats2$Stratum) %>%
@@ -333,7 +333,7 @@ stratify <- function(data = NULL,
     tibble::add_row(tibble::tibble_row((population_summary_stats2 %>% dplyr::select(tidyselect::contains("fn1")))))
 
   names(mean_tab) <- names(mean_tab) %>%
-    str_sub(end = -5)
+    stringr::str_sub(end = -5)
 
   mean_tab <- mean_tab %>%
     dplyr::mutate(Stratum = summary_stats2$Stratum) %>%
@@ -463,8 +463,8 @@ stratify <- function(data = NULL,
     dplyr::mutate(values = values %>% round(1))
 
   heat_plot_final <- heat_plot +
-    new_scale("fill") +
-    geom_label_repel(
+    ggnewscale::new_scale("fill") +
+    ggrepel::geom_label_repel(
       data = longer_heat_data %>% filter(mn_or_sd == "mn"),
       aes(
         x = Stratum,
@@ -478,7 +478,7 @@ stratify <- function(data = NULL,
       alpha = 0.7,
       size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
     ) +
-    geom_label_repel(
+    ggrepel::geom_label_repel(
       data = longer_heat_data %>% filter(mn_or_sd == "sd"),
       aes(
         x = Stratum,
@@ -492,7 +492,7 @@ stratify <- function(data = NULL,
       alpha = 0.7,
       size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
     ) +
-    scale_fill_viridis(
+    viridis::scale_fill_viridis(
       labels = c("Mean", "Standard Deviation"),
       begin = 0.4,
       end = 0.8,
@@ -574,7 +574,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat(paste0("Proportion of variation in population explained by strata: "))
 
-  cat(bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
+  cat(crayon::bold(paste(100 * round(x$solution$between.SS_DIV_total.SS, 4), "%", sep = "")))
 
   cat("\n")
 
@@ -595,7 +595,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
         print()
     },
     error = function(cond) {
-      message("Your Plots pane is too small for the heat map to be displayed. \nIf you still want to view the plot, try resizing the pane and \nthen running 'x$heat_plot' where 'x' is the name assigned to your generalizer_stratify object.")
+      message("Your Plots pane is too small for the heat map to be displayed. \nIf you still want to view the plot, try resizing the pane and \nthen running 'x$heat_plot' where 'x' is the name assigned to your \ngeneralizer_stratify object.")
       return(NA)
     }
   )
@@ -674,7 +674,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat("\nYou are now ready to select your stratification variables. The following are the \nvariables available in your dataset. Which key variables do you think may explain \nvariation in your treatment effect? Typically, studies include 4-6 variables for \nstratification.\n\n")
 
-  cat(yellow$bold("You must choose at least 2 variables and you may not choose any factor variables \nwith more than 4 levels.\n"))
+  cat(crayon::yellow$bold("You must choose at least 2 variables and you may not choose any factor variables \nwith more than 4 levels.\n"))
 
   var_names <- data_subset %>%
     names()
@@ -926,12 +926,12 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   # 7) Selection of number of strata ------------------------------------------
 
-  cat("\nStratification will help you develop a recruitment plan so that your study will result \nin an unbiased estimate of the ", bold("average treatment effect (ATE)"), ". Without using strata, \nit is easy to end up with a sample that is very different from your inference \npopulation. \n\nGeneralization works best when strata are ", bold("homogeneous"), ". That means units within each \nstratum are almost identical in terms of relevant variables.\n\n", sep = "")
+  cat("\nStratification will help you develop a recruitment plan so that your study will result \nin an unbiased estimate of the ", crayon::bold("average treatment effect (ATE)"), ". Without using strata, \nit is easy to end up with a sample that is very different from your inference \npopulation. \n\nGeneralization works best when strata are ", crayon::bold("homogeneous"), ". That means units within each \nstratum are almost identical in terms of relevant variables.\n\n", sep = "")
 
   cat("Enter the number of strata in which you wish to divide your population. Typically, ",
-    bold("\nthe more strata"),
+    crayon::bold("\nthe more strata"),
     ", ",
-    bold("the better"),
+    crayon::bold("the better"),
     "; with fewer strata, units in each stratum are no longer \nidentical. However, increasing ",
     "the number of strata uses more resources, because you \nmust sample a given number of units ",
     "from each stratum. Choosing 4-6 strata is common. \n\nTry a few numbers and choose the 'best' one for you.\n\n",
@@ -944,7 +944,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
     n_strata <- suppressWarnings(as.numeric(readline(prompt = "Number of strata: ")))
 
     if (is.na(n_strata) || !is.numeric(n_strata) || n_strata <= 1 || n_strata %% 1 != 0 || n_strata >= (nrow(data_subset)) - 1) {
-      cat(red("\nERROR: The number of strata must be a single positive integer greater than 1 and at most 2 less than the the number of observations.\n\n"))
+      cat(crayon::red("\nERROR: The number of strata must be a single integer greater than 1 and at most 2 less \nthan the the number of observations.\n\n"))
 
       next
     }
@@ -1205,7 +1205,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
         break
       }
 
-      cat(red("\nERROR: Invalid selection. You must select at least 2 stratification variables.\n\n"))
+      cat(crayon::red("\nERROR: Invalid selection. You must select at least 2 stratification variables.\n\n"))
 
       cat(gettext("Type two or more numbers separated by spaces and then hit <Return> to continue.\n\n"))
     }
@@ -1240,12 +1240,12 @@ print.summary.generalizer_stratify <- function(x, ...) {
     data.frame()
 
   var_overview %>%
-    kbl(
+    kableExtra::kbl(
       caption = "Variable Overview",
       align = "l",
       row.names = TRUE
     ) %>%
-    kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+    kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
     print()
 
   if (print_to_console == TRUE) {
