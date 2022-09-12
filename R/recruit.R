@@ -48,12 +48,12 @@ recruit <- function(stratify_output,
   } else {
     cat(crayon::bold("\nWelcome to recruit()!\n\n"))
 
-    cat("This function generates recruitment lists for each stratum in your population and tells \nyou how many units to recruit from each given the total number of units that you wish \nto recruit (your desired sample size).\n\n")
+    cat("This function generates recruitment lists for each stratum in your population and \ntells you how many units to recruit from each given the total number of units that you \nwish to recruit (your desired sample size).\n\n")
 
     readline(prompt = "Press <Return> to continue or <Esc> to exit.")
   }
 
-  cat("\nThe 'generalizer_stratify' object you've supplied consists of ", paste(crayon::bold(pop_size)), " population units \ndivided into ", paste(crayon::bold(n_strata)), " strata along these variables:\n\n", paste(blue$bold(stratify_output$variables), collapse = ", "), ".", sep = "")
+  cat("\nThe 'generalizer_stratify' object you've supplied consists of ", paste(crayon::bold(pop_size)), " population units \ndivided into ", paste(crayon::bold(n_strata)), " strata along these variables:\n\n", paste(crayon::blue$bold(stratify_output$variables), collapse = ", "), ".", sep = "")
 
   recruitment_lists <- .make.recruitment.lists(stratify_output)
 
