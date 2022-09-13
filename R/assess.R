@@ -132,9 +132,9 @@ assess <- function(data,
     g_index <- gen_index(participation_probs$trial, participation_probs$nottrial) %>% round(4)
   }
 
-  paste0("The generalizability index of the sample on the selected covariates is ", g_index, ".\n\n")
+  cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", g_index, ".\n\n"))
 
-  cat("Covariate Distributions: \n \n")
+  cat(crayon::blue$bold("Covariate Distributions:\n"))
 
   cov_tab <- covariate_table(data,
                              trial,
@@ -143,15 +143,15 @@ assess <- function(data,
   print(cov_tab)
 
   n_trial <- data %>%
-    filter(trial == 1) %>%
+    dplyr::filter(trial == 1) %>%
     nrow()
 
   n_pop <- data %>%
-    filter(trial == 0) %>%
+    dplyr::filter(trial == 0) %>%
     nrow()
 
   data_output <- data %>%
-    select(trial, selection_covariates)
+    dplyr::select(trial, selection_covariates)
 
   out <- list(
     g_index = g_index,
@@ -178,44 +178,44 @@ assess <- function(data,
 
   cat(crayon::bold("\nWelcome to assess()! \n\n"))
 
-  cat("Given a stacked data frame containing both sample and population data, this function \nwill assess the generalizability of your sample to the population based on your \nselected covariates.\n\n")
+  cat("Given a data frame containing both sample and population data, this function will \nassess the generalizability of your sample to the population based on your selected \ncovariates.\n\n")
 
   repeat {
 
     cat("Please select the variable coding binary trial participation in your dataframe: \n")
-    trial <- select.list(choices = var_names,
-                         graphics = FALSE,
-                         multiple = FALSE)
+    trial <- .select.list(choices = var_names,
+                            graphics = FALSE,
+                            multiple = FALSE)
 
     if(!anyNA(match(names(table(data[,trial])), c("0","1")))) {
 
       break
     }
 
-    cat(red("The trial variable must be coded as '0' (not in trial) or '1' (in trial).\n\n"))
+    cat(crayon::red("\nThe trial variable must be coded as '0' (not in trial) or '1' (in trial).\n\n"))
   }
 
   cat("Please select the covariates that will be used to predict trial participation: \n")
-  selection_covariates <- select.list(choices = var_names %>% setdiff(trial),
-                                      graphics = FALSE,
-                                      multiple = TRUE)
+  selection_covariates <- utils::select.list(choices = var_names %>% setdiff(trial),
+                                             graphics = FALSE,
+                                             multiple = TRUE)
 
   cat("Are the trial data and population data disjoint? See the vignette for more details.\n")
-  is_data_disjoint <- menu(choices = c("Yes", "No"),
-                           graphics = FALSE) %>%
+  is_data_disjoint <- utils::menu(choices = c("Yes", "No"),
+                                  graphics = FALSE) %>%
     switch("1" = TRUE,
            "2" = FALSE)
 
   cat("Should the population data be trimmed to exclude units with covariate values outside \nthe bounds of the trial covariates? See the vignette for more details. \n")
-  trim_pop <- menu(choices = c("Yes", "No"),
-                   graphics = FALSE) %>%
+  trim_pop <- utils::menu(choices = c("Yes", "No"),
+                          graphics = FALSE) %>%
     switch("1" = TRUE,
            "2" = FALSE)
 
   cat("Please select the method that will be used to estimate the probability of trial participation: \n")
-  selection_method <- select.list(choices = c("Logistic Regression", "Random Forest", "Lasso"),
-                                  graphics = FALSE,
-                                  multiple = FALSE) %>%
+  selection_method <- utils::select.list(choices = c("Logistic Regression", "Random Forest", "Lasso"),
+                                         graphics = FALSE,
+                                         multiple = FALSE) %>%
     switch("Logistic Regression" = "lr",
            "Random Forest" = "rf",
            "Lasso" = "lasso")
@@ -382,7 +382,7 @@ generate_ps <- function(data,
   if(selection_method == "lasso") {
 
     test.x <- model.matrix(~ -1 + .,
-                           data = data %>% select(selection_covariates))
+                           data = data %>% select(tidyselect::all_of(selection_covariates)))
 
     test.y <- data %>% pull(trial)
 
@@ -561,8 +561,6 @@ covariate_table <- function(data,
 
   return(covariate_table)
 }
-
-
 
 print.generalize_assess <- function(x,...) {
   cat("A generalizer_assess object: \n")
