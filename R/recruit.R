@@ -158,7 +158,7 @@ recruit <- function(stratify_output,
     a <- diag(v)
 
     if (anyNA(a) || any(a == 0)) {
-      a[which(is.na(a) || a == 0)] <- 0.00000001
+      a[which(is.na(a) | a == 0)] <- 0.00000001
     }
 
     cov.dat <- diag(a)
