@@ -157,9 +157,10 @@ recruit <- function(stratify_output,
     v <- var(dat2)
     a <- diag(v)
 
-    if (any(a == 0)) {
-      a[which(a == 0)] <- 0.00000001
+    if (anyNA(a) || any(a == 0)) {
+      a[which(is.na(a) || a == 0)] <- 0.00000001
     }
+
     cov.dat <- diag(a)
 
     ma.s <- stats::mahalanobis(dat2, mu, cov.dat)
