@@ -54,13 +54,18 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recruit</span><span class="op">(</span><span class="va">x</span>, guided <span class="op">=</span> <span class="cn">TRUE</span>, sample_size <span class="op">=</span> <span class="cn">NULL</span>, save_as_csv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recruit</span><span class="op">(</span></span>
+<span>  <span class="va">stratify_output</span>,</span>
+<span>  guided <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sample_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  save_as_csv <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>x</dt>
-<dd><p>output from 'stratify()', of S3 class 'generalizer_output'</p></dd>
+    <dl><dt>stratify_output</dt>
+<dd><p>output from 'stratify()', of S3 class 'generalizer_stratify'</p></dd>
 
 
 <dt>guided</dt>
