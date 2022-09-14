@@ -1,6 +1,6 @@
 #' Stratify a Population Data Frame
 #'
-#' The function \code{stratify()} takes as input any data frame with observations (rows) that you wish to stratify into clusters. Typically, the goal of such stratification is developing a sampling desing for maximizing generalizability. This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.
+#' The function \code{stratify()} takes as input any data frame with observations (rows) that you wish to stratify into clusters. Typically, the goal of such stratification is developing a sampling design for maximizing generalizability. This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.
 #'
 #' @order 4
 #'
@@ -121,6 +121,15 @@ stratify <- function(data = NULL,
 #'
 #' @order 1
 #'
+#' @param data data.frame object containing the population data to be stratified (observations as rows); must include a unique id variable for each observation, as well as covariates.
+#' @param n_strata integer, number of strata in which to divide to cluster population
+#' @param variables character, character vector of the names of stratifying variables (from population data frame)
+#' @param idvar character, haracter vector of the name of the ID variable (from population data frame)
+#' @param verbose logical, defaults to TRUE.
+#' @return The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+#' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
+#'
+#' @md
 
 .stratify.calculate <- function(data,
                                 n_strata,
@@ -527,6 +536,19 @@ stratify <- function(data = NULL,
   return(invisible(out))
 }
 
+#' Internal function that formats and prints a summary of stratification results.
+#'
+#' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 2
+#'
+#' @param x generalizer_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
+#' @return The function invisible returns the input generalizer_stratify object
+#'
+#' @md
+
 print.generalizer_stratify <- function(x, ...) {
   cat("A generalizer_stratify object: \n")
 
@@ -547,6 +569,19 @@ print.generalizer_stratify <- function(x, ...) {
   invisible(x)
 }
 
+#' Internal function that assigns class generalizer_stratify to the inputted object
+#'
+#' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param object generalizer_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
+#' @return The function returns the input generalizer_stratify object as a summary.generalizer_stratify object
+#'
+#' @md
+
 summary.generalizer_stratify <- function(object, ...) {
   out <- object
 
@@ -554,6 +589,19 @@ summary.generalizer_stratify <- function(object, ...) {
 
   return(out)
 }
+
+#' Internal function that formats and prints a summary.generalizer_stratify object
+#'
+#' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 4
+#'
+#' @param x summary.generalizer_stratify, an object produced by the summary.generalizer_stratify() function
+#' @return The function invisible returns the inputted summary.generalizer_stratify object x
+#'
+#' @md
 
 print.summary.generalizer_stratify <- function(x, ...) {
   cat("============================================ \n")
@@ -603,16 +651,18 @@ print.summary.generalizer_stratify <- function(x, ...) {
   invisible(x)
 }
 
-#' Internal function that provides the guided version of \code{stratify()}
+#' Internal function that provides the guided version of \code{stratify()}. Walks users through the provision and visualization of parameters needed to stratify observations, including id variables, covariates of interest, and the number of strata
 #'
 #' Intended only to be called within \code{stratify}, not as a standalone function
 #'
 #' @keywords internal
 #'
-#' @order 2
+#' @order 5
 #'
-#' @param data data.frame object containing the population data to be stratified.
+#' @param data data.frame object containing the population data to be stratified (rows are observations).
 #'
+#' @md
+
 
 .stratify.guided <- function(data,
                              verbose) {
@@ -978,7 +1028,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 }
 
 
-#' Internal function that provides the unguided version of \code{stratify()}
+#' Internal function that provides the unguided version of \code{stratify()}. Given the dataset of interest, the number of strata, covriates of interest, and an id variable, performs stratification
 #'
 #' Intended only to be called within \code{stratify}, not as a standalone function
 #'
@@ -986,7 +1036,15 @@ print.summary.generalizer_stratify <- function(x, ...) {
 #'
 #' @order 3
 #'
-#' @param data data.frame object containing the population data to be stratified.
+#' @param data data.frame object containing the population data to be stratified (rows are observations).
+#' @param n_strata integer, a number of strata in which to divide to cluster population
+#' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
+#' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
+#' @param verbose logical, defaults to TRUE.
+#' @return The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+#' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
+#'
+#' @md
 
 .stratify.unguided <- function(data,
                                n_strata = NULL,
@@ -1103,6 +1161,20 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(invisible(output))
 }
 
+#' Internal function that checks whether any column in a dataset is a factor variable with more than a given number of levels
+#'
+#' Intended only to be called within \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param data data.frame, a dataframe of factor variables of interest
+#' @param maxlevels integer, a maximum permissible number of levels
+#' @return invalid_factors, list of variable names with more than the permitted number of levels
+#'
+#' @md
+
 .check.factor.levels <- function(data,
                                  maxlevels = 4L) {
   invalid_factors <- data %>%
@@ -1115,10 +1187,37 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(invalid_factors)
 }
 
+
+#' Internal function that checks whether a list provided is empty (avoiding conflict w/ check on >4 level factor categorical vars)
+#'
+#' Intended only to be called within \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param na_col_list list, a list of char corresponding to dataframe columns where all rows are NA
+#' @return logical, whether the inputted list is empty
+#'
+#' @md
+
 .check.no.na.cols <- function(na_col_list){
-  cat("TJM_Test Asserting no na cols")
   is_empty(na_col_list)
 }
+
+#' Internal function that creates and formats a table of the variables in the dataset provided
+#'
+#' Intended only to be called within \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param dataset data.frame, a dataframe of continous variables
+#' @param print_to_console logical, whether the variable summary table should be printed to the console, defaults to false
+#' @return None
+#'
+#' @md
 
 .make.var.overview <- function(dataset,
                                print_to_console = FALSE) {
@@ -1147,6 +1246,19 @@ print.summary.generalizer_stratify <- function(x, ...) {
   }
 }
 
+#' Internal function that creates and formats a summary table of the continuous variables within the provided dataset
+#'
+#' Intended only to be called within \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param cont_data data.frame, a dataframe of continous variables
+#' @return The function returns a dataframe with summary statistics of the inputted data
+#'
+#' @md
+
 .make.cont.data.tbl <- function(cont_data) {
   cont_data_tbl <- cont_data %>%
     map_df(
@@ -1169,8 +1281,24 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(cont_data_tbl)
 }
 
-.n.strata.less.than.max <- function(n_strata, data_interest, variables, idvar){
-  data_interest %>%
+#' Internal function that ensures that the number of strata requested does not exceed the maximum possible (maximum n-2 where n is number of observations w/ no missing variables of interest)
+#'
+#' Intended only to be called within \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param n_strata integer, a number of strata in which to divide to cluster population
+#' @param data data.frame, a data.frame object with the population of interest (rows are observations)
+#' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
+#' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
+#' @return The function returns a boolean value indicating whether the number of observations with non-missing variables of interests exceeds 1 plus the number of strata requested
+#'
+#' @md
+
+.n.strata.less.than.max <- function(n_strata, data, variables, idvar){
+  data %>%
     dplyr::select(tidyselect::all_of(variables) & c(idvar)) %>%
     tidyr::drop_na() %>%
     nrow() - 1 > n_strata

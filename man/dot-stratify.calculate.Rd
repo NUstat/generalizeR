@@ -6,7 +6,24 @@
 \usage{
 .stratify.calculate(data, n_strata, variables, idvar, verbose)
 }
+\arguments{
+\item{data}{data.frame object containing the population data to be stratified (observations as rows); must include a unique id variable for each observation, as well as covariates.}
+
+\item{n_strata}{integer, number of strata in which to divide to cluster population}
+
+\item{variables}{character, character vector of the names of stratifying variables (from population data frame)}
+
+\item{idvar}{character, haracter vector of the name of the ID variable (from population data frame)}
+
+\item{verbose}{logical, defaults to TRUE.}
+}
+\value{
+The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+}
 \description{
 Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+}
+\details{
+The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 }
 \keyword{internal}

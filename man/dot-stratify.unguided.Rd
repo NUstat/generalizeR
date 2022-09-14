@@ -2,7 +2,7 @@
 % Please edit documentation in R/stratify.R
 \name{.stratify.unguided}
 \alias{.stratify.unguided}
-\title{Internal function that provides the unguided version of \code{stratify()}}
+\title{Internal function that provides the unguided version of \code{stratify()}. Given the dataset of interest, the number of strata, covriates of interest, and an id variable, performs stratification}
 \usage{
 .stratify.unguided(
   data,
@@ -13,9 +13,23 @@
 )
 }
 \arguments{
-\item{data}{data.frame object containing the population data to be stratified.}
+\item{data}{data.frame object containing the population data to be stratified (rows are observations).}
+
+\item{n_strata}{integer, a number of strata in which to divide to cluster population}
+
+\item{variables}{character, provide a character vector of the names of stratifying variables (from population data frame)}
+
+\item{idvar}{character, provide a character vector of the name of the ID variable (from population data frame)}
+
+\item{verbose}{logical, defaults to TRUE.}
+}
+\value{
+The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 }
 \description{
 Intended only to be called within \code{stratify}, not as a standalone function
+}
+\details{
+The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 }
 \keyword{internal}

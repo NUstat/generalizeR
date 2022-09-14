@@ -4,10 +4,15 @@
 \alias{recruit}
 \title{Recruit Units from a Population for Sampling}
 \usage{
-recruit(x, guided = TRUE, sample_size = NULL, save_as_csv = FALSE)
+recruit(
+  stratify_output,
+  guided = TRUE,
+  sample_size = NULL,
+  save_as_csv = FALSE
+)
 }
 \arguments{
-\item{x}{output from 'stratify()', of S3 class 'generalizer_output'}
+\item{stratify_output}{output from 'stratify()', of S3 class 'generalizer_stratify'}
 
 \item{guided}{logical; defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, must provide values for other arguments below}
 

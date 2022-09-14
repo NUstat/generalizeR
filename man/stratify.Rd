@@ -14,7 +14,7 @@ stratify(
 )
 }
 \arguments{
-\item{data}{data.frame object containing the population data to be stratified.}
+\item{data}{data.frame object containing the population data to be stratified (observations as rows); must include a unique id variable for each observation, as well as covariates.}
 
 \item{guided}{logical, defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, the user must provide values for other arguments below}
 
@@ -22,7 +22,7 @@ stratify(
 
 \item{variables}{character, defaults to NULL. If guided is set to FALSE, must provide a character vector of the names of stratifying variables (from population data frame)}
 
-\item{idvar}{integer, defaults to NULL. If guided is set to FALSE, must provide a character vector of the name of the ID variable (from population data frame)}
+\item{idvar}{character, defaults to NULL. If guided is set to FALSE, must provide a character vector of the name of the ID variable (from population data frame)}
 
 \item{verbose}{logical, defaults to TRUE.}
 }
@@ -30,7 +30,7 @@ stratify(
 The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 }
 \description{
-The function \code{stratify()} takes as input any data frame that you want to stratify into clusters. Typically, the goal of such stratification is sampling for generalizability. This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.
+The function \code{stratify()} takes as input any data frame with observations (rows) that you wish to stratify into clusters. Typically, the goal of such stratification is developing a sampling design for maximizing generalizability. This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.
 }
 \details{
 The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
@@ -42,7 +42,7 @@ The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset},
 \examples{
 \donttest{
 \dontrun{
-# To get sample data; must first be installed using install_github("katiecoburn/generalizeRdata")
+# To get sample data; must first be installed using devtools::install_github("NUstat/generalizeRdata")
 library(generalizeRdata)
 
 # Guided:
