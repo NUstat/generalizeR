@@ -24,8 +24,24 @@ recruit(
 A three-element list containing the recruitment lists and the recruitment table/kable
 }
 \description{
-This function works with the output of 'stratify()'. The user provides the number of units they wish to sample from their population dataset. The function tells the user how many to sample from each stratum and generates recruitment lists, one per stratum, which can either be saved to .csv files in any given directory or accessed later on.
+This function works with the output of 'stratify()'. The user provides the number of units they wish to sample from their population dataset. The function tells the user how many observations to sample from each stratum and generates recruitment lists, one per stratum, which can either be saved to .csv files in any given directory or accessed later on.
 }
 \details{
-This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.
+This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/ based on the papers referenced below.
+}
+\examples{
+\donttest{
+\dontrun{
+# Guided:
+recruit(ipeds_stratify_output_obj)
+
+# Not guided:
+recruit(ipeds_stratify_output_obj, guided = FALSE, sample_size = 72, save_as_csv = TRUE)
+}
+}
+}
+\references{
+Tipton, E. (2014). Stratified sampling using cluster analysis: A sample selection strategy for improved generalizations from experiments. \emph{Evaluation Review}, \emph{37}(2), 109-139.
+
+Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. \emph{Journal of Educational and Behavioral Statistics}, \emph{39}(6), 478-501.
 }

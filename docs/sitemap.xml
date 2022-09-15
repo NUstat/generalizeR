@@ -43,10 +43,16 @@
     <loc>https://nustat.github.io/generalizeR/reference/dot-make.recruitment.lists.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-make.recruitment.table.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-make.var.overview.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-n.strata.less.than.max.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-round.preserve.sum.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.calculate.html</loc>

@@ -2,10 +2,17 @@
 % Please edit documentation in R/recruit.R
 \name{.make.recruitment.lists}
 \alias{.make.recruitment.lists}
-\title{Internal function that performs recruitment calculations}
+\title{Internal function that performs the actual recruitment calculations for \code{recruit()}}
 \usage{
 .make.recruitment.lists(stratify_output)
 }
-\description{
-Internal function that performs recruitment calculations
+\arguments{
+\item{stratify_output}{list of class generalizer_stratify}
 }
+\value{
+The function returns a list of dataframes, each corresponding to a recruitment list for a different stratum
+}
+\description{
+Intended only to be called within \code{recruit()}, not as a standalone function
+}
+\keyword{internal}
