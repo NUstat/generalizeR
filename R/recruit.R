@@ -192,7 +192,10 @@ recruit <- function(stratify_output,
 
     cov.dat <- diag(a)
 
-    ma.s <- stats::mahalanobis(dat2, mu, cov.dat)
+    tryCatch( ma.s <- stats::mahalanobis(dat2, mu, cov.dat, tol=1e-20),
+             error = function(e){
+               stop(crayon::yellow("\nERROR: It appears that the covariance matrix associated with your selected variables is linearly dependent. That is, some combination(s) of selected variables are perfect predictors of one another. Please make sure you haven't included duplicate information across variables (columns), choosing fewer variables if necessary, and re-run stratify with a different set of variables."))
+               })
 
     dat3 <- data.frame(idvar_values,
       dat2,

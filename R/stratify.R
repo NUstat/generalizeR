@@ -65,8 +65,6 @@ stratify <- function(data = NULL,
                      idvar = NULL,
                      verbose = TRUE) {
 
-  cat("\n\nTJM_Test n_row initial:",nrow(data))
-
   # Check whether data object is of type 'data.frame'
   assertthat::on_failure(is.data.frame) <- function(call, env) {
     "You must pass an object of type 'data.frame' to the 'data' argument."
@@ -81,9 +79,6 @@ stratify <- function(data = NULL,
   # Immediately convert all character variables to factors
   data <- data %>%
     dplyr::mutate(dplyr::across(where(rlang::is_character), forcats::as_factor))
-
-  cat("\nTJM_Test n_row post-mutation:",nrow(data))
-
 
   # Call guided version ------------------------------------------------------
   if (guided == TRUE) {
@@ -145,28 +140,17 @@ stratify <- function(data = NULL,
     drop_na() %>%
     select(all_of(idvar))
 
-  cat("\nTJM_Test n ids post-drop:",length(id))
-
-
   # Create a dataframe that includes only the variables selected by the user
   data_subset <- data %>%
     select(all_of(variables))
-
-  cat("\nTJM_Test n data_subset post-selection:",nrow(data_subset))
-
 
   # Save all rows with missing observations in a new dataframe
   data_omitted <- data_subset %>%
     filter(if_any(everything(), is.na))
 
-  cat("\nTJM_Test n data_omitted post-drop:",nrow(data_omitted))
-
-
   # Drop rows with missing observations in the subsetted dataframe
   data_subset <- data_subset %>%
     drop_na()
-
-  cat("\nTJM_Test n data_subset post-drop:",nrow(data_subset))
 
   # Store categorical and continuous variables in separate dataframes
   cat_data <- data_subset %>%
@@ -189,9 +173,6 @@ stratify <- function(data = NULL,
       cbind(cat_data) %>%
       janitor::clean_names()
   }
-
-  cat("\nTJM_Test n_row data full after filtration:",nrow(data_full))
-
 
   var_names <- data_full %>% names()
 
@@ -221,7 +202,6 @@ stratify <- function(data = NULL,
       suppressWarnings()
 
     cat("\n\nCalculated distance matrix.\n")
-    cat("\nTJM_Test Data rows: ",nrow(data_full),"\nTJM_Test Num clusters: ",n_strata,"\n")
 
     solution <- ClusterR::KMeans_rcpp(as.matrix(distance),
       clusters = n_strata,
