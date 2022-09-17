@@ -7,87 +7,116 @@
 #' @param trial variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)
 #' @param selection_covariates vector of covariate names in data set that predict trial participation
 #' @param data data frame comprised of "stacked" trial and target population data
-#' @param selection_method method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
+#' @param estimation_method method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param is_data_disjoint logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.
 #' @export
 #' @importFrom stats quantile
 #' @importFrom crayon bold blue
 
 weighting <- function(data,
-                      trial,
-                      treatment,
-                      outcome,
-                      selection_covariates,
-                      selection_method = "lr",
+                      sample_indicator,
+                      treatment_indicator = NULL,
+                      outcome = NULL,
+                      covariates,
+                      estimation_method = "lr",
                       is_data_disjoint = TRUE) {
 
   weights <- NULL
 
   ### Make input method lower case ###
-  selection_method <- selection_method %>% tolower()
+  estimation_method <- tolower(estimation_method)
 
   ### Store the column names ###
-  data_names <- data %>% names()
+  data_names <- names(data)
 
-  ### Checks ###
-  if (!is.data.frame(data)) {
-    stop("Data must be an object of type 'data.frame'.", call. = FALSE)
-    }
+  # Check whether data object is of type 'data.frame'
+  assertthat::on_failure(is.data.frame) <- function(call, env) {
+    "You must pass an object of type 'data.frame' to the 'data' argument."
+  }
 
-  if(!(outcome %in% data_names || is.null(outcome))) {
-    stop(paste("The outcome variable", blue$bold(outcome), "is not a variable in the data provided."), call. = FALSE)
-    }
+  assertthat::assert_that(is.data.frame(data))
 
-  if(!(treatment %in% data_names || is.null(treatment))) {
-    stop(paste("The treatment variable", blue$bold(treatment), "is not a variable in the data provided."), call. = FALSE)
-    }
+  # Check whether outcome variable is one of columns in dataframe
+  is_outcome_valid <- function(outcome) {
 
-  invalid_selection_covariates <- selection_covariates %>% setdiff(data_names)
+    !is.null(outcome) && outcome %in% data_names
+  }
 
-  if(!is_empty(invalid_selection_covariates)) {
-    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
-    }
+  assertthat::on_failure(is_outcome_valid) <- function(call, env) {
 
-  if(!selection_method %in% c("lr","rf","lasso")) {
-    stop("Invalid selection method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your selection method.", call. = FALSE)
-    }
+      "Your outcome variable must be one of the columns in the dataframe you have provided."
+  }
 
-  ### Omit rows in which the trial variable or the selection covariates contain missing values from the data ###
-  data <- data %>% drop_na(c(trial, selection_covariates))
+  # Check whether treatment indicator variable is one of columns in dataframe
+  is_treatment_indicator_valid <- function(treatment_indicator) {
+
+    !is.null(treatment_indicator) && treatment_indicator %in% data_names
+  }
+
+  assertthat::on_failure(is_treatment_indicator_valid) <- function(call, env) {
+
+    "Your treatment indicator variable must be one of the columns in the dataframe you have provided."
+  }
+
+  assertthat::assert_that(is_outcome_valid(outcome))
+
+  invalid_covariates <- covariates %>% setdiff(data_names)
+
+  ##### Ensure selection covariates are variables in the dataframe provided #####
+  assertthat::on_failure(is_empty) <- function(call, env) {
+
+    paste("The following covariates are not variables in the data provided:\n",
+          paste(crayon::blue$bold(invalid_covariates),
+                collapse = ", ")
+    )
+  }
+
+  assertthat::assert_that(is_empty(invalid_covariates))
+
+  ##### Ensure estimation method is valid #####
+  is_estimation_method_valid <- function(estimation_method){
+
+    estimation_method %in% c("lr","rf","lasso")
+  }
+
+  assertthat::on_failure(is_estimation_method_valid) <- function(call, env) {
+
+    "Invalid estimation method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your estimation method."
+  }
+
+  ### Omit rows in which the sample indicator variable or the covariates contain missing values from the data ###
+  data <- data %>%
+    tidyr::drop_na(c(tidyselect::all_of(sample_indicator), tidyselect::all_of(covariates)))
 
   ### Generate Participation Probabilities ###
-  ps <- generate_ps(data, trial, selection_covariates, selection_method)
+  ps <- .generate.ps(data, sample_indicator, covariates, estimation_method)
 
-  participation_probs <- list(population = ps[which(data[,trial] == 0)],
-                              trial = ps[which(data[,trial] == 1)])
+  participation_probs <- list(population = ps[which(data[,sample_indicator] == 0)],
+                              sample = ps[which(data[,sample_indicator] == 1)])
 
   ### Generate Weights ###
   if(is_data_disjoint == TRUE) {
 
     data <- data %>%
-      mutate(weights = ifelse(trial == 0,
-                              0,
-                              (1-ps)/ps
-                              )
-      )
+      dplyr::mutate(weights = ifelse(sample_indicator == 0,
+                                     0,
+                                     (1-ps)/ps))
   }
 
   else {
 
     data <- data %>%
-      mutate(weights = ifelse(trial == 0,
-                              0,
-                              1/ps
-                              )
-      )
+      dplyr::mutate(weights = ifelse(sample_indicator == 0,
+                                     0,
+                                     1/ps))
   }
 
   # Trim any of the weights if necessary
-  data$weights[which(data$weights == 0 & data[,trial] == 1)] <- quantile(data$weights[which(data[,trial] == 1)], 0.01, na.rm = TRUE)
+  data$weights[which(data$weights == 0 & data[,sample_indicator] == 1)] <- quantile(data$weights[which(data[,sample_indicator] == 1)], 0.01, na.rm = TRUE)
 
   # Add histogram of weights
 
-  if(is.null(outcome) & is.null(treatment)) {TATE <- NULL}
+  if(is.null(outcome) & is.null(treatment_indicator)) {TATE <- NULL}
 
   # SPLIT EVERYTHING BELOW INTO NEW FUNCTION
 
@@ -96,38 +125,38 @@ weighting <- function(data,
     ##### ESTIMATE POPULATION AVERAGE TREATMENT EFFECT #####
 
     # Model with weights (should outperform model without weights)
-    TATE_model <- paste(outcome, treatment, sep = "~") %>%
+    TATE_model <- paste(outcome, treatment_indicator, sep = "~") %>%
       as.formula() %>%
       lm(data = data, weights = weights)
 
     # Model without weights
-    TATE_model_null <- paste(outcome, treatment, sep = "~") %>%
+    TATE_model_null <- paste(outcome, treatment_indicator, sep = "~") %>%
       as.formula() %>%
       lm(data = data)
 
     # Total average treatment effect for model with weights
     TATE <- TATE_model %>%
       broom::tidy() %>%
-      filter(term == "treatment") %>%
-      pull(estimate)
+      dplyr::filter(term == "treatment") %>%
+      dplyr::pull(estimate)
 
     # Total average treatment effect for model without weights
     TATE_null <- TATE_model_null %>%
       broom::tidy() %>%
-      filter(term == "treatment") %>%
-      pull(estimate)
+      dplyr::filter(term == "treatment") %>%
+      dplyr::pull(estimate)
 
     # Standard error of total average treatment effect for model with weights
     TATE_se <- TATE_model %>%
       broom::tidy() %>%
-      filter(term == "treatment") %>%
-      pull(std.error)
+      dplyr::filter(term == "treatment") %>%
+      dplyr::pull(std.error)
 
     # Standard error of total average treatment effect for model without weights
     TATE_se_null <- TATE_model_null %>%
       broom::tidy() %>%
-      filter(term == "treatment") %>%
-      pull(std.error)
+      dplyr::filter(term == "treatment") %>%
+      dplyr::pull(std.error)
 
     # 95% confidence interval for total average treatment effect of model with weights
     TATE_CI <- TATE + 2.262*TATE_se*c(-1, 1)
