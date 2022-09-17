@@ -1,120 +1,78 @@
-.select.list <- function(choices,
-                         preselect = NULL,
-                         multiple = FALSE,
-                         title = NULL,
-                         graphics = getOption("menu.graphics")) {
-  if (!interactive()) {
-    stop("select_list() cannot be used non-interactively")
+#' Generate Sample Participation Probabilities
+#'
+#' This function is designed for use within 'weighting()' and 'assess()'.
+#'
+#' @param data data frame comprised of "stacked" sample and target population data
+#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param covariates vector of covariate names in data set that predict sample membership
+#' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
+#' @return sample participation probabilities for each unit in the data frame
+#' @export
+#' @importFrom glmnet cv.glmnet
+#' @importFrom randomForest randomForest
+#' @importFrom stats as.formula glm lm predict quantile
+
+.generate.ps <- function(data,
+                         sample_var,
+                         covariates,
+                         estimation_method) {
+
+  # Logistic Regression
+  if(estimation_method == "lr") {
+
+    formula <- paste(sample_var,
+                     paste(covariates, collapse = "+"),
+                     sep = "~") %>%
+      as.formula()
+
+    ps <- formula %>%
+      glm(data = data,
+          family = "quasibinomial") %>%
+      predict(type = "response")
   }
 
+  # Random Forest
+  if(estimation_method == "rf") {
 
-  if (!is.null(title) && (!is.character(title) || length(title) != 1)) {
-    stop("'title' must be NULL or a length-1 character vector")
+    formula <- paste(
+      paste("as.factor(", sample_var, ")"),
+      paste(covariates, collapse = "+"),
+      sep = "~") %>%
+      as.formula()
+
+    ps <- randomForest::randomForest(formula,
+                                     data = data,
+                                     na.action = na.omit) %>%
+      #sampsize = 454,
+      #ntree = 1500) %>%
+      predict(type = "prob") %>%
+      as.data.frame() %>%
+      dplyr::pull("1")
   }
 
-  if (isTRUE(graphics)) {
-    if (.Platform$OS.type == "windows" || .Platform$GUI == "AQUA") {
-      return(.External2(C_selectlist, choices, preselect, multiple, title))
-    } else if (graphics && capabilities("tcltk") && capabilities("X11") && suppressWarnings(tcltk::.TkUp)) {
-      return(tcltk::tk_select.list(choices, preselect, multiple, title))
-    }
+  # Lasso
+  if(estimation_method == "lasso") {
+
+    test.x <- model.matrix(~ -1 + .,
+                           data = data %>% dplyr::select(tidyselect::all_of(covariates)))
+
+    test.y <- data %>% dplyr::pull(sample_var)
+
+    ps <- glmnet::cv.glmnet(x = test.x,
+                            y = test.y,
+                            family = "binomial") %>%
+      predict(newx = test.x,
+              s = "lambda.1se",
+              type = "response") %>%
+      as.numeric()
   }
 
-  nc <- length(choices)
+  ### Set any participation probabilities of 0 in the sample to the minimum non-zero value ###
 
-  if (length(title) && nzchar(title[1L])) {
-    cat(title, "\n", sep = "")
+  if(0 %in% ps) {
+
+    ps[which(data[,sample_var] == 1 & ps == 0)] <- min(ps[which(data[,sample_var] == 1 & ps != 0)], na.rm = TRUE)
   }
 
-  def <- if (is.null(preselect)) {
-    rep.int(FALSE, nc)
-  } else {
-    choices %in% preselect
-  }
-
-  op <- paste0(
-    format(seq_len(nc)),
-    ": ",
-    ifelse(def, "+", " "),
-    " ",
-    choices
-  )
-
-  if (nc > 10L) {
-    fop <- format(op)
-    nw <- nchar(fop[1L], "w") + 2L
-    ncol <- getOption("width") %/% nw
-
-    if (ncol > 1L) {
-      op <- paste0(fop,
-                   c(rep.int("  ", ncol - 1L), "\n"),
-                   collapse = ""
-      )
-    }
-
-    cat("", op, sep = "\n")
-  } else {
-    cat("", op, "", sep = "\n")
-  }
-
-  if (!multiple) {
-
-    repeat {
-
-      res <- tryCatch(
-
-        scan("",
-             what = 0,
-             quiet = TRUE,
-             nlines = 1
-        ),
-        error = identity
-      )
-
-      if (res %in% 1:length(choices)) {
-        return(choices[res])
-      } else {
-        cat(paste0(crayon::red("\nERROR: Invalid selection. Please type a single integer between 1 and "),
-                   crayon::red(length(choices)),
-                   crayon::red(".\n\n")))
-      }
-    }
-  } else {
-
-    cat(gettext("\nType two or more numbers separated by spaces and then hit <Return> to continue. \n\n"))
-
-    repeat {
-      res <- tryCatch(
-
-        scan("",
-             what = 0,
-             quiet = TRUE,
-             nlines = 1
-        ),
-        error = identity
-      )
-
-      if (!inherits(res, "error") && length(res) >= 2L && all(res %in% 1:length(choices))) {
-        break
-      }
-
-      cat(crayon::red("\nERROR: Invalid selection. You must select at least 2 stratification variables.\n\n"))
-
-      cat(gettext("Type two or more numbers separated by spaces and then hit <Return> to continue.\n\n"))
-    }
-
-    if (any(res == 0)) {
-      return(character())
-    }
-
-
-    if (!is.null(preselect)) {
-      res <- c(which(def), res)
-    }
-
-    res <- unique(res)
-    res <- sort(res[1 <= res & res <= nc])
-
-    return(choices[res])
-  }
+  return(ps)
 }
