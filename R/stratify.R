@@ -74,7 +74,7 @@ stratify <- function(data = NULL,
 
   assertthat::assert_that(is.data.frame(data))
 
-  # Store name of data as global variable so it can be accessed by stratify_basic(). Must be done before function argument 'data' is evaluated for the first time.
+  # Store name of data as global variable so it can be accessed by .stratify.calculate(). Must be done before function argument 'data' is evaluated for the first time.
   data_name <<- data %>%
     lazyeval::expr_text()
 
@@ -86,7 +86,7 @@ stratify <- function(data = NULL,
 
 
   # Call guided version ------------------------------------------------------
-  if (guided == TRUE) {
+  if (guided) {
     output <- .stratify.guided(
       data,
       verbose
@@ -132,45 +132,45 @@ stratify <- function(data = NULL,
 
   # Extract id variable
   id <- data %>%
-    select(all_of(variables), all_of(idvar)) %>%
-    drop_na() %>%
-    select(all_of(idvar))
+    dplyr::select(tidyselect::all_of(variables), tidyselect::all_of(idvar)) %>%
+    tidyr::drop_na() %>%
+    dplyr::select(tidyselect::all_of(idvar))
 
   cat("\nTJM_Test n ids post-drop:",length(id))
 
 
   # Create a dataframe that includes only the variables selected by the user
   data_subset <- data %>%
-    select(all_of(variables))
+    dplyr::select(tidyselect::all_of(variables))
 
   cat("\nTJM_Test n data_subset post-selection:",nrow(data_subset))
 
 
   # Save all rows with missing observations in a new dataframe
   data_omitted <- data_subset %>%
-    filter(if_any(everything(), is.na))
+    dplyr::filter(dplyr::if_any(tidyselect::everything(), is.na))
 
   cat("\nTJM_Test n data_omitted post-drop:",nrow(data_omitted))
 
 
   # Drop rows with missing observations in the subsetted dataframe
   data_subset <- data_subset %>%
-    drop_na()
+    tidyr::drop_na()
 
   cat("\nTJM_Test n data_subset post-drop:",nrow(data_subset))
 
   # Store categorical and continuous variables in separate dataframes
   cat_data <- data_subset %>%
-    select_if(is.factor)
+    dplyr::select_if(is.factor)
 
   cont_data <- data_subset %>%
-    select_if(negate(is.factor))
+    dplyr::select_if(purrr::negate(is.factor))
 
   # Make dummy variables out of factors
   if (dim(cat_data)[2] >= 1L) {
     cat_data_with_dummies <- cat_data %>%
       fastDummies::dummy_cols(remove_first_dummy = TRUE) %>%
-      select_if(negate(is.factor))
+      dplyr::select_if(negate(is.factor))
 
     data_full <- cont_data %>%
       cbind(cat_data_with_dummies) %>%
@@ -191,16 +191,16 @@ stratify <- function(data = NULL,
     .make.cont.data.tbl()
 
   cat_data_levels <- cat_data %>%
-    map_df(
+    purrr::map_df(
       function(x) {
-        tibble(
+        tibble::tibble(
           Type = class(x),
           Levels = nlevels(x)
         )
       }
     ) %>%
     dplyr::mutate(Variable = names(cat_data)) %>%
-    select(Variable, everything()) %>%
+    dplyr::select(Variable, tidyselect::everything()) %>%
     data.frame()
 
   # 3) Perform stratification - cluster with KMeans
@@ -236,7 +236,7 @@ stratify <- function(data = NULL,
   ) %>%
     dplyr::select(Stratum, tidyselect::everything()) %>%
     dplyr::arrange(Stratum) %>%
-    tibble()
+    tibble::tibble()
 
   population_summary_stats2 <- pop_data_by_stratum %>%
     dplyr::select(tidyselect::all_of(var_names)) %>%
@@ -249,16 +249,16 @@ stratify <- function(data = NULL,
     unique() %>%
     lapply(
       function(x) {
-        unite(population_summary_stats2,
+        tidyr::unite(population_summary_stats2,
           {{ x }},
           grep(x, names(population_summary_stats2), value = TRUE),
           sep = " / ",
           remove = TRUE
         ) %>%
-          select(all_of(x))
+          dplyr::select(tidyselect::all_of(x))
       }
     ) %>%
-    bind_cols()
+    dplyr::bind_cols()
 
   summary_stats <- pop_data_by_stratum %>%
     dplyr::select(tidyselect::all_of(var_names), Stratum) %>%
@@ -291,7 +291,7 @@ stratify <- function(data = NULL,
           dplyr::select(tidyselect::all_of(x))
       }
     ) %>%
-    bind_cols() %>%
+    dplyr::bind_cols() %>%
     dplyr::mutate(Stratum = summary_stats$Stratum) %>%
     dplyr::select(Stratum, tidyselect::everything()) %>%
     dplyr::left_join(
@@ -350,9 +350,9 @@ stratify <- function(data = NULL,
 
   temporary_df <- data.frame(
     Variable = unique(heat_data$Variable),
-    pop_mean = (heat_data %>% filter(Stratum == "Population") %>% select(mn)),
-    pop_sd = (heat_data %>% filter(Stratum == "Population") %>% select(sd)),
-    pop_n = (heat_data %>% filter(Stratum == "Population") %>% select(n))
+    pop_mean = (heat_data %>% dplyr::filter(Stratum == "Population") %>% dplyr::select(mn)),
+    pop_sd = (heat_data %>% dplyr::filter(Stratum == "Population") %>% dplyr::select(sd)),
+    pop_n = (heat_data %>% dplyr::filter(Stratum == "Population") %>% dplyr::select(n))
   ) %>%
     dplyr::mutate(
       pop_mean = mn,
@@ -420,7 +420,7 @@ stratify <- function(data = NULL,
     stratum_labels[i] <- paste("Stratum", (i - 1))
   }
 
-  heat_plot <- ggplot2::ggplot(data = heat_data) +
+  heat_plot <- ggplot(data = heat_data) +
     geom_tile(aes(x = Stratum, y = Variable, fill = deviation), color = "black", width = 0.95) +
     geom_text(aes(x = Stratum, y = ((ncol(summary_stats) + 1) / 2 - 0.15), label = paste(n, "\nunits")), size = 3.4) +
     scale_fill_gradientn(
@@ -465,7 +465,7 @@ stratify <- function(data = NULL,
   heat_plot_final <- heat_plot +
     ggnewscale::new_scale("fill") +
     ggrepel::geom_label_repel(
-      data = longer_heat_data %>% filter(mn_or_sd == "mn"),
+      data = longer_heat_data %>% dplyr::filter(mn_or_sd == "mn"),
       aes(
         x = Stratum,
         y = Variable,
@@ -479,7 +479,7 @@ stratify <- function(data = NULL,
       size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
     ) +
     ggrepel::geom_label_repel(
-      data = longer_heat_data %>% filter(mn_or_sd == "sd"),
+      data = longer_heat_data %>% dplyr::filter(mn_or_sd == "sd"),
       aes(
         x = Stratum,
         y = Variable,
@@ -595,7 +595,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
         print()
     },
     error = function(cond) {
-      message("Your Plots pane is too small for the heat map to be displayed. \nIf you still want to view the plot, try resizing the pane and \nthen running 'x$heat_plot' where 'x' is the name assigned to your \ngeneralizer_stratify object.")
+      message("Your Plots pane is too small for the heat map to be displayed. If you still want to \nview the plot, try resizing the pane and then running 'x$heat_plot' where 'x' is the \nname assigned to your 'generalizer_stratify' object.")
       return(NA)
     }
   )
@@ -621,9 +621,11 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat(crayon::bold("\nWelcome to stratify()! \n\n"))
 
-  cat("Your chosen inference population is the '",
+  cat("Given a sampling frame, this function can tell you how to stratify your population of \ninterest so as to draw samples from it with maximal generalizability.\n\n")
+
+  cat("You have chosen the '",
     data_name,
-    "' dataframe. \n\n",
+    "' dataframe to represent your population of interest.\n\n",
     sep = ""
   )
 
@@ -632,8 +634,6 @@ print.summary.generalizer_stratify <- function(x, ...) {
   cat("To exit this function, press <Esc>. \n\n")
 
   # 2) Selection of id variable -----------------------------------------------
-
-  is_valid_id_name <- FALSE
 
   repeat {
     idvar <- readline(prompt = "Enter the name of the ID Variable in your dataframe: ")
@@ -676,73 +676,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat(crayon::yellow$bold("You must choose at least 2 variables and you may not choose any factor variables \nwith more than 4 levels.\n"))
 
-  var_names <- data_subset %>%
-    names()
-
-  repeat {
-    variables <- .select.list(
-      choices = var_names,
-      graphics = FALSE,
-      multiple = TRUE
-    )
-
-    # Verify that there are no factor variables with more than 4 levels
-    invalid_factors <- data_subset %>%
-      dplyr::select(tidyselect::all_of(variables)) %>%
-      .check.factor.levels()
-
-    if (!rlang::is_empty(invalid_factors)) {
-      cat(crayon::red("\nERROR: This function will not allow a factor variable to have more than 4 levels.\n\n"),
-        crayon::red("The following factor variables have more than 4 levels:\n\n"),
-        paste(crayon::blue$bold(invalid_factors), collapse = ", "),
-        crayon::red("\n\nPlease exit out of stratify() by pressing <Esc> and re-code your desired factor levels \nfrom these variables as dummy variables (see the package 'fastDummies') or press \n<Return> to choose a different set of variables.\n"),
-        sep = ""
-      )
-
-      readline(prompt = "")
-
-      next
-    }
-
-    # Verify that there are no variables with all obs. missing
-    na_variables <- data_subset %>%
-      dplyr::select(tidyselect::all_of(variables)) %>%
-      sapply(function(x) sum(!is.na(x))) %>%
-      data.frame() %>%
-      dplyr::filter(.==0) %>%
-      row.names()
-
-    if (!rlang::is_empty(na_variables)) {
-      cat(crayon::red("ERROR: This function will not allow a variable with all observations missing.\n\n"),
-          crayon::red("All observations are missing for the following variables:\n\n"),
-          paste(crayon::blue$bold(na_variables), collapse = ", "),
-          crayon::red("\n\nPlease press \n<Return> to choose a different set of variables.\n"),
-          sep = ""
-      )
-
-      readline(prompt = "")
-
-      next
-    }
-
-    cat("\nYou have selected the following stratifying variables:\n\n",
-      paste(crayon::blue$bold(variables), collapse = ", "),
-      "\n\n",
-      sep = ""
-    )
-
-    data_subset %>%
-      dplyr::select(tidyselect::all_of(variables)) %>%
-      .make.var.overview(print_to_console = TRUE)
-
-    if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
-
-      break
-    }
-
-    data_subset %>%
-      .make.var.overview()
-  }
+  variables <- .select.list.stratify(data_subset)
 
   data_subset <- data_subset %>%
     dplyr::select(tidyselect::all_of(variables))
@@ -865,7 +799,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # 6) Overview of continuous variables ---------------------------------------
 
   cont_data <- data_subset %>%
-    dplyr::select_if(negate(is.factor))
+    dplyr::select_if(purrr::negate(is.factor))
 
   cont_data_vars <- cont_data %>%
     names()
@@ -883,16 +817,13 @@ print.summary.generalizer_stratify <- function(x, ...) {
     ) %>%
       sample()
 
-    outline_colors_cont <- viridis::turbo(n_cont_vars) %>%
-      sample()
-
     for (i in 1:n_cont_vars) {
       hist <- cont_data %>%
         ggplot2::ggplot(aes(x = cont_data[, i])) +
         geom_histogram(
           bins = 30,
           fill = fill_colors_cont[i],
-          color = outline_colors_cont[i]
+          color = "black"
         ) +
         theme_minimal() +
         xlab(cont_data_vars[i]) +
@@ -964,7 +895,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat(crayon::blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n\n"))
 
-  cat("You can pull up the results at any time by passing your generalizer_stratify \nobject into summary().\n\n")
+  cat("You can pull up the results at any time by passing your 'generalizer_stratify' \nobject into summary().\n\n")
 
   readline(prompt = "Hit <Return> to view the results.")
 
@@ -1103,6 +1034,135 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(invisible(output))
 }
 
+.select.list.stratify <- function(data) {
+
+  choices <- names(data)
+
+  num_choices <- length(choices)
+
+  options <- paste0(format(1:num_choices),
+                    ":  ",
+                    choices)
+
+  repeat {
+
+    if (num_choices > 10L) {
+
+      formatted_options <- format(options)
+      nw <- nchar(formatted_options[1L], "w") + 2L
+      ncol <- getOption("width") %/% nw
+
+      if (ncol > 1L) {
+
+        options <- paste0(formatted_options,
+                          c(rep.int("  ", ncol - 1L), "\n"),
+                          collapse = "")
+      }
+
+      cat("", options, sep = "\n")
+    } else {
+
+      cat("", options, "", sep = "\n")
+    }
+
+    cat("Type two or more numbers separated by spaces and then hit <Return> to continue. \n\n")
+
+    selection <- tryCatch(
+
+      scan("",
+           what = 0,
+           quiet = TRUE,
+           nlines = 1
+      ),
+      error = identity
+    )
+
+    # Verify that user's selection did not throw an error in tryCatch()
+    if(!inherits(selection, "error")) {
+
+      # Verify that user chose at least two variables
+      if (length(selection) >= 2L) {
+
+        # Verify that user only input integers between 1 and the number of variables in the dataframe
+        if (all(selection %in% 1:num_choices)) {
+
+          selection <- selection %>%
+            unique() %>%
+            sort()
+
+          variables <- choices[selection]
+
+          invalid_factors <- data %>%
+            dplyr::select(tidyselect::all_of(variables)) %>%
+            .check.factor.levels()
+
+          # Verify that user didn't choose any factor variables with more than 4 levels
+          if (rlang::is_empty(invalid_factors)) {
+
+            na_variables <- data %>%
+              dplyr::select(tidyselect::all_of(variables)) %>%
+              sapply(function(x) sum(!is.na(x))) %>%
+              data.frame() %>%
+              dplyr::filter(. == 0) %>%
+              row.names()
+
+            # Verify that user didn't choose any variables with all observations missing
+            if (rlang::is_empty(na_variables)) {
+
+              cat("\nYou have selected the following stratifying variables:\n\n",
+                  paste(crayon::blue$bold(variables), collapse = ", "),
+                  "\n\n",
+                  sep = "")
+
+              data %>%
+                dplyr::select(tidyselect::all_of(variables)) %>%
+                .make.var.overview(print_to_console = TRUE)
+
+              # Verify that user is happy with their selection
+              if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
+
+                return(choices[selection])
+              }
+
+              cat("\n")
+
+              data %>%
+                .make.var.overview()
+              next
+            }
+
+            cat(crayon::red("ERROR: Invalid selection. This function will not allow a selected variable to have only missing observations.\n\n"),
+                crayon::red("All observations are missing for the following variables you have chosen:\n\n"),
+                paste(crayon::blue$bold(na_variables), collapse = ", "),
+                sep = ""
+            )
+
+            next
+          }
+
+          cat(crayon::red("\nERROR: Invalid selection. This function will not allow a factor variable to have more \nthan 4 levels.\n\n"),
+              crayon::red("The following factor variables have more than 4 levels:\n\n"),
+              paste(crayon::blue$bold(invalid_factors), collapse = ", "),
+              crayon::red("\n\nIf you still wish to use these variables to stratify your population, please exit out of \nstratify() by hitting <Esc> and re-code your desired factor levels from these variables \nas dummy variables (see the package 'fastDummies').\n\n"),
+              sep = "")
+
+          next
+        }
+
+        cat(paste0(crayon::red("\nERROR: Invalid selection. Each input must be a single integer between 1 and "),
+                   crayon::red(num_choices),
+                   crayon::red(".\n\n")))
+        next
+      }
+
+      cat(crayon::red("\nERROR: Invalid selection. You must select at least 2 stratification variables.\n\n"))
+      next
+    }
+
+    cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
+  }
+}
+
 .check.factor.levels <- function(data,
                                  maxlevels = 4L) {
   invalid_factors <- data %>%
@@ -1123,8 +1183,8 @@ print.summary.generalizer_stratify <- function(x, ...) {
 .make.var.overview <- function(dataset,
                                print_to_console = FALSE) {
   var_overview <- dataset %>%
-    map_df(function(x) {
-      tibble(
+    purrr::map_df(function(x) {
+      tibble::tibble(
         Type = class(x),
         Levels = nlevels(x)
       )
@@ -1149,9 +1209,9 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
 .make.cont.data.tbl <- function(cont_data) {
   cont_data_tbl <- cont_data %>%
-    map_df(
+    purrr::map_df(
       function(x) {
-        tibble(
+        tibble::tibble(
           min = min(x),
           pct50 = median(x),
           max = max(x),
@@ -1162,7 +1222,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
     ) %>%
     dplyr::mutate_all(round, digits = 3) %>%
     dplyr::mutate(variable = names(cont_data)) %>%
-    dplyr::select(variable, everything()) %>%
+    dplyr::select(variable, tidyselect::everything()) %>%
     data.frame() %>%
     janitor::clean_names()
 
@@ -1171,7 +1231,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
 .n.strata.less.than.max <- function(n_strata, data_interest, variables, idvar){
   data_interest %>%
-    dplyr::select(tidyselect::all_of(variables) & c(idvar)) %>%
+    dplyr::select(tidyselect::all_of(variables), tidyselect::all_of(idvar)) %>%
     tidyr::drop_na() %>%
     nrow() - 1 > n_strata
 }
