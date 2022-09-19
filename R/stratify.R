@@ -728,7 +728,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
     for (i in 1:n_cat_vars) {
       var_name <- cat_data_vars[i]
 
-      levels(cat_data_plot[[var_name]]) <- str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
+      levels(cat_data_plot[[var_name]]) <- stringr::str_wrap(levels(cat_data_plot[[var_name]]), width = 10)
 
       barfig <- cat_data_plot %>%
         dplyr::group_by(dplyr::across(tidyselect::all_of(var_name))) %>%
