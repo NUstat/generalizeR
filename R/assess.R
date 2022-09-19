@@ -138,13 +138,15 @@ assess <- function(data,
 
   cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", gen_index, ".\n\n"))
 
-  cat(crayon::blue$bold("Covariate Distributions:\n"))
+  cat(crayon::blue$bold("Covariate Table:\n"))
 
-  cov_tab <- .make.covariate.table(data,
-                                   sample_var = sample_var,
-                                   covariates)
+  cov_tab_out <- .make.covariate.table(data,
+                                       sample_var = sample_var,
+                                       covariates)
 
-  print(cov_tab)
+  print(cov_tab_out$covariate_table, row.names = FALSE)
+
+  print(cov_tab_out$covariate_kable)
 
   n_sample <- data %>%
     dplyr::filter(sample_var == 1) %>%
@@ -167,7 +169,8 @@ assess <- function(data,
     trim_pop = trim_pop,
     n_excluded = n_excluded,
     participation_probs = participation_probs,
-    covariate_table = cov_tab,
+    covariate_table = cov_tab_out$covariate_table,
+    covariate_kable = cov_tab_out$covariate_kable,
     data = data_output
   )
 
@@ -641,115 +644,6 @@ assess <- function(data,
   }
 }
 
-#' Create Covariate Balance Table
-#'
-#' This function is designed for use within 'assess().'
-#'
-#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
-#' @param covariates vector of covariate names in data set that predict sample membership
-#' @param data data frame comprised of "stacked" sample and target population data
-#' @param weighted_table defaults to FALSE; whether weights are already included and do not need to be estimated
-#' @param estimation_method method to estimate the probability of sample membership.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint defaults to TRUE. If TRUE, then sample and population data are considered independent.  This affects calculation of the weights
-#' @export
-#' @importFrom stats model.matrix weighted.mean
-#' @importFrom dplyr funs
-
-.make.covariate.table <- function(data,
-                                  sample_var,
-                                  covariates,
-                                  weighted_table = FALSE,
-                                  estimation_method = "lr",
-                                  is_data_disjoint = TRUE){
-
-  V1 <- V2 <- weights <- population <- pooled_sd <- ASMD <- . <- NULL
-
-  if (!weighted_table) {
-
-    data <- data %>%
-      tidyr::drop_na(tidyselect::all_of(covariates)) %>%
-      as.data.frame()
-
-    expanded.data <- data.frame(data[, sample_var],
-                                model.matrix(~-1 + ., data = data[, covariates]))
-
-    names(expanded.data)[1] <- sample_var
-
-    means.tab <- expanded.data %>%
-      dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise_at(names(expanded.data)[-1], mean) %>%
-      t() %>%
-      as.data.frame()
-
-    means.tab <- means.tab[-1,]
-
-    names(means.tab) = c("sample", "population")
-
-    n_sample = as.numeric(table(expanded.data[,sample_var]))[2]
-    n_pop = as.numeric(table(expanded.data[,sample_var]))[1]
-    sd.tab = expanded.data %>%
-      dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise_all(var) %>% t() %>% as.data.frame() %>% .[-1,] %>%
-      dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V1 + (n_pop - 1) * V2)/(n_sample + n_pop - 2)))
-    names(sd.tab) = c("sample_var", "population_var", "pooled_sd")
-  } else {
-
-    data = data %>%
-      tidyr::drop_na(covariates) %>%
-      as.data.frame()
-
-    data$weights = weighting(outcome = NULL, treatment = NULL, trial = sample_var,
-                             covariates = covariates, data = data,
-                             estimation_method = estimation_method, is_data_disjoint = is_data_disjoint)$weights
-    data$weights = ifelse(data[,trial] == 0, 1, data$weights)
-
-    expanded.data = data.frame(sample_var = data[,sample_var], model.matrix(~ -1 + ., data = data[,c(covariates,"weights")]))
-
-    means.tab = expanded.data %>%
-      dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise_at(names(expanded.data)[-1], funs(weighted.mean(., weights))) %>%
-      dplyr::select(-`weights`) %>%
-      t() %>%
-      as.data.frame() %>% .[-1,]
-
-    names(means.tab) = c("sample","population")
-
-    n_sample = as.numeric(table(expanded.data$sample_var))[2]
-    n_pop = as.numeric(table(expanded.data$sample_var))[1]
-
-    sd.tab = expanded.data %>%
-      dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise_at(names(expanded.data)[-1],
-                          funs(sum(weights * (. - weighted.mean(.,weights))^2)/sum(weights))) %>%
-      dplyr::select(-`weights`) %>%
-      t() %>%
-      as.data.frame() %>% .[-1,] %>%
-      dplyr::mutate(pooled_sd = sqrt(((n_sample - 1)*V1 + (n_pop - 1)*V2)/(n_sample + n_pop - 2)))
-
-    names(sd.tab) = c("sample_var","population_var","pooled_sd")
-  }
-
-  covariate_table = means.tab %>%
-    dplyr::bind_cols(sd.tab) %>%
-    dplyr::mutate(ASMD = round(abs((sample - population)/pooled_sd),3)) %>%
-    dplyr::select(
-      `Sample Mean` = sample,
-      `Population Mean` = population,
-      ASMD) %>%
-    dplyr::arrange(desc(ASMD))
-
-  if (!weighted_table){
-
-    row.names(covariate_table) = setdiff(names(expanded.data), sample_var)
-  } else {
-
-    names(covariate_table)[1] = "sample (weighted)"
-    row.names(covariate_table) = setdiff(names(expanded.data), c(sample_var,"weights"))
-  }
-
-  return(covariate_table)
-}
-
 print.generalize_assess <- function(x,...) {
   cat("A generalizer_assess object: \n")
   cat(paste0(" - probability of sample membership estimation method: ", x$estimation_method, "\n"))
@@ -799,7 +693,7 @@ print.summary.generalize_assess <- function(x,...){
     cat("Population data were trimmed for covariates to not exceed sample covariate bounds \n")
     cat(paste0("Number excluded from population: ", x$n_excluded , "\n \n"))
   }
-  cat("Covariate Distributions: \n \n")
+  cat("Covariate Table: \n \n")
   print(round(x$covariate_table, 4))
   invisible(x)
 }
