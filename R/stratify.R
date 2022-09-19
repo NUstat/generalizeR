@@ -94,7 +94,8 @@ stratify <- function(data = NULL,
       data = data,
       n_strata = n_strata,
       variables = variables,
-      idvar = idvar
+      idvar = idvar,
+      verbose = verbose
     )
   }
 
