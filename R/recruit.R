@@ -96,10 +96,27 @@ recruit <- function(stratify_output,
   cat("\nAttempt to recruit units starting from the top of each recruitment list. If you are \nunsuccessful in recruiting a particular unit, move on to the next one in the list and \ncontinue until you have reached the ideal recruitment number in each stratum.\n\n", sep = "")
 
   if (guided) {
-    save_as_csv <- utils::menu(
-      choices = c("Yes", "No"),
-      title = cat("Would you like to save the recruitment lists as .csv files?")
-    )
+
+    repeat{
+
+      save_as_csv <- utils::menu(
+        choices = c("Yes", "No"),
+        title = cat("Would you like to save the recruitment lists as .csv files?")
+      )
+
+      if (!(save_as_csv %in% 1:2)) {
+
+        cat(crayon::red("\nERROR: You must input either '1' for 'Yes' or '2' for 'No'.\n\n"))
+        next
+      }
+
+      break
+    }
+
+    save_as_csv <- save_as_csv %>%
+      switch("1" = TRUE,
+             "2" = FALSE)
+
     cat("\n")
 
     if (save_as_csv) {

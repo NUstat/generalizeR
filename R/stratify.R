@@ -154,7 +154,7 @@ stratify <- function(data = NULL,
   if (dim(cat_data)[2] >= 1L) {
     cat_data_with_dummies <- cat_data %>%
       fastDummies::dummy_cols(remove_first_dummy = TRUE) %>%
-      dplyr::select_if(negate(is.factor))
+      dplyr::select_if(purrr::negate(is.factor))
 
     data_full <- cont_data %>%
       cbind(cat_data_with_dummies) %>%
@@ -732,7 +732,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
       barfig <- cat_data_plot %>%
         dplyr::group_by(dplyr::across(tidyselect::all_of(var_name))) %>%
-        dplyr::summarise(count = n()) %>%
+        dplyr::summarise(count = dplyr::n()) %>%
         dplyr::mutate(ordered_factor = forcats::fct_reorder(.[[var_name]], count)) %>%
         ggplot2::ggplot(aes(x = ordered_factor, y = count)) +
         geom_col(
@@ -750,7 +750,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
       par(ask = TRUE)
 
       cat("\nNumber of Observations in Levels of Factor ",
-        paste(blue$bold(var_name)),
+        paste(crayon::blue$bold(var_name)),
         ":\n\n",
         sep = ""
       )
