@@ -829,8 +829,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
         xlab(cont_data_vars[i]) +
         labs(title = paste("Histogram of", cont_data_vars[i]))
 
-      hist %>%
-        print()
+      print(hist)
 
       par(ask = TRUE)
     }
