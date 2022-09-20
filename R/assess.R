@@ -69,7 +69,7 @@ assess <- function(data,
     ##### Ensure sample variable is binary #####
     is_sample_var_binary <- function(sample_var) {
 
-      all(dplyr::pull(data, sample_var) %in% c(0, 1))
+      all(dplyr::pull(data, tidyselect::all_of(sample_var)) %in% c(0, 1))
     }
 
     assertthat::on_failure(is_sample_var_binary) <- function(call, env) {
@@ -95,7 +95,7 @@ assess <- function(data,
 
   # Keep only sample_var and covariate columns in data and drop missing values
   data <- data %>%
-    dplyr::select(sample_var, tidyselect::all_of(covariates)) %>%
+    dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates)) %>%
     tidyr::drop_na()
 
   if(!trim_pop) {
@@ -151,7 +151,7 @@ assess <- function(data,
     nrow()
 
   data_output <- data %>%
-    dplyr::select(sample_var, tidyselect::all_of(covariates))
+    dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates))
 
   out <- list(
     gen_index = gen_index,
@@ -186,7 +186,7 @@ assess <- function(data,
   sample_var <- .select.sample.variable(data)
 
   covariates <- data %>%
-    dplyr::select(-sample_var) %>%
+    dplyr::select(-tidyselect::all_of(sample_var)) %>%
     .select.covariates()
 
   is_data_disjoint <- .yes.no("Are the sample data and population data disjoint? See the vignette for more details.\n")
@@ -541,7 +541,7 @@ assess <- function(data,
   }
 
   sample_var_valid <- data %>%
-    dplyr::pull(sample_var) %>%
+    dplyr::pull(tidyselect::all_ofsample_var) %>%
     na.omit() %>%
     table() %>%
     names() %>%
@@ -550,17 +550,6 @@ assess <- function(data,
   if(!sample_var_valid) {
     stop("Sample membership variable must be binary and coded as `0` (out of sample) or `1` (in sample)")
   }
-
-  # ##### Subset sample data covariates #####
-  # sample_dat <- data %>%
-  #   dplyr::filter(sample_var == 1) %>%
-  #   dplyr::select(all_of(covariates))
-  #
-  # if(length(covariates) == 1) {
-  #
-  #   sample_dat <- sample_dat %>% data.frame()
-  #   names(sample_dat) <- covariates
-  # }
 
   ##### Find and remove rows of population data that violate bounds #####
   bound_violations <- purrr::map(covariates, .get.covariate.bounds, sample_var, data)
