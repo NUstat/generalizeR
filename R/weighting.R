@@ -130,12 +130,12 @@ weighting <- function(data,
     # Extract total average treatment effect and standard error from model
     TATE <- TATE_model %>%
       broom::tidy() %>%
-      dplyr::filter(term == "treatment") %>%
+      dplyr::filter(term == treatment_indicator) %>%
       dplyr::pull(estimate)
 
     TATE_se <- TATE_model %>%
       broom::tidy() %>%
-      dplyr::filter(term == "treatment") %>%
+      dplyr::filter(term == treatment_indicator) %>%
       dplyr::pull(std.error)
 
     # Calculate 95% confidence interval for total average treatment effect
