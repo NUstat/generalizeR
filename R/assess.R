@@ -140,7 +140,10 @@ assess <- function(data,
 
   cov_tab_out <- .make.covariate.table(data,
                                        sample_var = sample_var,
-                                       covariates)
+                                       covariates = covariates,
+                                       weighted_table = FALSE,
+                                       estimation_method = estimation_method,
+                                       is_data_disjoint = is_data_disjoint)
 
   n_sample <- data %>%
     dplyr::filter(sample_var == 1) %>%
