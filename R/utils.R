@@ -131,7 +131,7 @@
     n_pop <- as.numeric(table(expanded.data[, sample_var]))[1]
     sd.tab <- expanded.data %>%
       dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise(dplyr::across(var)) %>%
+      dplyr::summarise(dplyr::across(everything(), var)) %>%
       t() %>%
       as.data.frame() %>%
       .[-1, ] %>%
