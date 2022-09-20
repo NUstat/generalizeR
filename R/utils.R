@@ -184,11 +184,11 @@
 
     sd.tab <- sd.tab %>%
       dplyr::mutate(population_var = expanded.data %>%
-                      dplyr::summarise(dplyr::across(everything(), var)) %>%
+                      dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), var)) %>%
                       t() %>%
                       as.data.frame() %>%
                       pull(),
-                    pooled_sd = sqrt(((n_sample - 1) * V1 + (n_pop - 1) * V2) / (n_sample + n_pop - 2)))
+                    pooled_sd = sqrt(((n_sample - 1) * sample_var + (n_pop - 1) * population_var) / (n_sample + n_pop - 2)))
   }
 
   covariate_table <- means.tab %>%
