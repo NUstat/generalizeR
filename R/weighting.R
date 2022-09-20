@@ -148,11 +148,11 @@ weighting <- function(data,
 
   # Make weighted covariate table
   covariate_table_output <- .make.covariate.table(data = data,
-                                           sample_var = sample_indicator,
-                                           covariates = covariates,
-                                           weighted_table = TRUE,
-                                           estimation_method = estimation_method,
-                                           is_data_disjoint = is_data_disjoint)
+                                                  sample_var = sample_indicator,
+                                                  covariates = covariates,
+                                                  weighted_table = TRUE,
+                                                  estimation_method = estimation_method,
+                                                  is_data_disjoint = is_data_disjoint)
 
   # Make histogram of weights
   weights_hist <- data %>%
