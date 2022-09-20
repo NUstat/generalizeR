@@ -144,10 +144,6 @@ assess <- function(data,
                                        sample_var = sample_var,
                                        covariates)
 
-  print(cov_tab_out$covariate_table, row.names = FALSE)
-
-  print(cov_tab_out$covariate_kable)
-
   n_sample <- data %>%
     dplyr::filter(sample_var == 1) %>%
     nrow()
