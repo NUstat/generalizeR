@@ -43,7 +43,7 @@ library(lazyeval)
 
 Welcome to the generalizeR! This package is designed to guide education researchers through:
 
-- Selecting important features of their inference population
+- Using important features of their inference population to stratify units 
 - Developing a recruitment plan for a future evaluation
 - Assessing the generalizability of a completed evaluation
 
@@ -98,15 +98,13 @@ output <- stratify(data = inference_pop)
 
 We are greeted with the following:
 
-<img src="stratify_fig_1.png" width="550"/>
-
-If we need to make adjustments to our inference population or if we have forgotten to store our results -- that is, to use the assignment operator `<-` to assign our results to an object (here called `output`) -- we may enter `2` to stop the function and do so. We have already taken care of both those items, however, so we enter `1` to proceed. 
+<img src="new_figures_091922/recruit_fig_1_v2.png" width="550"/>
 
 ### Selecting the ID Variable
 
-The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
+The above prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
 
-<img src="stratify_fig_2.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_2_v2.png" width="550"/>
 
 We then receive a message informing us that `stratify()` has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table displaying an overview of the variables in our data frame has been printed in the Viewer pane. A preview of that same table is shown below. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.
 
@@ -136,23 +134,23 @@ var_overview %>%
 
 Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can't choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit `stratify()` and re-code our desired factor levels from that variable as indicator variables within our data frame (the package `fastDummies` may be of use).
 
-<img src="stratify_fig_3.png" width="700"/>
+<img src="new_figures_091922/recruit_fig_3_v2.png" width="700"/>
 
 For our stratifying variables of interest, we have chosen `pct_female`, `pct_black_or_african_american`, `pct_free_and_reduced_lunch`, and `total`. We enter: `29 32 38 42`. The function prints out a list of these variables with their names highlighted in blue, as well as a table displaying each variable's type and number of levels. This is done so we can look them over, confirm what we selected, and make sure the variables are the types we expected. Since these results seem reasonable, we indicate that they are correct by entering `1`.
 
-<img src="stratify_fig_4.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_4_v2.png" width="550"/>
 
 ### Missing Observations
 
 We are now shown a table (also available in the Viewer pane) that breaks down how many missing observations each variable contains, including our id variable `ncessch`. These observations will be dropped from the inference population before the stratification is performed.
 
-<img src="stratify_fig_5.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_5_v2.png" width="550"/>
 
 ### Descriptive Statistics
 
 Next, the function prints out the descriptive statistics of the stratification variables chosen, both categorical and continuous. In this case, all the variables are continuous. Plots of the variables -- histograms or bar charts, as appropriate -- are generated and displayed one at a time.
 
-<img src="stratify_fig_6.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_6_v2.png" width="550"/>
 
 ```{r include=FALSE}
 fill_colors <- viridis(4, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
