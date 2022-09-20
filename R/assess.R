@@ -138,15 +138,9 @@ assess <- function(data,
 
   cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", gen_index, ".\n\n"))
 
-  cat(crayon::blue$bold("Covariate Table:\n"))
-
   cov_tab_out <- .make.covariate.table(data,
                                        sample_var = sample_var,
                                        covariates)
-
-  print(cov_tab_out$covariate_table, row.names = FALSE)
-
-  print(cov_tab_out$covariate_kable)
 
   n_sample <- data %>%
     dplyr::filter(sample_var == 1) %>%

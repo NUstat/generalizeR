@@ -168,12 +168,6 @@ weighting <- function(data,
          y = "Frequency",
          title = "Histogram of Sample Weights")
 
-  print(weights_hist)
-
-  print(covariate_table_output$covariate_table)
-
-  print(covariate_table_output$covariate_kable)
-
   # Items to return out
   out <- list(participation_probs = participation_probs,
               weights = data$weights,
