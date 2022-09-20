@@ -541,7 +541,7 @@ assess <- function(data,
   }
 
   sample_var_valid <- data %>%
-    dplyr::pull(tidyselect::all_ofsample_var) %>%
+    dplyr::pull(tidyselect::all_of(sample_var)) %>%
     na.omit() %>%
     table() %>%
     names() %>%
