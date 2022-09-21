@@ -150,7 +150,7 @@ weighting <- function(data,
     # UNADJUSTED TATE
 
     # Make unweighted regression model predicting outcome with treatment
-    TATE_model_unadj <- paste(outcome, treatment, sep = "~") %>%
+    TATE_model_unadj <- paste(outcome, treatment_indicator, sep = "~") %>%
       as.formula() %>%
       lm(data = data)
 
