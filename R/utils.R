@@ -206,7 +206,7 @@
 
   if (weighted_table) {
 
-    names(covariate_table)[c(2, 3)] <- c("Weighted Sample Mean", "Weighted Population Mean")
+    names(covariate_table)[c(2, 3)] <- c("Weighted Sample Mean", "Population Mean")
   }
 
   covariate_kable <- covariate_table %>%
