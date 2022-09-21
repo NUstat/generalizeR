@@ -167,6 +167,7 @@
       t() %>%
       as.data.frame() %>%
       .[-1, ] %>%
+      dplyr::select(2,1) %>%
       dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V1 + (n_pop - 1) * V2) / (n_sample + n_pop - 2)))
 
     names(sd.tab) <- c("sample_var", "population_var", "pooled_sd")
