@@ -121,9 +121,9 @@
       dplyr::group_by(!!sym(sample_var)) %>%
       dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), mean)) %>%
       t() %>%
-      as.data.frame()
-
-    means.tab <- means.tab[-1, ]
+      as.data.frame() %>%
+      .[-1, ] %>%
+      dplyr::select(2,1)
 
     names(means.tab) <- c("sample", "population")
 
@@ -151,18 +151,19 @@
       dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.mean(., weights))) %>%
       t() %>%
       as.data.frame() %>%
-      .[-1, ]
+      .[-1, ] %>%
+      dplyr::select(2,1)
 
     names(means.tab) <- c("sample", "population")
 
     n_sample <- as.numeric(table(expanded.data[, sample_var]))[2]
     n_pop <- as.numeric(table(expanded.data[, sample_var]))[1]
 
-    weighted.sd <- function(x, w) {sum(w * (x - weighted.mean(x, w))^2) / sum(w)}
+    weighted.var <- function(x, w) {sum(w * (x - weighted.mean(x, w))^2) / (sum(w)-1)}
 
     sd.tab <- expanded.data %>%
       dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.sd(., weights))) %>%
+      dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.var(., weights))) %>%
       t() %>%
       as.data.frame() %>%
       .[-1, ] %>%
