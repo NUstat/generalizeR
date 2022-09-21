@@ -194,10 +194,14 @@
 
   covariate_table <- means.tab %>%
     dplyr::bind_cols(sd.tab) %>%
-    dplyr::mutate(ASMD = round(abs((sample - population) / pooled_sd), 3)) %>%
+    dplyr::mutate(ASMD = round(abs((sample - population) / pooled_sd), 3),
+                  sample_sd = sqrt(sample_var),
+                  population_sd = sqrt(population_var)) %>%
     dplyr::select(
       `Sample Mean` = sample,
       `Population Mean` = population,
+      `Sample SD` = sample_sd,
+      `Population SD` = population_sd,
       ASMD
     ) %>%
     dplyr::arrange(desc(ASMD)) %>%
@@ -206,7 +210,7 @@
 
   if (weighted_table) {
 
-    names(covariate_table)[c(2, 3)] <- c("Weighted Sample Mean", "Population Mean")
+    names(covariate_table)[c(2,4)] <- c("Weighted Sample Mean", "Weighted Sample SD")
   }
 
   covariate_kable <- covariate_table %>%
