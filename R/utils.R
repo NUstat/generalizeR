@@ -206,7 +206,6 @@
       `Population SD` = population_sd,
       ASMD
     ) %>%
-    dplyr::arrange(desc(ASMD)) %>%
     round(digits = 3) %>%
     tibble::rownames_to_column("Covariate")
 
