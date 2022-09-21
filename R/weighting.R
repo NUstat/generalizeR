@@ -120,14 +120,16 @@ weighting <- function(data,
 
   else {
 
-    # ESTIMATE POPULATION AVERAGE TREATMENT EFFECT
+    # ESTIMATE TOTAL AVERAGE TREATMENT EFFECT
+
+    # ADJUSTED TATE
 
     # Make weighted regression model predicting outcome with treatment
     TATE_model <- paste(outcome, treatment_indicator, sep = "~") %>%
       as.formula() %>%
       lm(data = data, weights = weights)
 
-    # Extract total average treatment effect and standard error from model
+    # Extract total average treatment effect and standard error from weighted model
     TATE <- TATE_model %>%
       broom::tidy() %>%
       dplyr::filter(term == treatment_indicator) %>%
@@ -144,6 +146,31 @@ weighting <- function(data,
     TATE <- list(estimate = TATE,
                  SE = TATE_se,
                  CI = TATE_CI)
+
+    # UNADJUSTED TATE
+
+    # Make unweighted regression model predicting outcome with treatment
+    TATE_model_unadj <- paste(outcome, treatment, sep = "~") %>%
+      as.formula() %>%
+      lm(data = data)
+
+    # Extract total average treatment effect and standard error from unweighted model
+    TATE_unadj <- TATE_model_unadj %>%
+      broom::tidy() %>%
+      filter(term == treatment_indicator) %>%
+      pull(estimate)
+
+    TATE_se_unadj <- TATE_model_unadj %>%
+      broom::tidy() %>%
+      filter(term == treatment_indicator) %>%
+      pull(std.error)
+
+    # Calculate 95% confidence interval for unweighted total average treatment effect
+    TATE_CI_unadj <- TATE_unadj + 2.262*TATE_se_unadj*c(-1, 1)
+
+    TATE_unadj <- list(estimate = TATE_unadj,
+                       SE = TATE_se_unadj,
+                       CI = TATE_CI_unadj)
   }
 
   # Make weighted covariate table
@@ -172,6 +199,7 @@ weighting <- function(data,
   out <- list(participation_probs = participation_probs,
               weights = data$weights,
               TATE = TATE,
+              TATE_unadj = TATE_unadj,
               covariate_table = covariate_table_output$covariate_table,
               covariate_kable = covariate_table_output$covariate_kable,
               hist = weights_hist)
