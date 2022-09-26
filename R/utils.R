@@ -136,43 +136,43 @@
       as.data.frame() %>%
       .[-1, ] %>%
       dplyr::select(2,1) %>%
-      dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V1 + (n_pop - 1) * V2) / (n_sample + n_pop - 2)))
+      dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V2 + (n_pop - 1) * V1) / (n_sample + n_pop - 2)))
     names(sd.tab) <- c("sample_var", "population_var", "pooled_sd")
     } else {
 
-    data$weights <- ifelse(data[, sample_var] == 0, 1, data$weights)
+      data$weights <- ifelse(data[, sample_var] == 0, 1, data$weights)
 
-    expanded.data <- data.frame(data[, sample_var],
-                                model.matrix(~ -1 + ., data = data[, c(covariates, "weights")]))
+      expanded.data <- data.frame(data[, sample_var],
+                                  model.matrix(~ -1 + ., data = data[, c(covariates, "weights")]))
 
-    names(expanded.data)[1] <- sample_var
+      names(expanded.data)[1] <- sample_var
 
-    means.tab <- expanded.data %>%
-      dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.mean(., weights))) %>%
-      t() %>%
-      as.data.frame() %>%
-      .[-1, ] %>%
-      dplyr::select(2,1)
+      means.tab <- expanded.data %>%
+        dplyr::group_by(!!sym(sample_var)) %>%
+        dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.mean(., weights))) %>%
+        t() %>%
+        as.data.frame() %>%
+        .[-1, ] %>%
+        dplyr::select(2,1)
 
-    names(means.tab) <- c("sample", "population")
+      names(means.tab) <- c("sample", "population")
 
-    n_sample <- as.numeric(table(expanded.data[, sample_var]))[2]
-    n_pop <- as.numeric(table(expanded.data[, sample_var]))[1]
+      n_sample <- as.numeric(table(expanded.data[, sample_var]))[2]
+      n_pop <- as.numeric(table(expanded.data[, sample_var]))[1]
 
-    weighted.var <- function(x, w) {sum(w * (x - weighted.mean(x, w))^2) / (sum(w)-1)}
+      weighted.var <- function(x, w) {sum(w * (x - weighted.mean(x, w))^2) / (sum(w)-1)}
 
-    sd.tab <- expanded.data %>%
-      dplyr::group_by(!!sym(sample_var)) %>%
-      dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.var(., weights))) %>%
-      t() %>%
-      as.data.frame() %>%
-      .[-1, ] %>%
-      dplyr::select(2,1) %>%
-      dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V1 + (n_pop - 1) * V2) / (n_sample + n_pop - 2)))
+      sd.tab <- expanded.data %>%
+        dplyr::group_by(!!sym(sample_var)) %>%
+        dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.var(., weights))) %>%
+        t() %>%
+        as.data.frame() %>%
+        .[-1, ] %>%
+        dplyr::select(2,1) %>%
+        dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V2 + (n_pop - 1) * V1) / (n_sample + n_pop - 2)))
 
-    names(sd.tab) <- c("sample_var", "population_var", "pooled_sd")
-  }
+      names(sd.tab) <- c("sample_var", "population_var", "pooled_sd")
+    }
 
   if (!is_data_disjoint) {
 
