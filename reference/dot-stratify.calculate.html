@@ -57,8 +57,41 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.stratify.calculate</span><span class="op">(</span><span class="va">data</span>, <span class="va">n_strata</span>, <span class="va">variables</span>, <span class="va">idvar</span>, <span class="va">verbose</span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <dl><dt>data</dt>
+<dd><p>data.frame object containing the population data to be stratified (observations as rows); must include a unique id variable for each observation, as well as covariates.</p></dd>
 
-  </main></div>
+
+<dt>n_strata</dt>
+<dd><p>integer, number of strata in which to divide to cluster population</p></dd>
+
+
+<dt>variables</dt>
+<dd><p>character, character vector of the names of stratifying variables (from population data frame)</p></dd>
+
+
+<dt>idvar</dt>
+<dd><p>character, haracter vector of the name of the ID variable (from population data frame)</p></dd>
+
+
+<dt>verbose</dt>
+<dd><p>logical, defaults to TRUE.</p></dd>
+
+</dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>The function returns a list of class "generalizer_stratify" that can be provided as input to <code><a href="recruit.html">recruit()</a></code>. More information on the components of this list can be found above under "Details."</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The list contains 14 components: <code>idvar</code>, <code>variables</code>, <code>dataset</code>, <code>n_strata</code>, <code>solution</code>, <code>pop_data_by_stratum</code>, <code>summary_stats</code>, <code>data_omitted</code>, <code>cont_data_stats</code>, <code>cat_data_levels</code>, <code>heat_data</code>, <code>heat_data_simple</code>, <code>heat_data_kable</code>, and <code>heat_plot</code>.</p>
+    </div>
+
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

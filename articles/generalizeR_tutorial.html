@@ -82,7 +82,7 @@
 </h3>
 <p>Welcome to the generalizeR! This package is designed to guide education researchers through:</p>
 <ul>
-<li>Selecting important features of their inference population</li>
+<li>Using important features of their inference population to stratify units</li>
 <li>Developing a recruitment plan for a future evaluation</li>
 <li>Assessing the generalizability of a completed evaluation</li>
 </ul>
@@ -162,14 +162,13 @@
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stratify.html">stratify</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">inference_pop</span><span class="op">)</span></span></code></pre></div>
 <p>We are greeted with the following:</p>
-<p><img src="stratify_fig_1.png" width="550"></p>
-<p>If we need to make adjustments to our inference population or if we have forgotten to store our results – that is, to use the assignment operator <code>&lt;-</code> to assign our results to an object (here called <code>output</code>) – we may enter <code>2</code> to stop the function and do so. We have already taken care of both those items, however, so we enter <code>1</code> to proceed.</p>
+<p><img src="new_figures_091922/stratify_fig_1_v2.png" width="550"></p>
 </div>
 <div class="section level4">
 <h4 id="selecting-the-id-variable">Selecting the ID Variable<a class="anchor" aria-label="anchor" href="#selecting-the-id-variable"></a>
 </h4>
-<p>The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database – <code>ncessch</code>.</p>
-<p><img src="stratify_fig_2.png" width="550"></p>
+<p>The above prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database – <code>ncessch</code>.</p>
+<p><img src="new_figures_091922/stratify_fig_2_v2.png" width="550"></p>
 <p>We then receive a message informing us that <code><a href="../reference/stratify.html">stratify()</a></code> has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table displaying an overview of the variables in our data frame has been printed in the Viewer pane. A preview of that same table is shown below. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.</p>
 <table style="NAborder-bottom: 0; margin-left: auto; margin-right: auto;" class="table table table-striped table-hover table-condensed">
 <caption>
@@ -251,7 +250,7 @@ factor
 </tr>
 <tr>
 <td style="padding: 0; " colspan="100%">
-<sup></sup> Only the first 5 rows of the table are shown.
+<sup></sup> Only the first 5 rows of the table are shown in this tutorial.
 </td>
 </tr>
 </tfoot>
@@ -261,31 +260,31 @@ factor
 <h4 id="selecting-the-stratification-variables">Selecting the Stratification Variables<a class="anchor" aria-label="anchor" href="#selecting-the-stratification-variables"></a>
 </h4>
 <p>Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can’t choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit <code><a href="../reference/stratify.html">stratify()</a></code> and re-code our desired factor levels from that variable as indicator variables within our data frame (the package <code>fastDummies</code> may be of use).</p>
-<p><img src="stratify_fig_3.png" width="700"></p>
+<p><img src="new_figures_091922/stratify_fig_3_v2.png" width="700"></p>
 <p>For our stratifying variables of interest, we have chosen <code>pct_female</code>, <code>pct_black_or_african_american</code>, <code>pct_free_and_reduced_lunch</code>, and <code>total</code>. We enter: <code>29 32 38 42</code>. The function prints out a list of these variables with their names highlighted in blue, as well as a table displaying each variable’s type and number of levels. This is done so we can look them over, confirm what we selected, and make sure the variables are the types we expected. Since these results seem reasonable, we indicate that they are correct by entering <code>1</code>.</p>
-<p><img src="stratify_fig_4.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_4_v2.png" width="550"></p>
 </div>
 <div class="section level4">
 <h4 id="missing-observations">Missing Observations<a class="anchor" aria-label="anchor" href="#missing-observations"></a>
 </h4>
 <p>We are now shown a table (also available in the Viewer pane) that breaks down how many missing observations each variable contains, including our id variable <code>ncessch</code>. These observations will be dropped from the inference population before the stratification is performed.</p>
-<p><img src="stratify_fig_5.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_5_v2.png" width="550"></p>
 </div>
 <div class="section level4">
 <h4 id="descriptive-statistics">Descriptive Statistics<a class="anchor" aria-label="anchor" href="#descriptive-statistics"></a>
 </h4>
 <p>Next, the function prints out the descriptive statistics of the stratification variables chosen, both categorical and continuous. In this case, all the variables are continuous. Plots of the variables – histograms or bar charts, as appropriate – are generated and displayed one at a time.</p>
-<p><img src="stratify_fig_6.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_6_v2.png" width="550"></p>
 <p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="1458.33333333333"></p>
 </div>
 <div class="section level4">
 <h4 id="choosing-the-number-of-strata">Choosing the Number of Strata<a class="anchor" aria-label="anchor" href="#choosing-the-number-of-strata"></a>
 </h4>
-<p>Now we are ready to choose the number of strata in which to divide our population. <code><a href="../reference/stratify.html">stratify()</a></code> prints some information, similar to that presented by the <a href="https://www.thegeneralizer.org/" class="external-link">Generalizer Web application</a>, explaining what the choice represents and giving us some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.</p>
+<p>Now we are ready to choose the number of strata in which to divide our population. <code><a href="../reference/stratify.html">stratify()</a></code> prints some information, similar to that presented by the <a href="https://www.thegeneralizer.org/" class="external-link">Generalizer Web application</a>, explaining what the choice represents and giving us some guidance. While choosing more strata is generally better in terms of generalizability, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.</p>
 <p>Since we are only planning on using a sample size of 40 schools, we’ll try a smaller number – 4 strata:</p>
-<p><img src="stratify_fig_7.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_7_v2.png" width="550"></p>
 <p>The process of stratifying can take some time. If the function were to run silently, users might fear that R had frozen and quit. As a sort of progress bar, we have turned on “verbose” mode for the clustering process, which prints out the within-cluster sum of squares at each iteration until the stratifying process converges:</p>
-<p><img src="stratify_fig_8.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_8_v2.png" width="550"></p>
 </div>
 <div class="section level4">
 <h4 id="understanding-the-results">Understanding the Results<a class="anchor" aria-label="anchor" href="#understanding-the-results"></a>
@@ -293,14 +292,14 @@ factor
 <div class="section level5">
 <h5 id="stratification-review">Stratification Review<a class="anchor" aria-label="anchor" href="#stratification-review"></a>
 </h5>
-<p>The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources.</p>
-<p><img src="stratify_fig_9.png" width="550"></p>
+<p>The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources during study implementation.</p>
+<p><img src="new_figures_091922/stratify_fig_9_v2.png" width="550"></p>
 </div>
 <div class="section level5">
 <h5 id="covariate-statistics">Covariate Statistics<a class="anchor" aria-label="anchor" href="#covariate-statistics"></a>
 </h5>
 <p><code><a href="../reference/stratify.html">stratify()</a></code> then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum.</p>
-<p><img src="stratify_fig_10.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_10_v2.png" width="550"></p>
 <p>A similar table is printed in the Viewer pane:</p>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <caption>
@@ -540,6 +539,7 @@ pct_free_and_reduced_lunch
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>Note that <code>output</code> is the name we have assigned to our <code>stratify_object</code> in this example; users should replace it with their own name they have chosen.</p>
 <p>There is also an option to print our <code>stratify_object</code>. Doing so yields:</p>
+<!--**TODO: Fix `stratify_object` `print()` method**-->
 <p><img src="stratify_fig_12.png" width="550"></p>
 <p>We have finished the stratifying process!</p>
 </div>
@@ -553,17 +553,20 @@ pct_free_and_reduced_lunch
 <p>Since we assigned the results of <code><a href="../reference/stratify.html">stratify()</a></code> to an object, that object can then be passed directly into <code><a href="../reference/recruit.html">recruit()</a></code>, like so:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rec_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recruit.html">recruit</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
-<p>We are immediately greeted with the following message:</p>
-<p><img src="recruit_fig_1.png" width="550"></p>
-<p>Our desired sample size is 40 schools, so we enter ‘40’ for the number of units we wish to recruit. The function then generates a recruitment list for each stratum. It also displays a sample of one of the recruitment lists so we immediately know what they look like. Each row in a stratum’s recruitment list corresponds to a different unit in the stratum, and the units have been ranked in ascending order of their <a href="https://en.wikipedia.org/wiki/Mahalanobis_distance" class="external-link">Mahalanobis distances</a> from the mean vector of the stratifying variables. The idea is that the units with the smallest Mahalanobis distances are most likely to be “representative” of the population and so should be chosen first to be part of the sample.</p>
-<p><img src="recruit_fig_2.png" width="550"></p>
+<p>We are immediately greeted with the following welcome message:</p>
+<p><img src="new_figures_091922/recruit_fig_1_v2.png" width="550"></p>
+<p>After pressing the return key, we see:</p>
+<p><img src="new_figures_091922/recruit_fig_2_v2.png" width="550"></p>
+<p>Our desired sample size is 40 schools, so we enter ‘40’ for the number of units we wish to recruit. The function then generates a recruitment list for each stratum. Each row in a stratum’s recruitment list corresponds to a different unit in the stratum, and the units have been ranked in ascending order of their <a href="https://en.wikipedia.org/wiki/Mahalanobis_distance" class="external-link">Mahalanobis distances</a> from the mean vector of the stratifying variables. The idea is that the units with the smallest Mahalanobis distances are most likely to be “representative” of the population and so should be chosen first to be part of the sample.</p>
+<p><img src="new_figures_091922/recruit_fig_3_v2.png" width="550"></p>
 <p>Next, the function prints a recruitment table that tells us how many units we should recruit from each stratum. It arrives at these numbers by multiplying the sampling proportion (which is equal to the ratio of the stratum size to the total population size) for each stratum by the desired sample size, in this case 40.</p>
-<p><img src="recruit_fig_3.png" width="550"></p>
-<p>Here is what the recruitment table looks like in the Viewer pane:</p>
+<p><img src="new_figures_091922/recruit_fig_4_v2.png" width="550"></p>
+<!--Here is what the recruitment table looks like in the Viewer pane:-->
+<!--**TODO: Restore recruitment_kable?**-->
 <p>This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.</p>
-<p>The function then asks us if we want to save the recruitment lists as csv files. <img src="recruit_fig_4.png" width="550"></p>
+<p>The function then asks us if we want to save the recruitment lists as csv files. <img src="new_figures_091922/recruit_fig_5_v2.png" width="550"></p>
 <p>Upon entering ‘1’ to indicate ‘Yes’, a folder selection widget will appear that will allow us to choose a location on our computer in which to save the lists. Note that this only occurs when using the guided version of the function; in the non-guided version, the lists are automatically saved to our working directory if we set <code>save_as_csv = TRUE</code>.</p>
-<p><img src="recruit_fig_5.png" width="550"></p>
+<p><img src="new_figures_091922/recruit_fig_6_v2.png" width="550"></p>
 <p>Lastly, the function reminds us that the recruitment lists can also be accessed from its output, provided that it has been stored in an object.</p>
 <p>We have finished the recruitment process!</p>
 </div>
