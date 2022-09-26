@@ -50,7 +50,7 @@ recruit <- function(stratify_output,
   n_strata <- stratify_output$n_strata
 
   # checking validity of requested sample size w/ the unguided version of the function
-  if (guided == FALSE) {
+  if (!guided) {
     is_valid_sample_size <- function(sample_size) {
       assertthat::is.count(sample_size) && sample_size <= pop_size
     }
@@ -67,7 +67,9 @@ recruit <- function(stratify_output,
   } else {
     cat(crayon::bold("\nWelcome to recruit()!\n\n"))
 
-    cat("This function generates recruitment lists for each stratum in your population and \ntells you how many units to recruit from each given the total number of units that you \nwish to recruit (your desired sample size).\n\n")
+    cat("This function generates recruitment lists for each stratum in your population and \ntells you how many units to recruit from each given the total number of units that you \nwish to recruit (your desired sample size) in order to maximize generalizability.\n\n")
+
+    cat("To store your results, make sure you have assigned this function to an object.\n\n")
 
     readline(prompt = "Press <Return> to continue or <Esc> to exit.")
   }
@@ -80,7 +82,7 @@ recruit <- function(stratify_output,
   cat(paste(n_strata), "recruitment lists have been generated, one per stratum.")
   cat(" Each list contains the ID \ninformation for the units, which have been ranked in order of desirability.\n\n")
 
-  if (guided == TRUE) {
+  if (guided) {
     cat("The recruitment lists have been printed in the Viewer pane to the right.\n\n")
 
     for (i in 1:n_strata) {
@@ -112,21 +114,38 @@ recruit <- function(stratify_output,
 
   cat("\nAttempt to recruit units starting from the top of each recruitment list. If you are \nunsuccessful in recruiting a particular unit, move on to the next one in the list and \ncontinue until you have reached the ideal recruitment number in each stratum.\n\n", sep = "")
 
-  if (guided == TRUE) {
-    save_as_csv <- utils::menu(
-      choices = c("Yes", "No"),
-      title = cat("Would you like to save the recruitment lists as .csv files?")
-    )
+  if (guided) {
+
+    repeat{
+
+      save_as_csv <- utils::menu(
+        choices = c("Yes", "No"),
+        title = cat("Would you like to save the recruitment lists as .csv files?")
+      )
+
+      if (!(save_as_csv %in% 1:2)) {
+
+        cat(crayon::red("\nERROR: You must input either '1' for 'Yes' or '2' for 'No'.\n\n"))
+        next
+      }
+
+      break
+    }
+
+    save_as_csv <- save_as_csv %>%
+      switch("1" = TRUE,
+             "2" = FALSE)
+
     cat("\n")
 
-    if (save_as_csv == TRUE) {
+    if (save_as_csv) {
       cat("The lists will be saved as 'Recruitment_list_#', one for each stratum.\n")
       cat("Where should they be saved?\n\n")
     }
   }
 
   # for the unguided version of the function, save the recruitment output as a csv if requested
-  if (save_as_csv == TRUE) {
+  if (save_as_csv) {
     filepath <- ifelse(guided, easycsv::choose_dir(), "")
 
     for (i in 1:(n_strata)) {
@@ -134,7 +153,7 @@ recruit <- function(stratify_output,
       readr::write_csv(recruitment_lists[[i]], file = filename)
     }
 
-    if (guided == TRUE) {
+    if (guided) {
       cat("Lists saved successfully!\n\n")
     } else {
       cat("You've chosen to save your recruitment lists as .csv files. The lists have been saved \nas 'Recruitment_list_#', one for each stratum, inside your current working directory.\n\n")
@@ -187,7 +206,7 @@ recruit <- function(stratify_output,
     a <- diag(v)
 
     if (anyNA(a) || any(a == 0)) {
-      a[which(is.na(a) | a == 0)] <- 0.00000001
+      a[which(is.na(a) | a == 0)] <- 0.00000001 # Make it say NA
     }
 
     cov.dat <- diag(a)
@@ -289,16 +308,16 @@ recruit <- function(stratify_output,
 
 .get.sample.size <- function(valid_inputs) {
   repeat {
-    sample_size <- readline(prompt = "How many units would you like to recruit in total? ") %>% as.numeric()
+    sample_size <- suppressWarnings(readline(prompt = "How many units would you like to recruit in total? ") %>% as.numeric())
 
     if (sample_size %in% valid_inputs) {
       break
     } else {
-      stop(cat(crayon::red("Invalid input. The number of units you wish to recruit must be an integer \nbetween 1 and the total number of units in your population ("),
-        crayon::red(length(valid_inputs)),
-        crayon::red(")."),
-        sep = ""
-      ))
+      cat(crayon::red("\nInvalid input. The number of units you wish to recruit must be an integer \nbetween 1 and the total number of units in your population ("),
+          crayon::red(length(valid_inputs)),
+          crayon::red(").\n\n"),
+          sep = ""
+          )
     }
   }
 

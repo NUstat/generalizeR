@@ -1,23 +1,23 @@
-#' Assess Generalizability of Randomized Trial to Population
+#' Assess Generalizability of Randomized Sample to Population
 #'
 #' This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.
 #'
 #' 'assess_wrap()' is a wrapper for this function that allows assessment over levels of a grouping variable.
 #'
-#' @param trial variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)
-#' @param selection_covariates vector of covariate names in data set that predict trial participation
-#' @param data data frame comprised of "stacked" trial and target population data
-#' @param selection_method method to estimate the probability of trial participation. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.
-#' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of trial covariates.
+#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param covariates vector of covariate names in data set that predict sample membership
+#' @param data data frame comprised of "stacked" sample and target population data
+#' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
+#' @param is_data_disjoint logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.
+#' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.
 #' @export
 
 
 assess <- function(data,
                    guided = TRUE,
-                   trial,
-                   selection_covariates,
-                   selection_method = "lr",
+                   sample_var,
+                   covariates,
+                   estimation_method = "lr",
                    is_data_disjoint = TRUE,
                    trim_pop = FALSE) {
 
@@ -28,80 +28,84 @@ assess <- function(data,
 
   assertthat::assert_that(is.data.frame(data))
 
+  data_name <<- data %>%
+    lazyeval::expr_text()
+
   ##### GUIDED VERSION #####
 
-  if(guided == TRUE) {
+  if(guided) {
 
     user_choices <- .assess.guided(data)
 
-    trial <- user_choices$trial
+    sample_var <- user_choices$sample_var
 
-    selection_covariates <- user_choices$selection_covariates
-
-    selection_method <- user_choices$selection_method
+    covariates <- user_choices$covariates
 
     is_data_disjoint <- user_choices$is_data_disjoint
 
     trim_pop <- user_choices$trim_pop
+
+    estimation_method <- user_choices$estimation_method
   }
 
   ##### NON-GUIDED VERSION #####
   else {
 
-    selection_method <- tolower(selection_method)
+    estimation_method <- tolower(estimation_method)
 
-    invalid_selection_covariates <- selection_covariates %>% setdiff(names(data))
+    invalid_covariates <- covariates %>% setdiff(names(data))
 
     ##### Ensure selection covariates are variables in the dataframe provided #####
     assertthat::on_failure(is_empty) <- function(call, env) {
 
       paste("The following covariates are not variables in the data provided:\n",
-            paste(crayon::blue$bold(invalid_selection_covariates),
+            paste(crayon::blue$bold(invalid_covariates),
                   collapse = ", ")
             )
     }
 
-    assertthat::assert_that(is_empty(invalid_selection_covariates))
+    assertthat::assert_that(is_empty(invalid_covariates))
 
-    ##### Ensure trial variable is binary #####
-    is_trial_binary <- function(trial) {
+    ##### Ensure sample variable is binary #####
+    is_sample_var_binary <- function(sample_var) {
 
-      !anyNA(match(names(table(data[,trial])), c("0","1")))
+      all(dplyr::pull(data, tidyselect::all_of(sample_var)) %in% c(0, 1))
     }
 
-    assertthat::on_failure(is_trial_binary) <- function(call, env) {
+    assertthat::on_failure(is_sample_var_binary) <- function(call, env) {
 
-      "Sample membership variable must be coded as `0` (not in trial) or `1` (in trial)."
+      "Sample membership variable must be coded as `0` (out of sample) or `1` (in sample)."
     }
 
-    assertthat::assert_that(is_trial_binary(trial))
+    assertthat::assert_that(is_sample_var_binary(sample_var))
 
-    ##### Ensure selection method is valid #####
-    is_selection_method_valid <- function(selection_method){
+    ##### Ensure estimation method is valid #####
+    is_estimation_method_valid <- function(estimation_method){
 
-      selection_method %in% c("lr","rf","lasso")
+      estimation_method %in% c("lr","rf","lasso")
     }
 
-    assertthat::on_failure(is_selection_method_valid) <- function(call, env) {
+    assertthat::on_failure(is_estimation_method_valid) <- function(call, env) {
 
-      "Invalid selection method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your selection method."
+      "Invalid estimation method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your estimation method."
     }
 
-    assertthat::assert_that(is_selection_method_valid(selection_method))
+    assertthat::assert_that(is_estimation_method_valid(estimation_method))
   }
 
-  ##### Drop missing values from trial and selection covariate columns in data #####
+  # Keep only sample_var and covariate columns in data and drop missing values
   data <- data %>%
-    tidyr::drop_na(trial, tidyselect::all_of(selection_covariates))
+    dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates)) %>%
+    tidyr::drop_na()
 
-  if(trim_pop == FALSE) {
+  if(!trim_pop) {
 
     n_excluded <- 0
   }
 
   else {
 
-    trim_pop_output <- trim_pop(data, trial, selection_covariates)
+    trim_pop_output <- .trim.pop(data, sample_var, covariates)
 
     n_excluded <- trim_pop_output$n_excluded
 
@@ -109,61 +113,61 @@ assess <- function(data,
   }
 
   ##### Generate Participation Probabilities #####
-  ps <- generate_ps(data,
-                    trial,
-                    selection_covariates,
-                    selection_method)
+  ps <- .generate.ps(data,
+                     sample_var,
+                     covariates,
+                     estimation_method)
 
-  participation_probs <- list(nottrial = ps[which(data[,trial] == 0)],
-                              trial = ps[which(data[,trial] == 1)],
+  participation_probs <- list(not_in_sample = ps[which(data[,sample_var] == 0)],
+                              in_sample = ps[which(data[,sample_var] == 1)],
                               population = ps)
 
   ##### Calculate Generalizability Index  #####
 
-  ## If data is not disjoint, compare trial to (nottrial + trial)
-  if(is_data_disjoint == FALSE) {
+  ## If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
+  if(!is_data_disjoint) {
 
-    g_index <- gen_index(participation_probs$trial, participation_probs$population) %>% round(4)
+    gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$population) %>% round(4)
   }
 
-  ## If data is disjoint, compare trial to nottrial
+  ## If data is disjoint, compare in_sample to not_in_sample
   else {
 
-    g_index <- gen_index(participation_probs$trial, participation_probs$nottrial) %>% round(4)
+    gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$not_in_sample) %>% round(4)
   }
 
-  cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", g_index, ".\n\n"))
+  cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", gen_index, ".\n\n"))
 
-  cat(crayon::blue$bold("Covariate Distributions:\n"))
+  cov_tab_out <- .make.covariate.table(data,
+                                       sample_var = sample_var,
+                                       covariates = covariates,
+                                       weighted_table = FALSE,
+                                       estimation_method = estimation_method,
+                                       is_data_disjoint = is_data_disjoint)
 
-  cov_tab <- covariate_table(data,
-                             trial,
-                             selection_covariates)
-
-  print(cov_tab)
-
-  n_trial <- data %>%
-    dplyr::filter(trial == 1) %>%
+  n_sample <- data %>%
+    dplyr::filter(sample_var == 1) %>%
     nrow()
 
   n_pop <- data %>%
-    dplyr::filter(trial == 0) %>%
+    dplyr::filter(sample_var == 0) %>%
     nrow()
 
   data_output <- data %>%
-    dplyr::select(trial, selection_covariates)
+    dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates))
 
   out <- list(
-    g_index = g_index,
-    selection_method = selection_method,
-    selection_covariates = selection_covariates,
-    trial_name = trial,
-    n_trial = n_trial,
+    gen_index = gen_index,
+    estimation_method = estimation_method,
+    covariates = covariates,
+    sample_var = sample_var,
+    n_sample = n_sample,
     n_pop = n_pop,
     trim_pop = trim_pop,
     n_excluded = n_excluded,
     participation_probs = participation_probs,
-    covariate_table = cov_tab,
+    covariate_table = cov_tab_out$covariate_table,
+    covariate_kable = cov_tab_out$covariate_kable,
     data = data_output
   )
 
@@ -180,231 +184,397 @@ assess <- function(data,
 
   cat("Given a data frame containing both sample and population data, this function will \nassess the generalizability of your sample to the population based on your selected \ncovariates.\n\n")
 
-  repeat {
+  cat("You may exit out of this function at any time by pressing <Esc>.\n\n")
 
-    cat("Please select the variable coding binary trial participation in your dataframe: \n")
-    trial <- .select.list(choices = var_names,
-                            graphics = FALSE,
-                            multiple = FALSE)
+  sample_var <- .select.sample.variable(data)
 
-    if(!anyNA(match(names(table(data[,trial])), c("0","1")))) {
+  covariates <- data %>%
+    dplyr::select(-tidyselect::all_of(sample_var)) %>%
+    .select.covariates()
 
-      break
-    }
+  is_data_disjoint <- .yes.no("Are the sample data and population data disjoint? See the vignette for more details.\n")
 
-    cat(crayon::red("\nThe trial variable must be coded as '0' (not in trial) or '1' (in trial).\n\n"))
-  }
+  trim_pop <- .yes.no("Should the population data be trimmed to exclude units with covariate values outside \nthe bounds of the sample covariates? See the vignette for more details.\n")
 
-  cat("Please select the covariates that will be used to predict trial participation: \n")
-  selection_covariates <- utils::select.list(choices = var_names %>% setdiff(trial),
-                                             graphics = FALSE,
-                                             multiple = TRUE)
+  estimation_method <- .select.method()
 
-  cat("Are the trial data and population data disjoint? See the vignette for more details.\n")
-  is_data_disjoint <- utils::menu(choices = c("Yes", "No"),
-                                  graphics = FALSE) %>%
-    switch("1" = TRUE,
-           "2" = FALSE)
-
-  cat("Should the population data be trimmed to exclude units with covariate values outside \nthe bounds of the trial covariates? See the vignette for more details. \n")
-  trim_pop <- utils::menu(choices = c("Yes", "No"),
-                          graphics = FALSE) %>%
-    switch("1" = TRUE,
-           "2" = FALSE)
-
-  cat("Please select the method that will be used to estimate the probability of trial participation: \n")
-  selection_method <- utils::select.list(choices = c("Logistic Regression", "Random Forest", "Lasso"),
-                                         graphics = FALSE,
-                                         multiple = FALSE) %>%
-    switch("Logistic Regression" = "lr",
-           "Random Forest" = "rf",
-           "Lasso" = "lasso")
-
-  output <- list(trial = trial,
-                 selection_covariates = selection_covariates,
+  output <- list(sample_var = sample_var,
+                 covariates = covariates,
                  is_data_disjoint = is_data_disjoint,
                  trim_pop = trim_pop,
-                 selection_method = selection_method)
+                 estimation_method = estimation_method)
 
   return(invisible(output))
 }
 
-#' Subset Population so Population Covariates are within bounds of Trial Covariates
-#'
-#' @param trial variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)
-#' @param selection_covariates vector of covariate names in data set that predict trial participation
-#' @param data data frame comprised of "stacked" trial and target population data
-#' @return \code{trim_pop} returns a data frame, where the target population covariates do not exceed the bounds of the trial covariates
+.select.sample.variable <- function(data) {
 
-trim_pop <- function(data,
-                     trial,
-                     selection_covariates) {
+  choices <- names(data)
+
+  num_choices <- length(choices)
+
+  options <- paste0(format(1:num_choices),
+                    ":  ",
+                    choices)
+
+  repeat {
+
+    cat(paste0("Here is a list of the variables in the '",
+               data_name,
+               "' dataframe.\n"))
+
+    if (num_choices > 10L) {
+
+      formatted_options <- format(options)
+      nw <- nchar(formatted_options[1L], "w") + 2L
+      ncol <- getOption("width") %/% nw
+
+      if (ncol > 1L) {
+
+        options <- paste0(formatted_options,
+                          c(rep.int("  ", ncol - 1L), "\n"),
+                          collapse = "")
+      }
+
+      cat("", options, sep = "\n")
+    } else {
+
+      cat("", options, "", sep = "\n")
+    }
+
+    cat("Please type the number corresponding to the binary variable encoding sample \nmembership in your dataframe and then hit <Return> to continue.\n\n")
+
+    selection <- tryCatch(
+
+      scan("",
+           what = 0,
+           quiet = TRUE,
+           nlines = 1
+      ),
+      error = identity
+    )
+
+    # Verify that user's selection did not throw an error in tryCatch()
+    if(!inherits(selection, "error")) {
+
+      selection <- selection %>%
+        unique()
+
+      # Verify that user chose exactly one variable
+      if (length(selection) == 1L) {
+
+        # Verify that user only input an integer between 1 and the number of variables in the dataframe
+        if (selection %in% 1:num_choices) {
+
+          # Verify user chose a binary variable
+          if (all(dplyr::pull(data, choices[selection]) %in% c(0, 1))) {
+
+            return(choices[selection])
+          }
+
+          cat(crayon::red("\nERROR: Invalid selection. The variable denoting sample membership must be coded as `0` \n(out of sample) or `1` (in sample).\n\n"))
+          next
+        }
+
+        cat(paste0(crayon::red("\nERROR: Invalid selection. Your input must be a single integer between 1 and "),
+                   crayon::red(num_choices),
+                   crayon::red(".\n\n")))
+        next
+      }
+
+      cat(crayon::red("\nERROR: Invalid selection. You must select exactly one variable.\n\n"))
+      next
+    }
+
+    cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
+  }
+}
+
+.select.covariates <- function(data) {
+
+  choices <- names(data)
+
+  num_choices <- length(choices)
+
+  options <- paste0(format(1:num_choices),
+                    ":  ",
+                    choices)
+
+  cat("\n")
+
+  repeat {
+
+    cat(paste0("Here are the remaining variables in the '",
+               data_name,
+               "' dataframe.\n"))
+
+    if (num_choices > 10L) {
+
+      formatted_options <- format(options)
+      nw <- nchar(formatted_options[1L], "w") + 2L
+      ncol <- getOption("width") %/% nw
+
+      if (ncol > 1L) {
+
+        options <- paste0(formatted_options,
+                          c(rep.int("  ", ncol - 1L), "\n"),
+                          collapse = "")
+      }
+
+      cat("", options, sep = "\n")
+    } else {
+
+      cat("", options, "", sep = "\n")
+    }
+
+    cat("Please select the covariates that will be used to predict sample membership.\n\n")
+
+    selection <- tryCatch(
+
+      scan("",
+           what = 0,
+           quiet = TRUE,
+           nlines = 1
+      ),
+      error = identity
+    )
+
+    # Verify that user's selection did not throw an error in tryCatch()
+    if(!inherits(selection, "error")) {
+
+      selection <- selection %>%
+        unique()
+
+      # Verify that user chose at least one variable
+      if (length(selection) >= 1L) {
+
+        # Verify that user only input integers between 1 and the number of variables in the dataframe
+        if (all(selection %in% 1:num_choices)) {
+
+          return(choices[selection])
+        }
+
+        cat(paste0(crayon::red("\nERROR: Invalid selection. Each input must be a single integer between 1 and "),
+                   crayon::red(num_choices),
+                   crayon::red(".\n\n")))
+        next
+      }
+
+      cat(crayon::red("\nERROR: Invalid selection. You must select at least one variable.\n\n"))
+      next
+    }
+
+    cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
+  }
+}
+
+.yes.no <- function(message = "") {
+
+  options <- paste0(format(1:2),
+                    ":  ",
+                    c("Yes", "No"))
+
+  cat("\n")
+
+  repeat {
+
+    cat(message)
+
+    cat("", options, "", sep = "\n")
+
+    selection <- tryCatch(
+
+      scan("",
+           what = 0,
+           quiet = TRUE,
+           nlines = 1
+      ),
+      error = identity
+    )
+
+    # Verify that user's selection did not throw an error in tryCatch()
+    if(!inherits(selection, "error")) {
+
+      selection <- selection %>%
+        unique()
+
+      # Verify that user input a single number
+      if (length(selection) == 1) {
+
+        # Verify that user only input either a 1 or a 2
+        if(selection %in% 1:2) {
+
+          is_data_disjoint <- switch(selection,
+                                     "1" = TRUE,
+                                     "2" = FALSE)
+
+          return(is_data_disjoint)
+        }
+      }
+    }
+
+    cat(crayon::red("\nERROR: Invalid selection. You may only input either a 1 or a 2.\n\n"))
+  }
+}
+
+.select.method <- function() {
+
+  choices <- c("Logistic Regression", "Random Forest", "Lasso")
+
+  options <- paste0(format(1:3),
+                    ":  ",
+                    c("Logistic Regression", "Random Forest", "Lasso"))
+
+  cat("\n")
+
+  repeat {
+
+    cat("Please select the method that will be used to estimate the probability of sample membership.\n")
+
+    cat("", options, "", sep = "\n")
+
+    selection <- tryCatch(
+
+      scan("",
+           what = 0,
+           quiet = TRUE,
+           nlines = 1
+      ),
+      error = identity
+    )
+
+    # Verify that user's selection did not throw an error in tryCatch()
+    if(!inherits(selection, "error")) {
+
+      selection <- selection %>%
+        unique()
+
+      # Verify that user chose exactly one method
+      if (length(selection) == 1L) {
+
+        # Verify that user only input an integer between 1 and the number of variables in the dataframe
+        if (selection %in% 1:3) {
+
+          estimation_method <- switch(choices[selection],
+                                     "Logistic Regression" = "lr",
+                                     "Random Forest" = "rf",
+                                     "Lasso" = "lasso")
+
+          return(estimation_method)
+        }
+
+        cat(crayon::red("\nERROR: Invalid selection. Your input must be a single integer between 1 and 3.\n\n"))
+        next
+      }
+
+      cat(crayon::red("\nERROR: Invalid selection. You must select exactly one method.\n\n"))
+      next
+    }
+
+    cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
+  }
+}
+
+
+#' Find covariate bounds in the sample data
+#'
+#' @param covariate covariate in data set that predicts sample membership
+#' @param sample_var variable denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param data data frame comprised of "stacked" sample and target population data
+#' @return \code{covariate_bounds} Returns a dataframe
+
+.get.covariate.bounds <- function(covariate,
+                                  sample_var,
+                                  data) {
+
+  # Make covariate vector but only for observations selected to be part of the sample
+  sample_covariate <- data %>%
+     dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
+     dplyr::pull(covariate)
+
+  return(sample_covariate)
+
+  if(sample_covariate %>% is.factor()) {
+
+    sample_covariate_levels <- sample_covariate %>%
+      droplevels() %>%
+      levels()
+
+    return(
+      data %>%
+        dplyr::mutate(test = !(!!covariate %in% sample_covariate_levels)) %>% # The !!-operator (bang-bang) evaluates covariate first so the expression it contains is what gets passed to mutate()
+        dplyr::pull(test) %>%
+        which()
+    )
+  }
+
+  if(sample_covariate %>% is.numeric()) {
+
+    sample_bounds <- c(sample_covariate %>% min(na.rm = TRUE), sample_covariate %>% max(na.rm = TRUE))
+
+    return(
+      data %>%
+        dplyr::mutate(test = !(!!covariate %>% dplyr::between(sample_bounds[1], sample_bounds[2]))) %>%
+        dplyr::pull(test) %>%
+        which()
+    )
+  }
+}
+
+#' Subset Population so Population Covariates are within bounds of Sample Covariates
+#'
+#' @param data data frame comprised of "stacked" sample and target population data
+#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param covariates vector of covariate names in data set that predict sample membership
+#' @return \code{trim_pop} returns a data frame, where the target population covariates do not exceed the bounds of the sample covariates
+
+.trim.pop <- function(data,
+                      sample_var,
+                      covariates) {
 
   ##### CHECKS #####
   if (!is.data.frame(data)) {
-    stop("Data must be of type 'data.frame'.", call. = FALSE)
+    stop("Data must be of type 'data.frame'.")
   }
 
-  invalid_selection_covariates <- selection_covariates %>% setdiff(names(data))
+  invalid_covariates <- covariates %>% setdiff(names(data))
 
-  if(!is_empty(invalid_selection_covariates)) {
-    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_selection_covariates), collapse = ", ")), call. = FALSE)
+  if(!is_empty(invalid_covariates)) {
+    stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_covariates), collapse = ", ")))
   }
 
-  trial_valid <- data %>%
-    pull(trial) %>%
+  sample_var_valid <- data %>%
+    dplyr::pull(tidyselect::all_of(sample_var)) %>%
     na.omit() %>%
     table() %>%
     names() %>%
     setequal(c("0", "1"))
 
-  if(!trial_valid) {
-    stop("Trial membership variable must be binary and coded as `0` (not in trial) or `1` (in trial)", call. = FALSE)
-  }
-
-  ##### Subset trial data covariates #####
-  trial_dat <- data %>%
-    filter(trial == 1) %>%
-    select(all_of(selection_covariates))
-
-  if(length(selection_covariates) == 1) {
-
-    trial_dat <- trial_dat %>% data.frame()
-    names(trial_dat) <- selection_covariates
-  }
-
-  ##### Find covariate bounds in the trial #####
-  covariate_bounds <- function(covariate) {
-
-    # Convert quoted expression contained in function argument to symbol so it can be evaluated inside dplyr functions
-    covariate <- covariate %>% rlang::sym()
-
-    # Make covariate vector but only for observations selected to be part of the trial
-    trial_covariate <- trial_dat %>% pull(covariate)
-
-    if(trial_covariate %>% is.factor()) {
-
-      trial_levels <- trial_covariate %>% droplevels() %>% levels()
-
-      return(
-        data %>%
-          mutate(test = !(!!covariate %in% trial_levels)) %>% # The !!-operator (bang-bang) evaluates covariate first so the expression it contains is what gets passed to mutate()
-          pull(test) %>%
-          which()
-      )
-    }
-
-    if(trial_covariate %>% is.numeric()) {
-
-      trial_bounds <- c(trial_covariate %>% min(na.rm = TRUE), trial_covariate %>% max(na.rm = TRUE))
-
-      return(
-        data %>%
-          mutate(test = !(!!covariate %>% between(trial_bounds[1], trial_bounds[2]))) %>%
-          pull(test) %>%
-          which()
-      )
-    }
+  if(!sample_var_valid) {
+    stop("Sample membership variable must be binary and coded as `0` (out of sample) or `1` (in sample)")
   }
 
   ##### Find and remove rows of population data that violate bounds #####
-  bound_violations <- purrr::map(selection_covariates, covariate_bounds)
+  bound_violations <- purrr::map(covariates, .get.covariate.bounds, sample_var, data)
 
-  missing_rows <- bound_violations %>% unlist() %>% unique()
+  missing_rows <- bound_violations %>%
+    unlist() %>%
+    unique()
 
   trimmed_data <- data %>%
-    filter(!row.names(data) %in% missing_rows) %>%
+    dplyr::filter(!row.names(data) %in% missing_rows) %>%
     droplevels() # Get rid of unused levels from factors
 
   ##### Number of rows in population data excluded #####
-  n_excluded <- missing_rows %>% length()
+  n_excluded <- missing_rows %>%
+    length()
 
   out <- list(n_excluded = n_excluded,
               trimmed_data = trimmed_data,
               untrimmed_data = data)
 
-  return(out)
+  return(invisible(out))
 }
-
-#' Generate Sample Participation Probabilities
-#'
-#' This function is designed for use within 'weighting()' and 'assess()'.
-#'
-#' @param data data frame comprised of "stacked" trial and target population data
-#' @param trial variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)
-#' @param selection_covariates vector of covariate names in data set that predict trial participation
-#' @param selection_method method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @return sample participation probabilities for each unit in the data frame
-#' @export
-#' @importFrom glmnet cv.glmnet
-#' @importFrom randomForest randomForest
-#' @importFrom stats as.formula glm lm predict quantile
-
-generate_ps <- function(data,
-                        trial,
-                        selection_covariates,
-                        selection_method) {
-
-  # Logistic Regression
-  if(selection_method == "lr") {
-
-    formula <- paste(trial,
-                     paste(selection_covariates, collapse = "+"),
-                     sep = "~") %>%
-      as.formula()
-
-    ps <- formula %>%
-      glm(data = data,
-          family = "quasibinomial") %>%
-      predict(type = "response")
-  }
-
-  # Random Forest
-  if(selection_method == "rf") {
-
-    formula <- paste(
-      paste("as.factor(", trial, ")"),
-      paste(selection_covariates, collapse = "+"),
-      sep = "~") %>%
-      as.formula()
-
-    ps <- randomForest::randomForest(formula,
-                                     data = data,
-                                     na.action = na.omit) %>%
-      #sampsize = 454,
-      #ntree = 1500) %>%
-      predict(type = "prob") %>%
-      as.data.frame() %>%
-      pull("1")
-  }
-
-  # Lasso
-  if(selection_method == "lasso") {
-
-    test.x <- model.matrix(~ -1 + .,
-                           data = data %>% select(tidyselect::all_of(selection_covariates)))
-
-    test.y <- data %>% pull(trial)
-
-    ps <- glmnet::cv.glmnet(x = test.x,
-                            y = test.y,
-                            family = "binomial") %>%
-      predict(newx = test.x,
-              s = "lambda.1se",
-              type = "response") %>%
-      as.numeric()
-  }
-
-  ### Set any participation probabilities of 0 in the trial to the minimum non-zero value ###
-
-  if(0 %in% ps) {
-
-    ps[which(data[,trial] == 1 & ps == 0)] <- min(ps[which(data[,trial] == 1 & ps != 0)], na.rm = TRUE)
-  }
-
-  return(ps)
-}
-
 
 #' Calculate Generalizability Index
 #'
@@ -412,8 +582,8 @@ generate_ps <- function(data,
 #'
 #' It calculates the generalizability index, a value between 0 and 1, that represents how generalizable a given sample is to a given population on specified covariates. For more information on calculation and interpretation, please see Tipton (2014).
 #'
-#' @param trial_ps vector of probabilities of sample participation among individuals in the trial
-#' @param pop_ps vector of probabilities of sample participation among individuals in the population
+#' @param sample_ps vector of probabilities of sample membership among individuals in the sample
+#' @param pop_ps vector of probabilities of sample membership among individuals in the population
 #' @return the generalizability index, a value between 0 and 1, where a higher score indicates greater similarity
 #' @export
 #' @importFrom stats dnorm integrate
@@ -421,12 +591,12 @@ generate_ps <- function(data,
 #' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.
 #' @md
 
-gen_index <- function(trial_ps,
-                      pop_ps) {
+.get.gen.index <- function(sample_ps,
+                           pop_ps) {
   ##Baklizi and Eidous (2006) estimator
   # bandwidth
 
-  if(var(trial_ps) == 0 & var(pop_ps) == 0) {return(1)}
+  if(var(sample_ps) == 0 & var(pop_ps) == 0) {return(1)}
 
   else {
 
@@ -456,120 +626,18 @@ gen_index <- function(trial_ps,
       return(r)
     }
 
-    return(as.numeric(integrate(function(x) sqrt(kg(x, trial_ps)*kg(x, pop_ps)), -Inf, Inf)$value))
+    return(as.numeric(integrate(function(x) sqrt(kg(x, sample_ps)*kg(x, pop_ps)), -Inf, Inf)$value))
   }
-}
-
-
-#' Create Covariate Balance Table
-#'
-#' This function is designed for use within 'assess().'
-#'
-#' @param trial variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)
-#' @param selection_covariates vector of covariate names in data set that predict trial participation
-#' @param data data frame comprised of "stacked" trial and target population data
-#' @param weighted_table defaults to FALSE; whether weights are already included and do not need to be estimated
-#' @param selection_method method to estimate the probability of trial participation.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint defaults to TRUE. If TRUE, then trial and population data are considered independent.  This affects calculation of the weights
-#' @export
-#' @importFrom stats model.matrix weighted.mean
-#' @importFrom dplyr funs
-
-covariate_table <- function(data,
-                            trial,
-                            selection_covariates,
-                            weighted_table = FALSE,
-                            selection_method = "lr",
-                            is_data_disjoint = TRUE){
-
-  V1 <- V2 <- weights <- population <- pooled_sd <- ASMD <- . <- NULL
-
-  if(weighted_table == FALSE){
-    data = data %>%
-      tidyr::drop_na(selection_covariates) %>%
-      as.data.frame()
-
-    expanded.data = data.frame(trial = data[, trial],
-                               model.matrix(~-1 + ., data = data[, selection_covariates]))
-
-    means.tab = expanded.data %>%
-      dplyr::group_by(trial) %>%
-      dplyr::summarise_at(names(expanded.data)[-1], mean) %>%
-      t() %>% as.data.frame()
-
-    means.tab = means.tab[-1,]
-
-    names(means.tab) = c("trial", "population")
-    n_trial = as.numeric(table(expanded.data[,"trial"]))[2]
-    n_pop = as.numeric(table(expanded.data[,"trial"]))[1]
-    sd.tab = expanded.data %>%
-      dplyr::group_by(trial) %>%
-      dplyr::summarise_all(var) %>% t() %>% as.data.frame() %>% .[-1,] %>%
-      mutate(pooled_sd = sqrt(((n_trial - 1) * V1 + (n_pop - 1) * V2)/(n_trial + n_pop - 2)))
-    names(sd.tab) = c("trial_var", "population_var", "pooled_sd")
-  }
-
-  if(weighted_table == TRUE){
-    data = data %>%
-      tidyr::drop_na(selection_covariates) %>%
-      as.data.frame()
-
-    data$weights = weighting(outcome = NULL, treatment = NULL, trial = trial,
-                             selection_covariates = selection_covariates, data = data,
-                             selection_method = selection_method, is_data_disjoint = is_data_disjoint)$weights
-    data$weights = ifelse(data[,trial] == 0, 1, data$weights)
-
-    expanded.data = data.frame(trial = data[,trial], model.matrix(~ -1 + ., data = data[,c(selection_covariates,"weights")]))
-
-    means.tab = expanded.data %>%
-      dplyr::group_by(trial) %>%
-      dplyr::summarise_at(names(expanded.data)[-1], funs(weighted.mean(., weights))) %>%
-      dplyr::select(-`weights`) %>%
-      t() %>%
-      as.data.frame() %>% .[-1,]
-
-    names(means.tab) = c("trial","population")
-
-    n_trial = as.numeric(table(expanded.data$trial))[2]
-    n_pop = as.numeric(table(expanded.data$trial))[1]
-
-    sd.tab = expanded.data %>%
-      dplyr::group_by(trial) %>%
-      dplyr::summarise_at(names(expanded.data)[-1],
-                          funs(sum(weights * (. - weighted.mean(.,weights))^2)/sum(weights))) %>%
-      dplyr::select(-`weights`) %>%
-      t() %>%
-      as.data.frame() %>% .[-1,] %>%
-      mutate(pooled_sd = sqrt(((n_trial - 1)*V1 + (n_pop - 1)*V2)/(n_trial + n_pop - 2)))
-
-    names(sd.tab) = c("trial_var","population_var","pooled_sd")
-  }
-
-  covariate_table = means.tab %>%
-    dplyr::bind_cols(sd.tab) %>%
-    dplyr::mutate(ASMD = round(abs((trial - population)/pooled_sd),3)) %>%
-    dplyr::select(trial, population, ASMD)
-
-  if(weighted_table == FALSE){
-    row.names(covariate_table) = setdiff(names(expanded.data),c("trial"))
-  }
-
-  if(weighted_table == TRUE){
-    names(covariate_table)[1] = "trial (weighted)"
-    row.names(covariate_table) = setdiff(names(expanded.data),c("trial","weights"))
-  }
-
-  return(covariate_table)
 }
 
 print.generalize_assess <- function(x,...) {
   cat("A generalizer_assess object: \n")
-  cat(paste0(" - probability of trial participation method: ", x$selection_method, "\n"))
-  cat(paste0(" - common covariates included: ", paste(x$selection_covariates, collapse = ", "), "\n"))
-  cat(paste0(" - sample size of trial: ", x$n_trial, "\n"))
-  cat(paste0(" - size of population: ", x$n_pop, "\n"))
-  cat(paste0(" - was population trimmed according to trial covariate bounds?: ", ifelse(x$trim_pop == TRUE, "Yes", "No"), "\n"))
-  if(x$trim_pop == TRUE){
+  cat(paste0(" - probability of sample membership estimation method: ", x$estimation_method, "\n"))
+  cat(paste0(" - common covariates included: ", paste(x$covariates, collapse = ", "), "\n"))
+  cat(paste0(" - sample size: ", x$n_sample, "\n"))
+  cat(paste0(" - population size : ", x$n_pop, "\n"))
+  cat(paste0(" - was population trimmed according to sample covariate bounds?: ", ifelse(x$trim_pop, "Yes", "No"), "\n"))
+  if(x$trim_pop){
     cat(paste0("    - number excluded from population data: ", x$n_excluded, "\n"))
   }
 
@@ -577,18 +645,18 @@ print.generalize_assess <- function(x,...) {
 }
 
 summary.generalize_assess <- function(object,...){
-  selection_method_name = c("Logistic Regression", "Random Forest", "Lasso")
-  selection_method = c("lr", "rf", "lasso")
-  prob_dist_table = rbind(summary(object$participation_probs$trial),
+  estimation_method_name = c("Logistic Regression", "Random Forest", "Lasso")
+  estimation_method = c("lr", "rf", "lasso")
+  prob_dist_table = rbind(summary(object$participation_probs$sample_var),
                           summary(object$participation_probs$population))
-  row.names(prob_dist_table) = paste0(c("Trial","Population"), " (n = ", c(object$n_trial, object$n_pop),")")
+  row.names(prob_dist_table) = paste0(c("Sample","Population"), " (n = ", c(object$n_sample, object$n_pop),")")
 
-  selection_formula = paste0(object$trial_name," ~ ", paste(object$selection_covariates, collapse = " + "))
+  selection_formula = paste0(object$sample_var," ~ ", paste(object$covariates, collapse = " + "))
 
   out = list(
     selection_formula = selection_formula,
-    selection_method = selection_method_name[selection_method == object$selection_method],
-    g_index = object$g_index,
+    estimation_method = estimation_method_name[estimation_method == object$estimation_method],
+    gen_index = object$gen_index,
     prob_dist_table = prob_dist_table,
     covariate_table = round(object$covariate_table, 4),
     trim_pop = object$trim_pop,
@@ -600,18 +668,18 @@ summary.generalize_assess <- function(object,...){
 }
 
 print.summary.generalize_assess <- function(x,...){
-  cat("Probability of Trial Participation: \n \n")
+  cat("Probability of Sample Participation: \n \n")
   cat(paste0("Selection Model: ", x$selection_formula," \n \n"))
   print(x$prob_dist_table)
   cat("\n")
-  cat(paste0("Estimated by ", x$selection_method, "\n"))
-  cat(paste0("Generalizability Index: ", g_index, "\n"))
+  cat(paste0("Estimated by ", x$estimation_method, "\n"))
+  cat(paste0("Generalizability Index: ", gen_index, "\n"))
   cat("============================================ \n")
-  if(x$trim_pop == TRUE){
-    cat("Population data were trimmed for covariates to not exceed trial covariate bounds \n")
+  if(x$trim_pop){
+    cat("Population data were trimmed for covariates to not exceed sample covariate bounds \n")
     cat(paste0("Number excluded from population: ", x$n_excluded , "\n \n"))
   }
-  cat("Covariate Distributions: \n \n")
+  cat("Covariate Table: \n \n")
   print(round(x$covariate_table, 4))
   invisible(x)
 }
