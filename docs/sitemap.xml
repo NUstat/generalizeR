@@ -4,6 +4,9 @@
     <loc>https://nustat.github.io/generalizeR/404.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/LICENSE.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/articles/generalizeR_tutorial.html</loc>
   </url>
   <url>
@@ -16,9 +19,6 @@
     <loc>https://nustat.github.io/generalizeR/index.html</loc>
   </url>
   <url>
-    <loc>https://nustat.github.io/generalizeR/LICENSE.html</loc>
-  </url>
-  <url>
     <loc>https://nustat.github.io/generalizeR/reference/assess.html</loc>
   </url>
   <url>
@@ -26,6 +26,45 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/covariate_table.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-check.factor.levels.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-check.no.na.cols.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-get.sample.size.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-make.cont.data.tbl.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-make.recruitment.lists.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-make.recruitment.table.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-make.var.overview.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-n.strata.less.than.max.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-round.preserve.sum.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.calculate.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.guided.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.unguided.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/gen_index.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/generalize.html</loc>
@@ -40,10 +79,13 @@
     <loc>https://nustat.github.io/generalizeR/reference/generate_ps.html</loc>
   </url>
   <url>
-    <loc>https://nustat.github.io/generalizeR/reference/gen_index.html</loc>
+    <loc>https://nustat.github.io/generalizeR/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://nustat.github.io/generalizeR/reference/index.html</loc>
+    <loc>https://nustat.github.io/generalizeR/reference/print.generalizer_stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalizer_stratify.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/recruit.html</loc>
@@ -53,6 +95,9 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/summary.generalizer_stratify.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/trim_pop.html</loc>

@@ -11,8 +11,7 @@ assess(
   selection_covariates,
   selection_method = "lr",
   is_data_disjoint = TRUE,
-  trim_pop = FALSE,
-  seed = 1996
+  trim_pop = FALSE
 )
 }
 \arguments{
@@ -27,8 +26,6 @@ assess(
 \item{is_data_disjoint}{logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.}
 
 \item{trim_pop}{logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of trial covariates.}
-
-\item{seed}{numeric. By default, the seed is set to 1996, otherwise can be specified (such as for simulation purposes).}
 }
 \description{
 This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.

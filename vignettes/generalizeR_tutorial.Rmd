@@ -43,7 +43,7 @@ library(lazyeval)
 
 Welcome to the generalizeR! This package is designed to guide education researchers through:
 
-- Selecting important features of their inference population
+- Using important features of their inference population to stratify units 
 - Developing a recruitment plan for a future evaluation
 - Assessing the generalizability of a completed evaluation
 
@@ -98,15 +98,13 @@ output <- stratify(data = inference_pop)
 
 We are greeted with the following:
 
-<img src="stratify_fig_1.png" width="550"/>
-
-If we need to make adjustments to our inference population or if we have forgotten to store our results -- that is, to use the assignment operator `<-` to assign our results to an object (here called `output`) -- we may enter `2` to stop the function and do so. We have already taken care of both those items, however, so we enter `1` to proceed. 
+<img src="new_figures_091922/stratify_fig_1_v2.png" width="550"/>
 
 ### Selecting the ID Variable
 
-The next prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
+The above prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
 
-<img src="stratify_fig_2.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_2_v2.png" width="550"/>
 
 We then receive a message informing us that `stratify()` has converted all the character variables in our data frame to factor variables. This means some factor variables will have a large number of levels if their original character versions had many distinct observations. We are also told a table displaying an overview of the variables in our data frame has been printed in the Viewer pane. A preview of that same table is shown below. In general, whenever a table is printed to the console, there will be one printed in the Viewer pane as well.
 
@@ -128,7 +126,7 @@ var_overview %>%
   head(n = 5) %>% 
   kbl(caption = "Variable Overview",
       align = "l") %>%
-  footnote(general = "Only the first 5 rows of the table are shown.") %>% 
+  footnote(general = "Only the first 5 rows of the table are shown in this tutorial.") %>% 
   kable_styling(c("striped", "hover", "condensed"))
 ```
 
@@ -136,23 +134,23 @@ var_overview %>%
 
 Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can't choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit `stratify()` and re-code our desired factor levels from that variable as indicator variables within our data frame (the package `fastDummies` may be of use).
 
-<img src="stratify_fig_3.png" width="700"/>
+<img src="new_figures_091922/stratify_fig_3_v2.png" width="700"/>
 
 For our stratifying variables of interest, we have chosen `pct_female`, `pct_black_or_african_american`, `pct_free_and_reduced_lunch`, and `total`. We enter: `29 32 38 42`. The function prints out a list of these variables with their names highlighted in blue, as well as a table displaying each variable's type and number of levels. This is done so we can look them over, confirm what we selected, and make sure the variables are the types we expected. Since these results seem reasonable, we indicate that they are correct by entering `1`.
 
-<img src="stratify_fig_4.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_4_v2.png" width="550"/>
 
 ### Missing Observations
 
 We are now shown a table (also available in the Viewer pane) that breaks down how many missing observations each variable contains, including our id variable `ncessch`. These observations will be dropped from the inference population before the stratification is performed.
 
-<img src="stratify_fig_5.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_5_v2.png" width="550"/>
 
 ### Descriptive Statistics
 
 Next, the function prints out the descriptive statistics of the stratification variables chosen, both categorical and continuous. In this case, all the variables are continuous. Plots of the variables -- histograms or bar charts, as appropriate -- are generated and displayed one at a time.
 
-<img src="stratify_fig_6.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_6_v2.png" width="550"/>
 
 ```{r include=FALSE}
 fill_colors <- viridis(4, alpha = 0.7, direction = sample(c(-1, 1), size = 1)) %>% sample()
@@ -221,28 +219,28 @@ p1 + p2 + p3 + p4
 
 ### Choosing the Number of Strata
 
-Now we are ready to choose the number of strata in which to divide our population. `stratify()` prints some information, similar to that presented by the [Generalizer Web application](https://www.thegeneralizer.org/), explaining what the choice represents and giving us some guidance. While choosing more strata is generally better, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.
+Now we are ready to choose the number of strata in which to divide our population. `stratify()` prints some information, similar to that presented by the [Generalizer Web application](https://www.thegeneralizer.org/), explaining what the choice represents and giving us some guidance. While choosing more strata is generally better in terms of generalizability, the practical demand placed on the sampling process increases with the number of strata, because units must be sampled from each stratum.
 
 Since we are only planning on using a sample size of 40 schools, we'll try a smaller number -- 4 strata:
 
-<img src="stratify_fig_7.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_7_v2.png" width="550"/>
 
 The process of stratifying can take some time. If the function were to run silently, users might fear that R had frozen and quit. As a sort of progress bar, we have turned on "verbose" mode for the clustering process, which prints out the within-cluster sum of squares at each iteration until the stratifying process converges:
 
-<img src="stratify_fig_8.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_8_v2.png" width="550"/>
 
 ### Understanding the Results
 
 #### Stratification Review 
-The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources.
+The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources during study implementation.
 
-<img src="stratify_fig_9.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_9_v2.png" width="550"/>
 
 #### Covariate Statistics
 
 `stratify()` then provides us with a table of the within-stratum means and standard deviations for each of the stratifying variables, as well as a count of the total number of units in each stratum.
 
-<img src="stratify_fig_10.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_10_v2.png" width="550"/>
 
 A similar table is printed in the Viewer pane:
 
@@ -288,6 +286,8 @@ Note that `output` is the name we have assigned to our `stratify_object` in this
 
 There is also an option to print our `stratify_object`. Doing so yields:
 
+<!--**TODO: Fix `stratify_object` `print()` method**-->
+
 <img src="stratify_fig_12.png" width="550"/>
 
 We have finished the stratifying process! 
@@ -308,19 +308,26 @@ rec_output <- recruit(strat_output)
 #rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
 ```
 
-We are immediately greeted with the following message:
+We are immediately greeted with the following welcome message:
 
-<img src="recruit_fig_1.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_1_v2.png" width="550"/>
 
-Our desired sample size is 40 schools, so we enter '40' for the number of units we wish to recruit. The function then generates a recruitment list for each stratum. It also displays a sample of one of the recruitment lists so we immediately know what they look like. Each row in a stratum's recruitment list corresponds to a different unit in the stratum, and the units have been ranked in ascending order of their [Mahalanobis distances](https://en.wikipedia.org/wiki/Mahalanobis_distance) from the mean vector of the stratifying variables. The idea is that the units with the smallest Mahalanobis distances are most likely to be "representative" of the population and so should be chosen first to be part of the sample.
+After pressing the return key, we see: 
 
-<img src="recruit_fig_2.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_2_v2.png" width="550"/>
+
+Our desired sample size is 40 schools, so we enter '40' for the number of units we wish to recruit. The function then generates a recruitment list for each stratum. Each row in a stratum's recruitment list corresponds to a different unit in the stratum, and the units have been ranked in ascending order of their [Mahalanobis distances](https://en.wikipedia.org/wiki/Mahalanobis_distance) from the mean vector of the stratifying variables. The idea is that the units with the smallest Mahalanobis distances are most likely to be "representative" of the population and so should be chosen first to be part of the sample.
+
+<img src="new_figures_091922/recruit_fig_3_v2.png" width="550"/>
 
 Next, the function prints a recruitment table that tells us how many units we should recruit from each stratum. It arrives at these numbers by multiplying the sampling proportion (which is equal to the ratio of the stratum size to the total population size) for each stratum by the desired sample size, in this case 40.
 
-<img src="recruit_fig_3.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_4_v2.png" width="550"/>
 
-Here is what the recruitment table looks like in the Viewer pane:
+<!--Here is what the recruitment table looks like in the Viewer pane:-->
+
+<!--**TODO: Restore recruitment_kable?**-->
+
 ```{r echo = FALSE}
 #rec_output$recruitment_kable
 ```
@@ -328,11 +335,11 @@ Here is what the recruitment table looks like in the Viewer pane:
 This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.
 
 The function then asks us if we want to save the recruitment lists as csv files. 
-<img src="recruit_fig_4.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_5_v2.png" width="550"/>
 
 Upon entering '1' to indicate 'Yes', a folder selection widget will appear that will allow us to choose a location on our computer in which to save the lists. Note that this only occurs when using the guided version of the function; in the non-guided version, the lists are automatically saved to our working directory if we set `save_as_csv = TRUE`.
 
-<img src="recruit_fig_5.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_6_v2.png" width="550"/>
 
 Lastly, the function reminds us that the recruitment lists can also be accessed from its output, provided that it has been stored in an object.
 

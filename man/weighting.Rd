@@ -11,8 +11,7 @@ weighting(
   outcome,
   selection_covariates,
   selection_method = "lr",
-  is_data_disjoint = TRUE,
-  seed = 1996
+  is_data_disjoint = TRUE
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ weighting(
 \item{selection_method}{method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
 
 \item{is_data_disjoint}{logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.}
-
-\item{seed}{numeric. By default, the seed is set to 1996, otherwise can be specified (such as for simulation purposes).}
 }
 \description{
 This function is designed for use within 'covariate_table()' and 'assess()'.

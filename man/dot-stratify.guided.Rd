@@ -2,12 +2,12 @@
 % Please edit documentation in R/stratify.R
 \name{.stratify.guided}
 \alias{.stratify.guided}
-\title{Internal function that provides the guided version of \code{stratify()}}
+\title{Internal function that provides the guided version of \code{stratify()}. Walks users through the provision and visualization of parameters needed to stratify observations, including id variables, covariates of interest, and the number of strata}
 \usage{
 .stratify.guided(data, verbose)
 }
 \arguments{
-\item{data}{data.frame object containing the population data to be stratified.}
+\item{data}{data.frame object containing the population data to be stratified (rows are observations).}
 }
 \description{
 Intended only to be called within \code{stratify}, not as a standalone function
