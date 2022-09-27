@@ -1072,6 +1072,19 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(invisible(output))
 }
 
+#' Internal function that allows users to choose the variables of interest for stratifying observations in their dataset
+#'
+#' Intended only to be called within the guided version of \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param data data.frame, a dataframe of covariates of potential interest
+#' @return data.frame, a dataframe of user-selected covariates of interest
+#'
+#' @md
+
 .select.list.stratify <- function(data) {
 
   choices <- names(data)
