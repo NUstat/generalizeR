@@ -115,10 +115,16 @@
     <loc>https://nustat.github.io/generalizeR/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.generalize.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/print.generalize_assess.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/print.generalizer_stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalize.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalize_assess.html</loc>
@@ -134,6 +140,9 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/summary.generalize.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/summary.generalize_assess.html</loc>
