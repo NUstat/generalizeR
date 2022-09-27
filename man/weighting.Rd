@@ -6,28 +6,28 @@
 \usage{
 weighting(
   data,
-  trial,
-  treatment,
-  outcome,
-  selection_covariates,
-  selection_method = "lr",
+  sample_indicator,
+  treatment_indicator = NULL,
+  outcome = NULL,
+  covariates,
+  estimation_method = "lr",
   is_data_disjoint = TRUE
 )
 }
 \arguments{
-\item{data}{data frame comprised of "stacked" trial and target population data}
+\item{data}{data frame comprised of "stacked" sample and target population data}
 
-\item{trial}{variable name denoting binary trial participation (1 = trial participant, 0 = not trial participant)}
+\item{sample_indicator}{variable name denoting binary sample membership (1 = in sample, 0 = out of sample)}
 
-\item{treatment}{variable name denoting binary treatment assignment (ok if only available in trial, not population)}
+\item{treatment_indicator}{variable name denoting binary treatment assignment (ok if only available in sample, not population)}
 
 \item{outcome}{variable name denoting outcome}
 
-\item{selection_covariates}{vector of covariate names in data set that predict trial participation}
+\item{covariates}{vector of covariate names in data set that predict sample membership}
 
-\item{selection_method}{method to estimate the probability of trial participation. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
+\item{estimation_method}{method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
 
-\item{is_data_disjoint}{logical. If TRUE, then trial and population data are considered independent. This affects calculation of the weights - see details for more information.}
+\item{is_data_disjoint}{logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.}
 }
 \description{
 This function is designed for use within 'covariate_table()' and 'assess()'.

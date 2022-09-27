@@ -28,16 +28,31 @@
     <loc>https://nustat.github.io/generalizeR/reference/covariate_table.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-assess.guided.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-check.factor.levels.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-check.no.na.cols.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-generate.ps.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-get.covariate.bounds.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-get.gen.index.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-get.sample.size.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-make.cont.data.tbl.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-make.covariate.table.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-make.recruitment.lists.html</loc>
@@ -55,6 +70,18 @@
     <loc>https://nustat.github.io/generalizeR/reference/dot-round.preserve.sum.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-select.covariates.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-select.list.stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-select.method.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-select.sample.variable.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.calculate.html</loc>
   </url>
   <url>
@@ -62,6 +89,12 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/dot-stratify.unguided.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-trim.pop.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/dot-yes.no.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/gen_index.html</loc>
@@ -82,7 +115,13 @@
     <loc>https://nustat.github.io/generalizeR/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.generalize_assess.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/print.generalizer_stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalize_assess.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalizer_stratify.html</loc>
@@ -95,6 +134,9 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/summary.generalize_assess.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/summary.generalizer_stratify.html</loc>

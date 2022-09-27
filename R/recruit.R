@@ -28,7 +28,6 @@
 #' }
 #' @md
 
-
 recruit <- function(stratify_output,
                     guided = TRUE,
                     sample_size = NULL,
