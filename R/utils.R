@@ -108,9 +108,13 @@
     tidyr::drop_na(tidyselect::all_of(covariates)) %>%
     as.data.frame()
 
-  data$weights <- ifelse(weighted_table,
-                         ifelse(data[, sample_var] == 0, 1, data$weights),
-                         1)
+  if (weighted_table) {
+
+    data$weights <- ifelse(data[, sample_var] == 0, 1, data$weights)
+  } else {
+
+    data$weights <- 1
+  }
 
   expanded.data <- data.frame(data[, sample_var],
                               model.matrix(~ -1 + ., data = data[, c(covariates, "weights")]))
