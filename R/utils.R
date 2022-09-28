@@ -208,14 +208,20 @@
                                   " [",
                                   ASMD_unweighted,
                                   "]")) %>%
+      dplyr::mutate(ASMD = ASMD %>%
+                      kableExtra::cell_spec(color = ifelse(ASMD_weighted < ASMD_unweighted,
+                                                           "green",
+                                                           "red"))) %>%
       dplyr::select(covariate, sample_mean, pop_mean, pop_sd, ASMD) %>%
       dplyr::rename(Covariate = covariate,
                     `Sample Mean` = sample_mean,
                     `Population Mean` = pop_mean,
                     `Population SD` = pop_sd) %>%
       kableExtra::kbl(caption = "Covariate Table",
-                      align = "l") %>%
-      kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE)
+                      align = "l",
+                      escape = FALSE) %>%
+      kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+      kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
 
   } else {
 
