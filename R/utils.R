@@ -130,26 +130,6 @@
                             weights = 1))
   }
 
-  n_pop <- expanded.data %>%
-    dplyr::group_by(!!sym(sample_var)) %>%
-    dplyr::count() %>%
-    dplyr::filter(in_study == 0) %>%
-    dplyr::pull()
-
-  n_sample <- expanded.data %>%
-    dplyr::group_by(!!sym(sample_var)) %>%
-    dplyr::count() %>%
-    dplyr::filter(in_study == 1) %>%
-    dplyr::pull()
-
-  weighted.var <- function(x, w) {
-
-    V1 = sum(w)
-    V2 = sum(w^2)
-
-    return(V1/(V1^2 - V2) * sum(w * (x - weighted.mean(x, w))^2))
-  }
-
   get_covariate <- function(name) {
 
     covariate <- case_when(
@@ -178,8 +158,7 @@
     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates),
                                    list(mean = mean,
                                         mean_weighted = ~weighted.mean(., weights),
-                                        var = var,
-                                        var_weighted = ~weighted.var(., weights))))
+                                        var = var)))
 
   tab_pop <- tab %>%
     dplyr::filter(in_study == 0) %>%
@@ -202,18 +181,13 @@
     tidyr::pivot_wider(names_from = statistic,
                        values_from = value) %>%
     dplyr::group_by(covariate) %>%
-    dplyr::summarise(across(c("mean", "mean_weighted", "var", "var_weighted"), na.omit)) %>%
-    `colnames<-`(c("covariate", "sample_mean_unweighted", "sample_mean_weighted",
-                   "sample_var_unweighted", "sample_var_weighted"))
+    dplyr::summarise(across(c("mean", "mean_weighted"), na.omit)) %>%
+    `colnames<-`(c("covariate", "sample_mean_unweighted", "sample_mean_weighted"))
 
   tab_merged <- merge(tab_pop, tab_sample, by = "covariate")  %>%
-    dplyr::mutate(pooled_sd_unweighted = sqrt(((n_sample - 1) * sample_var_unweighted + (n_pop - 1) * pop_var) / (n_sample + n_pop - 2)),
-                  pooled_sd_weighted = sqrt(((n_sample - 1) * sample_var_weighted + (n_pop - 1) * pop_var) / (n_sample + n_pop - 2)),
-                  sample_sd_unweighted = sqrt(sample_var_unweighted),
-                  sample_sd_weighted = sqrt(sample_var_weighted),
-                  pop_sd = sqrt(pop_var),
-                  ASMD_unweighted = abs((sample_mean_unweighted - pop_mean) / pooled_sd_unweighted),
-                  ASMD_weighted = abs((sample_mean_weighted - pop_mean) / pooled_sd_weighted)) %>%
+    dplyr::mutate(pop_sd = sqrt(pop_var),
+                  ASMD_unweighted = abs((sample_mean_unweighted - pop_mean) / pop_sd),
+                  ASMD_weighted = abs((sample_mean_weighted - pop_mean) / pop_sd)) %>%
     dplyr::mutate(dplyr::across(where(is.numeric), round, digits = 3))
 
 
@@ -222,8 +196,7 @@
 
     covariate_table <- tab_merged %>%
       dplyr::select(covariate, sample_mean_unweighted, sample_mean_weighted,
-                    pop_mean, sample_sd_unweighted,  sample_sd_weighted,
-                    pop_sd, ASMD_unweighted, ASMD_weighted)
+                    pop_mean, pop_sd, ASMD_unweighted, ASMD_weighted)
 
 
     covariate_kable <- covariate_table %>%
@@ -231,19 +204,14 @@
                                          " [",
                                          sample_mean_unweighted,
                                          "]"),
-                    sample_sd = paste0(sample_sd_weighted,
-                                       " [",
-                                       sample_sd_unweighted,
-                                       "]"),
                     ASMD = paste0(ASMD_weighted,
                                   " [",
                                   ASMD_unweighted,
                                   "]")) %>%
-      dplyr::select(covariate, sample_mean, pop_mean, sample_sd, pop_sd, ASMD) %>%
+      dplyr::select(covariate, sample_mean, pop_mean, pop_sd, ASMD) %>%
       dplyr::rename(Covariate = covariate,
                     `Sample Mean` = sample_mean,
                     `Population Mean` = pop_mean,
-                    `Sample SD` = sample_sd,
                     `Population SD` = pop_sd) %>%
       kableExtra::kbl(caption = "Covariate Table",
                       align = "l") %>%
@@ -252,133 +220,19 @@
   } else {
 
     covariate_table <- tab_merged %>%
-      dplyr::select(covariate, sample_mean_unweighted, pop_mean,
-                    sample_sd_unweighted, pop_sd, ASMD_unweighted) %>%
+      dplyr::select(covariate, sample_mean_unweighted, pop_mean, pop_sd, ASMD_unweighted) %>%
       dplyr::rename(sample_mean = sample_mean_unweighted,
-                    sample_sd = sample_sd_unweighted,
                     ASMD = ASMD_unweighted)
 
     covariate_kable <- covariate_table %>%
       dplyr::rename(Covariate = covariate,
                     `Sample Mean` = sample_mean,
                     `Population Mean` = pop_mean,
-                    `Sample SD` = sample_sd,
                     `Population SD` = pop_sd) %>%
       kableExtra::kbl(caption = "Covariate Table",
                       align = "l") %>%
       kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE)
   }
-
-  # if (!weighted_table) {
-  #
-  #   expanded.data <- data.frame(
-  #     data[, sample_var],
-  #     model.matrix(~ -1 + ., data = data[, covariates])
-  #   )
-  #
-  #   names(expanded.data)[1] <- sample_var
-  #
-  #   means.tab <- expanded.data %>%
-  #     dplyr::group_by(!!sym(sample_var)) %>%
-  #     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), mean)) %>%
-  #     t() %>%
-  #     as.data.frame() %>%
-  #     .[-1, ] %>%
-  #     dplyr::select(2,1)
-  #
-  #   names(means.tab) <- c("sample", "population")
-  #
-  #   n_sample <- as.numeric(table(expanded.data[, sample_var]))[2]
-  #   n_pop <- as.numeric(table(expanded.data[, sample_var]))[1]
-  #   sd.tab <- expanded.data %>%
-  #     dplyr::group_by(!!sym(sample_var)) %>%
-  #     dplyr::summarise(dplyr::across(tidyselect::everything(), var)) %>%
-  #     t() %>%
-  #     as.data.frame() %>%
-  #     .[-1, ] %>%
-  #     dplyr::select(2,1) %>%
-  #     dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V2 + (n_pop - 1) * V1) / (n_sample + n_pop - 2)))
-  #   names(sd.tab) <- c("sample_var", "population_var", "pooled_sd")
-  #   } else {
-  #
-  #     data$weights <- ifelse(data[, sample_var] == 0, 1, data$weights)
-  #
-  #     expanded.data <- data.frame(data[, sample_var],
-  #                                 model.matrix(~ -1 + ., data = data[, c(covariates, "weights")]))
-  #
-  #     names(expanded.data)[1] <- sample_var
-  #
-  #     means.tab <- expanded.data %>%
-  #       dplyr::group_by(!!sym(sample_var)) %>%
-  #       dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.mean(., weights))) %>%
-  #       t() %>%
-  #       as.data.frame() %>%
-  #       .[-1, ] %>%
-  #       dplyr::select(2,1)
-  #
-  #     names(means.tab) <- c("sample", "population")
-  #
-  #     n_sample <- as.numeric(table(expanded.data[, sample_var]))[2]
-  #     n_pop <- as.numeric(table(expanded.data[, sample_var]))[1]
-  #
-  #     weighted.var <- function(x, w) {sum(w * (x - weighted.mean(x, w))^2) / (sum(w)-1)}
-  #
-  #     sd.tab <- expanded.data %>%
-  #       dplyr::group_by(!!sym(sample_var)) %>%
-  #       dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), ~weighted.var(., weights))) %>%
-  #       t() %>%
-  #       as.data.frame() %>%
-  #       .[-1, ] %>%
-  #       dplyr::select(2,1) %>%
-  #       dplyr::mutate(pooled_sd = sqrt(((n_sample - 1) * V2 + (n_pop - 1) * V1) / (n_sample + n_pop - 2)))
-  #
-  #     names(sd.tab) <- c("sample_var", "population_var", "pooled_sd")
-  #   }
-  #
-  # if (!is_data_disjoint) {
-  #
-  #   means.tab <- means.tab %>%
-  #     dplyr::mutate(population = expanded.data %>%
-  #                     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), mean)) %>%
-  #                     t() %>%
-  #                     as.data.frame() %>%
-  #                     pull())
-  #
-  #   n_pop <- nrow(data)
-  #
-  #   sd.tab <- sd.tab %>%
-  #     dplyr::mutate(population_var = expanded.data %>%
-  #                     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates), var)) %>%
-  #                     t() %>%
-  #                     as.data.frame() %>%
-  #                     pull(),
-  #                   pooled_sd = sqrt(((n_sample - 1) * sample_var + (n_pop - 1) * population_var) / (n_sample + n_pop - 2)))
-  # }
-  #
-  # covariate_table <- means.tab %>%
-  #   dplyr::bind_cols(sd.tab) %>%
-  #   dplyr::mutate(ASMD = round(abs((sample - population) / pooled_sd), 3),
-  #                 sample_sd = sqrt(sample_var),
-  #                 population_sd = sqrt(population_var)) %>%
-  #   dplyr::select(
-  #     `Sample Mean` = sample,
-  #     `Population Mean` = population,
-  #     `Sample SD` = sample_sd,
-  #     `Population SD` = population_sd,
-  #     ASMD
-  #   ) %>%
-  #   round(digits = 3) %>%
-  #   tibble::rownames_to_column("Covariate")
-  #
-  # if (weighted_table) {
-  #
-  #   names(covariate_table)[c(2,4)] <- c("Weighted Sample Mean", "Weighted Sample SD")
-  # }
-  #
-  # covariate_kable <- covariate_table %>%
-  #   kableExtra::kbl(caption = "Covariate Table",
-  #                   align = "l") %>%
-  #   kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE)
 
   return(list(covariate_table = covariate_table,
               covariate_kable = covariate_kable))
