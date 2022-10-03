@@ -585,7 +585,6 @@ assess <- function(data,
 #' @param sample_ps vector of probabilities of sample membership among individuals in the sample
 #' @param pop_ps vector of probabilities of sample membership among individuals in the population
 #' @return the generalizability index, a value between 0 and 1, where a higher score indicates greater similarity
-#' @export
 #' @importFrom stats dnorm integrate
 #' @references
 #' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.

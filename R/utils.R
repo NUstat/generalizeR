@@ -7,7 +7,6 @@
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @return sample participation probabilities for each unit in the data frame
-#' @export
 #' @importFrom glmnet cv.glmnet
 #' @importFrom randomForest randomForest
 #' @importFrom stats as.formula glm lm predict quantile
@@ -93,7 +92,6 @@
 #' @param weighted_table defaults to FALSE; whether weights are already included and do not need to be estimated
 #' @param estimation_method method to estimate the probability of sample membership.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param is_data_disjoint defaults to TRUE. If TRUE, then sample and population data are considered independent.  This affects calculation of the weights
-#' @export
 #' @importFrom stats model.matrix weighted.mean
 #' @importFrom dplyr funs
 
