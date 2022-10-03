@@ -124,13 +124,13 @@
     expanded.data <- expanded.data %>%
       dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
       rbind(expanded.data %>%
-              dplyr::mutate(rlang::sym(sample_var) := 0,
+              dplyr::mutate(!!rlang::sym(sample_var) := 0,
                             weights = 1))
   }
 
   get_covariate <- function(name) {
 
-    covariate <- case_when(
+    covariate <- dplyr::case_when(
       stringr::str_detect(name, "_mean_weighted$") ~  stringr::str_remove(name, "_mean_weighted$"),
       stringr::str_detect(name, "_mean$") ~ stringr::str_remove(name, "_mean$"),
       stringr::str_detect(name, "_var_weighted$") ~ stringr::str_remove(name, "_var_weighted$"),
@@ -142,7 +142,7 @@
 
   get_statistic <- function(name) {
 
-    statistic <- case_when(
+    statistic <- dplyr::case_when(
       stringr::str_detect(name, "_mean_weighted$") ~ "mean_weighted",
       stringr::str_detect(name, "_mean$") ~ "mean",
       stringr::str_detect(name, "_var_weighted$") ~ "var_weighted",
