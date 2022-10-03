@@ -122,7 +122,7 @@
   if (!is_data_disjoint) {
 
     expanded.data <- expanded.data %>%
-      dplyr::filter(!!rlnag::sym(sample_var) == 1) %>%
+      dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
       rbind(expanded.data %>%
               dplyr::mutate(rlang::sym(sample_var) := 0,
                             weights = 1))
