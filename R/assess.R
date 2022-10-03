@@ -122,18 +122,29 @@ assess <- function(data,
                               in_sample = ps[which(data[,sample_var] == 1)],
                               population = ps)
 
-  ##### Calculate Generalizability Index  #####
+  ##### Calculate Generalizability Index and sample and population sizes #####
+
+  n_sample <- data %>%
+    dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
+    nrow()
 
   ## If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
   if(!is_data_disjoint) {
 
     gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$population) %>% round(4)
+
+    n_pop <- data %>%
+      nrow()
   }
 
   ## If data is disjoint, compare in_sample to not_in_sample
   else {
 
     gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$not_in_sample) %>% round(4)
+
+    n_pop <- data %>%
+      dplyr::filter(!!rlang::sym(sample_var) == 0) %>%
+      nrow()
   }
 
   cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", gen_index, ".\n\n"))
@@ -144,14 +155,6 @@ assess <- function(data,
                                        weighted_table = FALSE,
                                        estimation_method = estimation_method,
                                        is_data_disjoint = is_data_disjoint)
-
-  n_sample <- data %>%
-    dplyr::filter(sample_var == 1) %>%
-    nrow()
-
-  n_pop <- data %>%
-    dplyr::filter(sample_var == 0) %>%
-    nrow()
 
   data_output <- data %>%
     dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates))
