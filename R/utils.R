@@ -131,10 +131,10 @@
   get_covariate <- function(name) {
 
     covariate <- case_when(
-      str_detect(name, "_mean_weighted$") ~  str_remove(name, "_mean_weighted$"),
-      str_detect(name, "_mean$") ~ str_remove(name, "_mean$"),
-      str_detect(name, "_var_weighted$") ~ str_remove(name, "_var_weighted$"),
-      str_detect(name, "_var$") ~ str_remove(name, "_var$"),
+      stringr::str_detect(name, "_mean_weighted$") ~  stringr::str_remove(name, "_mean_weighted$"),
+      stringr::str_detect(name, "_mean$") ~ stringr::str_remove(name, "_mean$"),
+      stringr::str_detect(name, "_var_weighted$") ~ stringr::str_remove(name, "_var_weighted$"),
+      stringr::str_detect(name, "_var$") ~ stringr::str_remove(name, "_var$"),
     )
 
     return(covariate)
@@ -143,10 +143,10 @@
   get_statistic <- function(name) {
 
     statistic <- case_when(
-      str_detect(name, "_mean_weighted$") ~ "mean_weighted",
-      str_detect(name, "_mean$") ~ "mean",
-      str_detect(name, "_var_weighted$") ~ "var_weighted",
-      str_detect(name, "_var$") ~ "var")
+      stringr::str_detect(name, "_mean_weighted$") ~ "mean_weighted",
+      stringr::str_detect(name, "_mean$") ~ "mean",
+      stringr::str_detect(name, "_var_weighted$") ~ "var_weighted",
+      stringr::str_detect(name, "_var$") ~ "var")
 
     return(statistic)
   }
