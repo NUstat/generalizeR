@@ -124,9 +124,9 @@
   if (!is_data_disjoint) {
 
     expanded.data <- expanded.data %>%
-      dplyr::filter(in_study == 1) %>%
+      dplyr::filter(!!rlnag::sym(sample_var) == 1) %>%
       rbind(expanded.data %>%
-              dplyr::mutate(in_study = 0,
+              dplyr::mutate(rlang::sym(sample_var) := 0,
                             weights = 1))
   }
 
@@ -154,15 +154,15 @@
   }
 
   tab <- expanded.data %>%
-    dplyr::group_by(!!sym(sample_var)) %>%
+    dplyr::group_by(!!rlang::sym(sample_var)) %>%
     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates),
                                    list(mean = mean,
                                         mean_weighted = ~weighted.mean(., weights),
                                         var = var)))
 
   tab_pop <- tab %>%
-    dplyr::filter(in_study == 0) %>%
-    tidyr::pivot_longer(cols = -in_study) %>%
+    dplyr::filter(!!rlang::sym(sample_var) == 0) %>%
+    tidyr::pivot_longer(cols = -!!rlang::sym(sample_var)) %>%
     dplyr::mutate(covariate = get_covariate(name),
                   statistic = get_statistic(name)
     ) %>%
@@ -173,8 +173,8 @@
     `colnames<-`(c("covariate", "pop_mean", "pop_var"))
 
   tab_sample <- tab %>%
-    dplyr::filter(in_study == 1) %>%
-    tidyr::pivot_longer(cols = -in_study) %>%
+    dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
+    tidyr::pivot_longer(cols = -!!rlang::sym(sample_var)) %>%
     dplyr::mutate(covariate = get_covariate(name),
                   statistic = get_statistic(name)
     ) %>%
