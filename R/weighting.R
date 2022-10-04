@@ -241,13 +241,13 @@ weighting <- function(data,
     # Extract total average treatment effect and standard error from unweighted model
     TATE_unadj <- TATE_model_unadj %>%
       broom::tidy() %>%
-      filter(term == treatment_indicator) %>%
-      pull(estimate)
+      dplyr::filter(term == treatment_indicator) %>%
+      dplyr::pull(estimate)
 
     TATE_se_unadj <- TATE_model_unadj %>%
       broom::tidy() %>%
-      filter(term == treatment_indicator) %>%
-      pull(std.error)
+      dplyr::filter(term == treatment_indicator) %>%
+      dplyr::pull(std.error)
 
     # Calculate 95% confidence interval for unweighted total average treatment effect
     TATE_CI_unadj <- TATE_unadj + 2.262*TATE_se_unadj*c(-1, 1)
