@@ -27,10 +27,78 @@ weighting <- function(data,
 
   # Check whether data object is of type 'data.frame'
   assertthat::on_failure(is.data.frame) <- function(call, env) {
+
     "You must pass an object of type 'data.frame' to the 'data' argument."
   }
 
   assertthat::assert_that(is.data.frame(data))
+
+  # Check whether sample indicator variable is binary
+  is_sample_indicator_binary <- function(sample_indicator) {
+
+    all(dplyr::pull(data, tidyselect::all_of(sample_indicator)) %in% c(0, 1))
+  }
+
+  assertthat::on_failure(is_sample_indicator_binary) <- function(call, env) {
+
+    "Sample indicator variable must be coded as 0 (not in sample) or 1 (in sample)."
+  }
+
+  assertthat::assert_that(is_sample_indicator_binary(sample_indicator))
+
+  # Check whether treatment indicator variable is a binary column in dataframe
+  is_treatment_indicator_valid <- function(treatment_indicator) {
+
+    if (is.null(treatment_indicator)) {return(TRUE)}
+
+    if (!treatment_indicator %in% data_names) {return(FALSE)}
+
+    valid_in_sample <- data %>%
+      dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
+      dplyr::pull(!!rlang::sym(treatment_indicator)) %>%
+      {. %in% c(0, 1)} %>%
+      all()
+
+    valid_out_of_sample <- data %>%
+      dplyr::filter(!!rlang::sym(sample_indicator) == 0) %>%
+      dplyr::pull(!!rlang::sym(treatment_indicator)) %>%
+      is.na() %>%
+      all()
+
+    return(valid_in_sample && valid_out_of_sample)
+  }
+
+  assertthat::on_failure(is_treatment_indicator_valid) <- function(call, env) {
+
+    if (!treatment_indicator %in% data_names) {
+
+      return("If you wish to specify a treatment indicator variable, it must be one of the columns in the dataframe you have provided.")
+    }
+
+    valid_in_sample <- data %>%
+      dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
+      dplyr::pull(!!rlang::sym(treatment_indicator)) %>%
+      {. %in% c(0, 1)} %>%
+      all()
+
+    if (!valid_in_sample) {
+
+      return("Treatment indicator variable must be coded as 0 (did not receive treatment) or 1 (received treatment) for all observations in the sample.")
+    }
+
+    valid_out_of_sample <- data %>%
+      dplyr::filter(!!rlang::sym(sample_indicator) == 0) %>%
+      dplyr::pull(!!rlang::sym(treatment_indicator)) %>%
+      is.na() %>%
+      all()
+
+    if (!valid_out_of_sample) {
+
+      return("Treatment indicator variable must be coded as NA for all observations not in the sample.")
+    }
+  }
+
+  assertthat::assert_that(is_treatment_indicator_valid(treatment_indicator))
 
   # Check whether outcome variable is one of columns in dataframe
   is_outcome_valid <- function(outcome) {
@@ -46,18 +114,7 @@ weighting <- function(data,
 
   assertthat::on_failure(is_outcome_valid) <- function(call, env) {
 
-      "Your outcome variable must be one of the columns in the dataframe you have provided."
-  }
-
-  # Check whether treatment indicator variable is one of columns in dataframe
-  is_treatment_indicator_valid <- function(treatment_indicator) {
-
-    !is.null(treatment_indicator) && treatment_indicator %in% data_names
-  }
-
-  assertthat::on_failure(is_treatment_indicator_valid) <- function(call, env) {
-
-    "Your treatment indicator variable must be one of the columns in the dataframe you have provided."
+    "If you wish to specify an outcome variable, it must be one of the columns in the dataframe you have provided."
   }
 
   assertthat::assert_that(is_outcome_valid(outcome))
@@ -116,9 +173,36 @@ weighting <- function(data,
   # Trim any of the weights if necessary
   data$weights[which(data$weights == 0 & data[,sample_indicator] == 1)] <- quantile(data$weights[which(data[,sample_indicator] == 1)], 0.01, na.rm = TRUE)
 
-  if(is.null(outcome) & is.null(treatment_indicator)) {TATE <- NULL}
+  # Make weighted covariate table
+  covariate_table_output <- .make.covariate.table(data = data,
+                                                  sample_indicator = sample_indicator,
+                                                  covariates = covariates,
+                                                  weighted_table = TRUE,
+                                                  estimation_method = estimation_method,
+                                                  disjoint_data = disjoint_data)
 
-  else {
+  # Make histogram of weights
+  weights_hist <- data %>%
+    dplyr::filter(!!sym(sample_indicator) == 1) %>%
+    ggplot(aes(x = weights)) +
+    geom_histogram(bins = 20,
+                   fill = viridis::viridis(1, alpha = 0.7),
+                   color = "black") +
+    theme_minimal() +
+    scale_x_continuous(expand = c(0,0)) +
+    scale_y_continuous(expand = c(0,0)) +
+    labs(x = "Weights",
+         y = "Frequency",
+         title = "Histogram of Sample Weights")
+
+  # Items to return out
+  out <- list(participation_probs = participation_probs,
+              weights = data$weights,
+              covariate_table = covariate_table_output$covariate_table,
+              covariate_kable = covariate_table_output$covariate_kable,
+              hist = weights_hist)
+
+  if(!is.null(outcome) & !is.null(treatment_indicator)) {
 
     # ESTIMATE TOTAL AVERAGE TREATMENT EFFECT
 
@@ -171,38 +255,12 @@ weighting <- function(data,
     TATE_unadj <- list(estimate = TATE_unadj,
                        SE = TATE_se_unadj,
                        CI = TATE_CI_unadj)
+
+    # Append TATE and TATE_unadj to list of items to return
+    out <- out %>%
+      append(TATE) %>%
+      append(TATE_unadj)
   }
-
-  # Make weighted covariate table
-  covariate_table_output <- .make.covariate.table(data = data,
-                                                  sample_indicator = sample_indicator,
-                                                  covariates = covariates,
-                                                  weighted_table = TRUE,
-                                                  estimation_method = estimation_method,
-                                                  disjoint_data = disjoint_data)
-
-  # Make histogram of weights
-  weights_hist <- data %>%
-    dplyr::filter(!!sym(sample_indicator) == 1) %>%
-    ggplot(aes(x = weights)) +
-    geom_histogram(bins = 20,
-                   fill = viridis::viridis(1, alpha = 0.7),
-                   color = "black") +
-    theme_minimal() +
-    scale_x_continuous(expand = c(0,0)) +
-    scale_y_continuous(expand = c(0,0)) +
-    labs(x = "Weights",
-         y = "Frequency",
-         title = "Histogram of Sample Weights")
-
-  # Items to return out
-  out <- list(participation_probs = participation_probs,
-              weights = data$weights,
-              TATE = TATE,
-              TATE_unadj = TATE_unadj,
-              covariate_table = covariate_table_output$covariate_table,
-              covariate_kable = covariate_table_output$covariate_kable,
-              hist = weights_hist)
 
   class(out) <- "generalizer_weighting"
 
