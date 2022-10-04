@@ -4,7 +4,7 @@
 #'
 #' 'assess_wrap()' is a wrapper for this function that allows assessment over levels of a grouping variable.
 #'
-#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param data data frame comprised of "stacked" sample and target population data
 #' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
@@ -15,7 +15,7 @@
 
 assess <- function(data,
                    guided = TRUE,
-                   sample_var,
+                   sample_indicator,
                    covariates,
                    estimation_method = "lr",
                    is_data_disjoint = TRUE,
@@ -37,7 +37,7 @@ assess <- function(data,
 
     user_choices <- .assess.guided(data)
 
-    sample_var <- user_choices$sample_var
+    sample_indicator <- user_choices$sample_indicator
 
     covariates <- user_choices$covariates
 
@@ -67,17 +67,17 @@ assess <- function(data,
     assertthat::assert_that(is_empty(invalid_covariates))
 
     ##### Ensure sample variable is binary #####
-    is_sample_var_binary <- function(sample_var) {
+    is_sample_indicator_binary <- function(sample_indicator) {
 
-      all(dplyr::pull(data, tidyselect::all_of(sample_var)) %in% c(0, 1))
+      all(dplyr::pull(data, tidyselect::all_of(sample_indicator)) %in% c(0, 1))
     }
 
-    assertthat::on_failure(is_sample_var_binary) <- function(call, env) {
+    assertthat::on_failure(is_sample_indicator_binary) <- function(call, env) {
 
       "Sample membership variable must be coded as `0` (out of sample) or `1` (in sample)."
     }
 
-    assertthat::assert_that(is_sample_var_binary(sample_var))
+    assertthat::assert_that(is_sample_indicator_binary(sample_indicator))
 
     ##### Ensure estimation method is valid #####
     is_estimation_method_valid <- function(estimation_method){
@@ -93,9 +93,9 @@ assess <- function(data,
     assertthat::assert_that(is_estimation_method_valid(estimation_method))
   }
 
-  # Keep only sample_var and covariate columns in data and drop missing values
+  # Keep only sample_indicator and covariate columns in data and drop missing values
   data <- data %>%
-    dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates)) %>%
+    dplyr::select(tidyselect::all_of(sample_indicator), tidyselect::all_of(covariates)) %>%
     tidyr::drop_na()
 
   if(!trim_pop) {
@@ -105,7 +105,7 @@ assess <- function(data,
 
   else {
 
-    trim_pop_output <- .trim.pop(data, sample_var, covariates)
+    trim_pop_output <- .trim.pop(data, sample_indicator, covariates)
 
     n_excluded <- trim_pop_output$n_excluded
 
@@ -114,18 +114,18 @@ assess <- function(data,
 
   ##### Generate Participation Probabilities #####
   ps <- .generate.ps(data,
-                     sample_var,
+                     sample_indicator,
                      covariates,
                      estimation_method)
 
-  participation_probs <- list(not_in_sample = ps[which(data[,sample_var] == 0)],
-                              in_sample = ps[which(data[,sample_var] == 1)],
+  participation_probs <- list(not_in_sample = ps[which(data[,sample_indicator] == 0)],
+                              in_sample = ps[which(data[,sample_indicator] == 1)],
                               population = ps)
 
   ##### Calculate Generalizability Index and sample and population sizes #####
 
   n_sample <- data %>%
-    dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
+    dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
     nrow()
 
   ## If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
@@ -143,27 +143,27 @@ assess <- function(data,
     gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$not_in_sample) %>% round(4)
 
     n_pop <- data %>%
-      dplyr::filter(!!rlang::sym(sample_var) == 0) %>%
+      dplyr::filter(!!rlang::sym(sample_indicator) == 0) %>%
       nrow()
   }
 
   cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", gen_index, ".\n\n"))
 
   cov_tab_out <- .make.covariate.table(data,
-                                       sample_var = sample_var,
+                                       sample_indicator = sample_indicator,
                                        covariates = covariates,
                                        weighted_table = FALSE,
                                        estimation_method = estimation_method,
                                        is_data_disjoint = is_data_disjoint)
 
   data_output <- data %>%
-    dplyr::select(tidyselect::all_of(sample_var), tidyselect::all_of(covariates))
+    dplyr::select(tidyselect::all_of(sample_indicator), tidyselect::all_of(covariates))
 
   out <- list(
     gen_index = gen_index,
     estimation_method = estimation_method,
     covariates = covariates,
-    sample_var = sample_var,
+    sample_indicator = sample_indicator,
     n_sample = n_sample,
     n_pop = n_pop,
     trim_pop = trim_pop,
@@ -189,10 +189,10 @@ assess <- function(data,
 
   cat("You may exit out of this function at any time by pressing <Esc>.\n\n")
 
-  sample_var <- .select.sample.variable(data)
+  sample_indicator <- .select.sample.indicator(data)
 
   covariates <- data %>%
-    dplyr::select(-tidyselect::all_of(sample_var)) %>%
+    dplyr::select(-tidyselect::all_of(sample_indicator)) %>%
     .select.covariates()
 
   is_data_disjoint <- .yes.no("Are the sample data and population data disjoint? See the vignette for more details.\n")
@@ -201,7 +201,7 @@ assess <- function(data,
 
   estimation_method <- .select.method()
 
-  output <- list(sample_var = sample_var,
+  output <- list(sample_indicator = sample_indicator,
                  covariates = covariates,
                  is_data_disjoint = is_data_disjoint,
                  trim_pop = trim_pop,
@@ -210,7 +210,7 @@ assess <- function(data,
   return(invisible(output))
 }
 
-.select.sample.variable <- function(data) {
+.select.sample.indicator <- function(data) {
 
   choices <- names(data)
 
@@ -482,17 +482,17 @@ assess <- function(data,
 #' Find covariate bounds in the sample data
 #'
 #' @param covariate covariate in data set that predicts sample membership
-#' @param sample_var variable denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param sample_indicator variable denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param data data frame comprised of "stacked" sample and target population data
 #' @return \code{covariate_bounds} Returns a dataframe
 
 .get.covariate.bounds <- function(covariate,
-                                  sample_var,
+                                  sample_indicator,
                                   data) {
 
   # Make covariate vector but only for observations selected to be part of the sample
   sample_covariate <- data %>%
-     dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
+     dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
      dplyr::pull(covariate)
 
   return(sample_covariate)
@@ -527,12 +527,12 @@ assess <- function(data,
 #' Subset Population so Population Covariates are within bounds of Sample Covariates
 #'
 #' @param data data frame comprised of "stacked" sample and target population data
-#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @return \code{trim_pop} returns a data frame, where the target population covariates do not exceed the bounds of the sample covariates
 
 .trim.pop <- function(data,
-                      sample_var,
+                      sample_indicator,
                       covariates) {
 
   ##### CHECKS #####
@@ -546,19 +546,19 @@ assess <- function(data,
     stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_covariates), collapse = ", ")))
   }
 
-  sample_var_valid <- data %>%
-    dplyr::pull(tidyselect::all_of(sample_var)) %>%
+  sample_indicator_valid <- data %>%
+    dplyr::pull(tidyselect::all_of(sample_indicator)) %>%
     na.omit() %>%
     table() %>%
     names() %>%
     setequal(c("0", "1"))
 
-  if(!sample_var_valid) {
+  if(!sample_indicator_valid) {
     stop("Sample membership variable must be binary and coded as `0` (out of sample) or `1` (in sample)")
   }
 
   ##### Find and remove rows of population data that violate bounds #####
-  bound_violations <- purrr::map(covariates, .get.covariate.bounds, sample_var, data)
+  bound_violations <- purrr::map(covariates, .get.covariate.bounds, sample_indicator, data)
 
   missing_rows <- bound_violations %>%
     unlist() %>%
@@ -649,11 +649,11 @@ print.generalize_assess <- function(x,...) {
 summary.generalize_assess <- function(object,...){
   estimation_method_name = c("Logistic Regression", "Random Forest", "Lasso")
   estimation_method = c("lr", "rf", "lasso")
-  prob_dist_table = rbind(summary(object$participation_probs$sample_var),
+  prob_dist_table = rbind(summary(object$participation_probs$sample_indicator),
                           summary(object$participation_probs$population))
   row.names(prob_dist_table) = paste0(c("Sample","Population"), " (n = ", c(object$n_sample, object$n_pop),")")
 
-  selection_formula = paste0(object$sample_var," ~ ", paste(object$covariates, collapse = " + "))
+  selection_formula = paste0(object$sample_indicator," ~ ", paste(object$covariates, collapse = " + "))
 
   out = list(
     selection_formula = selection_formula,

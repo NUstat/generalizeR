@@ -3,7 +3,7 @@
 #' This function is designed for use within 'weighting()' and 'assess()'.
 #'
 #' @param data data frame comprised of "stacked" sample and target population data
-#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @return sample participation probabilities for each unit in the data frame
@@ -12,13 +12,13 @@
 #' @importFrom stats as.formula glm lm predict quantile
 
 .generate.ps <- function(data,
-                         sample_var,
+                         sample_indicator,
                          covariates,
                          estimation_method) {
 
   # Logistic Regression
   if (estimation_method == "lr") {
-    formula <- paste(sample_var,
+    formula <- paste(sample_indicator,
       paste(covariates, collapse = "+"),
       sep = "~"
     ) %>%
@@ -35,7 +35,7 @@
   # Random Forest
   if (estimation_method == "rf") {
     formula <- paste(
-      paste("as.factor(", sample_var, ")"),
+      paste("as.factor(", sample_indicator, ")"),
       paste(covariates, collapse = "+"),
       sep = "~"
     ) %>%
@@ -58,7 +58,7 @@
       data = data %>% dplyr::select(tidyselect::all_of(covariates))
     )
 
-    test.y <- data %>% dplyr::pull(sample_var)
+    test.y <- data %>% dplyr::pull(sample_indicator)
 
     ps <- glmnet::cv.glmnet(
       x = test.x,
@@ -76,7 +76,7 @@
   ### Set any participation probabilities of 0 in the sample to the minimum non-zero value ###
 
   if (0 %in% ps) {
-    ps[which(data[, sample_var] == 1 & ps == 0)] <- min(ps[which(data[, sample_var] == 1 & ps != 0)], na.rm = TRUE)
+    ps[which(data[, sample_indicator] == 1 & ps == 0)] <- min(ps[which(data[, sample_indicator] == 1 & ps != 0)], na.rm = TRUE)
   }
 
   return(ps)
@@ -86,7 +86,7 @@
 #'
 #' This function is designed for use within \code{weighting()} and \code{assess()}.'
 #'
-#' @param sample_var variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param data data frame comprised of "stacked" sample and target population data
 #' @param weighted_table defaults to FALSE; whether weights are already included and do not need to be estimated
@@ -96,7 +96,7 @@
 #' @importFrom dplyr funs
 
 .make.covariate.table <- function(data,
-                                  sample_var,
+                                  sample_indicator,
                                   covariates,
                                   weighted_table = FALSE,
                                   estimation_method = "lr",
@@ -108,23 +108,23 @@
 
   if (weighted_table) {
 
-    data$weights <- ifelse(data[, sample_var] == 0, 1, data$weights)
+    data$weights <- ifelse(data[, sample_indicator] == 0, 1, data$weights)
   } else {
 
     data$weights <- 1
   }
 
-  expanded.data <- data.frame(data[, sample_var],
+  expanded.data <- data.frame(data[, sample_indicator],
                               model.matrix(~ -1 + ., data = data[, c(covariates, "weights")]))
 
-  names(expanded.data)[1] <- sample_var
+  names(expanded.data)[1] <- sample_indicator
 
   if (!is_data_disjoint) {
 
     expanded.data <- expanded.data %>%
-      dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
+      dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
       rbind(expanded.data %>%
-              dplyr::mutate(!!rlang::sym(sample_var) := 0,
+              dplyr::mutate(!!rlang::sym(sample_indicator) := 0,
                             weights = 1))
   }
 
@@ -152,15 +152,15 @@
   }
 
   tab <- expanded.data %>%
-    dplyr::group_by(!!rlang::sym(sample_var)) %>%
+    dplyr::group_by(!!rlang::sym(sample_indicator)) %>%
     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates),
                                    list(mean = mean,
                                         mean_weighted = ~weighted.mean(., weights),
                                         var = var)))
 
   tab_pop <- tab %>%
-    dplyr::filter(!!rlang::sym(sample_var) == 0) %>%
-    tidyr::pivot_longer(cols = -!!rlang::sym(sample_var)) %>%
+    dplyr::filter(!!rlang::sym(sample_indicator) == 0) %>%
+    tidyr::pivot_longer(cols = -!!rlang::sym(sample_indicator)) %>%
     dplyr::mutate(covariate = get_covariate(name),
                   statistic = get_statistic(name)
     ) %>%
@@ -171,8 +171,8 @@
     `colnames<-`(c("covariate", "pop_mean", "pop_var"))
 
   tab_sample <- tab %>%
-    dplyr::filter(!!rlang::sym(sample_var) == 1) %>%
-    tidyr::pivot_longer(cols = -!!rlang::sym(sample_var)) %>%
+    dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
+    tidyr::pivot_longer(cols = -!!rlang::sym(sample_indicator)) %>%
     dplyr::mutate(covariate = get_covariate(name),
                   statistic = get_statistic(name)
     ) %>%

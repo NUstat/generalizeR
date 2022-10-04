@@ -175,7 +175,7 @@ weighting <- function(data,
 
   # Make weighted covariate table
   covariate_table_output <- .make.covariate.table(data = data,
-                                                  sample_var = sample_indicator,
+                                                  sample_indicator = sample_indicator,
                                                   covariates = covariates,
                                                   weighted_table = TRUE,
                                                   estimation_method = estimation_method,
@@ -226,11 +226,11 @@ weighting <- function(data,
 # summary.generalize_weighting <- function(object,...) {
 #   estimation_method_name = c("Logistic Regression", "Random Forest", "Lasso")
 #   estimation_method = c("lr", "rf", "lasso")
-#   prob_dist_table = rbind(summary(object$participation_probs$sample_var),
+#   prob_dist_table = rbind(summary(object$participation_probs$sample_indicator),
 #                           summary(object$participation_probs$population))
 #   row.names(prob_dist_table) = paste0(c("Sample","Population"), " (n = ", c(object$n_sample, object$n_pop),")")
 #
-#   selection_formula = paste0(object$sample_var," ~ ", paste(object$covariates, collapse = " + "))
+#   selection_formula = paste0(object$sample_indicator," ~ ", paste(object$covariates, collapse = " + "))
 #
 #   out = list(
 #     selection_formula = selection_formula,
