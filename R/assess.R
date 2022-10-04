@@ -8,7 +8,7 @@
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param data data frame comprised of "stacked" sample and target population data
 #' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.
+#' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
 #' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.
 #' @export
 
@@ -18,7 +18,7 @@ assess <- function(data,
                    sample_indicator,
                    covariates,
                    estimation_method = "lr",
-                   is_data_disjoint = TRUE,
+                   disjoint_data = TRUE,
                    trim_pop = FALSE) {
 
   # Check whether data object is of type 'data.frame'
@@ -41,7 +41,7 @@ assess <- function(data,
 
     covariates <- user_choices$covariates
 
-    is_data_disjoint <- user_choices$is_data_disjoint
+    disjoint_data <- user_choices$disjoint_data
 
     trim_pop <- user_choices$trim_pop
 
@@ -129,7 +129,7 @@ assess <- function(data,
     nrow()
 
   ## If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
-  if(!is_data_disjoint) {
+  if(!disjoint_data) {
 
     gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$population) %>% round(4)
 
@@ -154,7 +154,7 @@ assess <- function(data,
                                        covariates = covariates,
                                        weighted_table = FALSE,
                                        estimation_method = estimation_method,
-                                       is_data_disjoint = is_data_disjoint)
+                                       disjoint_data = disjoint_data)
 
   data_output <- data %>%
     dplyr::select(tidyselect::all_of(sample_indicator), tidyselect::all_of(covariates))
@@ -195,7 +195,7 @@ assess <- function(data,
     dplyr::select(-tidyselect::all_of(sample_indicator)) %>%
     .select.covariates()
 
-  is_data_disjoint <- .yes.no("Are the sample data and population data disjoint? See the vignette for more details.\n")
+  disjoint_data <- .yes.no("Are the sample data and population data disjoint? See the vignette for more details.\n")
 
   trim_pop <- .yes.no("Should the population data be trimmed to exclude units with covariate values outside \nthe bounds of the sample covariates? See the vignette for more details.\n")
 
@@ -203,7 +203,7 @@ assess <- function(data,
 
   output <- list(sample_indicator = sample_indicator,
                  covariates = covariates,
-                 is_data_disjoint = is_data_disjoint,
+                 disjoint_data = disjoint_data,
                  trim_pop = trim_pop,
                  estimation_method = estimation_method)
 
@@ -407,11 +407,11 @@ assess <- function(data,
         # Verify that user only input either a 1 or a 2
         if(selection %in% 1:2) {
 
-          is_data_disjoint <- switch(selection,
-                                     "1" = TRUE,
-                                     "2" = FALSE)
+          disjoint_data <- switch(selection,
+                                  "1" = TRUE,
+                                  "2" = FALSE)
 
-          return(is_data_disjoint)
+          return(disjoint_data)
         }
       }
     }

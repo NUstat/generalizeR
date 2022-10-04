@@ -8,7 +8,7 @@
 #' @param outcome variable name denoting outcome
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.
+#' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
 #' @export
 #' @importFrom stats quantile
 #' @importFrom crayon bold blue
@@ -19,7 +19,7 @@ weighting <- function(data,
                       outcome = NULL,
                       covariates,
                       estimation_method = "lr",
-                      is_data_disjoint = TRUE) {
+                      disjoint_data = TRUE) {
 
   estimation_method <- tolower(estimation_method)
 
@@ -97,7 +97,7 @@ weighting <- function(data,
                               sample = data$ps[which(data[,sample_indicator] == 1)])
 
   # Generate Weights #
-  if(is_data_disjoint == TRUE) {
+  if(disjoint_data) {
 
     data <- data %>%
       dplyr::mutate(weights = ifelse(!!sym(sample_indicator) == 0,
@@ -179,7 +179,7 @@ weighting <- function(data,
                                                   covariates = covariates,
                                                   weighted_table = TRUE,
                                                   estimation_method = estimation_method,
-                                                  is_data_disjoint = is_data_disjoint)
+                                                  disjoint_data = disjoint_data)
 
   # Make histogram of weights
   weights_hist <- data %>%
@@ -216,7 +216,7 @@ weighting <- function(data,
 #   cat(paste0(" - Treatment indicator variable: ", x$treatment, "\n"))
 #   cat(paste0(" - Covariates included: ", paste(x$covariates, collapse = ", "), "\n"))
 #   cat(paste0(" - Probability of sample membership estimation method: ", x$estimation_method, "\n"))
-#   cat(paste0(" - Are sample and population data considered disjoint?: ", ifelse(x$is_data_disjoint, "Yes", "No"), "\n"))
+#   cat(paste0(" - Are sample and population data considered disjoint?: ", ifelse(x$disjoint_data, "Yes", "No"), "\n"))
 #   cat(paste0(" - Sample size: ", x$n_sample, "\n"))
 #   cat(paste0(" - Population size : ", x$n_pop, "\n"))
 #

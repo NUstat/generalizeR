@@ -86,21 +86,21 @@
 #'
 #' This function is designed for use within \code{weighting()} and \code{assess()}.'
 #'
-#' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
-#' @param covariates vector of covariate names in data set that predict sample membership
-#' @param data data frame comprised of "stacked" sample and target population data
-#' @param weighted_table defaults to FALSE; whether weights are already included and do not need to be estimated
-#' @param estimation_method method to estimate the probability of sample membership.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")
-#' @param is_data_disjoint defaults to TRUE. If TRUE, then sample and population data are considered independent.  This affects calculation of the weights
+#' @param data Dataframe comprised of "stacked" sample and target population data
+#' @param sample_indicator Binary variable denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param covariates Vector of covariates in dataframe that predict sample membership
+#' @param weighted_table Logical. Defaults to FALSE. If TRUE, sample means of covariates are calculated using weights
+#' @param estimation_method Method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso").
+#' @param disjoint_data Logical. Defaults to TRUE. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights.
 #' @importFrom stats model.matrix weighted.mean
 #' @importFrom dplyr funs
 
 .make.covariate.table <- function(data,
                                   sample_indicator,
                                   covariates,
-                                  weighted_table = FALSE,
+                                  weights = FALSE,
                                   estimation_method = "lr",
-                                  is_data_disjoint = TRUE) {
+                                  disjoint_data = TRUE) {
 
   data <- data %>%
     tidyr::drop_na(tidyselect::all_of(covariates)) %>%
@@ -119,7 +119,7 @@
 
   names(expanded.data)[1] <- sample_indicator
 
-  if (!is_data_disjoint) {
+  if (!disjoint_data) {
 
     expanded.data <- expanded.data %>%
       dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
