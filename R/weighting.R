@@ -258,8 +258,8 @@ weighting <- function(data,
 
     # Append TATE and TATE_unadj to list of items to return
     out <- out %>%
-      append(TATE) %>%
-      append(TATE_unadj)
+      append(TATE = TATE) %>%
+      append(TATE_unadj = TATE_unadj)
   }
 
   class(out) <- "generalizer_weighting"
