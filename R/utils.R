@@ -98,7 +98,7 @@
 .make.covariate.table <- function(data,
                                   sample_indicator,
                                   covariates,
-                                  weights = FALSE,
+                                  weighted_table = FALSE,
                                   estimation_method = "lr",
                                   disjoint_data = TRUE) {
 
