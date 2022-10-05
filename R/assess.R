@@ -152,7 +152,7 @@ assess <- function(data,
   cov_tab_out <- .make.covariate.table(data,
                                        sample_indicator = sample_indicator,
                                        covariates = covariates,
-                                       weighted_table = FALSE,
+                                       sample_weights = NULL,
                                        estimation_method = estimation_method,
                                        disjoint_data = disjoint_data)
 
