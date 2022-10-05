@@ -968,8 +968,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   # n_strata
   is_n_strata_valid <- function(n_strata, data, variables, idvar) {
 
-   #(n_strata %% 1 == 0) && (n_strata > 1) && .n.strata.less.than.max(n_strata, data, variables, idvar)
-    (n_strata %% 1 == 0) && (n_strata > 1)
+   (n_strata %% 1 == 0) && (n_strata > 1) && .n.strata.less.than.max(n_strata, data, variables, idvar)
   }
 
   assertthat::on_failure(is_n_strata_valid) <- function(call, env) {
@@ -1021,25 +1020,25 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   assertthat::assert_that(is_empty(invalid_vars))
 
-  # Check if there are any factor variables with more than 4 levels ---------
-
-  invalid_factors <- data %>%
-    dplyr::select(tidyselect::all_of(variables)) %>%
-    dplyr::select_if(is.factor) %>%
-    .check.factor.levels()
-
-
-  assertthat::on_failure(is_empty) <- function(call, env) {
-
-    paste0(
-      "This function will not allow a factor variable to have more than 4 levels.\n",
-      "The following factor variables have more than 4 levels:\n",
-      paste(crayon::blue$bold(invalid_factors), collapse = ", "),
-      "\nPlease re-code your desired factor levels from these variables as dummy variables (see \nthe package 'fastDummies')."
-    )
-  }
-
-  assertthat::assert_that(is_empty(invalid_factors))
+  # # Check if there are any factor variables with more than 4 levels ---------
+  #
+  # invalid_factors <- data %>%
+  #   dplyr::select(tidyselect::all_of(variables)) %>%
+  #   dplyr::select_if(is.factor) %>%
+  #   .check.factor.levels()
+  #
+  #
+  # assertthat::on_failure(is_empty) <- function(call, env) {
+  #
+  #   paste0(
+  #     "This function will not allow a factor variable to have more than 4 levels.\n",
+  #     "The following factor variables have more than 4 levels:\n",
+  #     paste(crayon::blue$bold(invalid_factors), collapse = ", "),
+  #     "\nPlease re-code your desired factor levels from these variables as dummy variables (see \nthe package 'fastDummies')."
+  #   )
+  # }
+  #
+  # assertthat::assert_that(is_empty(invalid_factors))
 
   # Verify that there are no variables with all obs. missing --------
   na_variables <- data %>%
@@ -1115,117 +1114,117 @@ print.summary.generalizer_stratify <- function(x, ...) {
       ),
       error = identity
     )
+#
+#     # Verify that user's selection did not throw an error in tryCatch()
+#     if(!inherits(selection, "error")) {
+#
+#       # Verify that user chose at least two variables
+#       if (length(selection) >= 2L) {
+#
+#         # Verify that user only input integers between 1 and the number of variables in the dataframe
+#         if (all(selection %in% 1:num_choices)) {
+#
+#           selection <- selection %>%
+#             unique() %>%
+#             sort()
+#
+#           variables <- choices[selection]
+#
+#           invalid_factors <- data %>%
+#             dplyr::select(tidyselect::all_of(variables)) %>%
+#             .check.factor.levels()
+#
+#           # Verify that user didn't choose any factor variables with more than 4 levels
+#           if (rlang::is_empty(invalid_factors)) {
+#
+#             na_variables <- data %>%
+#               dplyr::select(tidyselect::all_of(variables)) %>%
+#               sapply(function(x) sum(!is.na(x))) %>%
+#               data.frame() %>%
+#               dplyr::filter(. == 0) %>%
+#               row.names()
+#
+#             # Verify that user didn't choose any variables with all observations missing
+#             if (rlang::is_empty(na_variables)) {
+#
+#               cat("\nYou have selected the following stratifying variables:\n\n",
+#                   paste(crayon::blue$bold(variables), collapse = ", "),
+#                   "\n\n",
+#                   sep = "")
+#
+#               data %>%
+#                 dplyr::select(tidyselect::all_of(variables)) %>%
+#                 .make.var.overview(print_to_console = TRUE)
+#
+#               # Verify that user is happy with their selection
+#               if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
+#
+#                 return(choices[selection])
+#               }
+#
+#               cat("\n")
+#
+#               data %>%
+#                 .make.var.overview()
+#               next
+#             }
+#
+#             cat(crayon::red("ERROR: Invalid selection. This function will not allow a selected variable to have only missing observations.\n\n"),
+#                 crayon::red("All observations are missing for the following variables you have chosen:\n\n"),
+#                 paste(crayon::blue$bold(na_variables), collapse = ", "),
+#                 sep = ""
+#             )
+#
+#             next
+#           }
+#
+#           cat(crayon::red("\nERROR: Invalid selection. This function will not allow a factor variable to have more \nthan 4 levels.\n\n"),
+#               crayon::red("The following factor variables have more than 4 levels:\n\n"),
+#               paste(crayon::blue$bold(invalid_factors), collapse = ", "),
+#               crayon::red("\n\nIf you still wish to use these variables to stratify your population, please exit out of \nstratify() by hitting <Esc> and re-code your desired factor levels from these variables \nas dummy variables (see the package 'fastDummies').\n\n"),
+#               sep = "")
+#
+#           next
+#         }
+#
+#         cat(paste0(crayon::red("\nERROR: Invalid selection. Each input must be a single integer between 1 and "),
+#                    crayon::red(num_choices),
+#                    crayon::red(".\n\n")))
+#         next
+#       }
+#
+#       cat(crayon::red("\nERROR: Invalid selection. You must select at least 2 stratification variables.\n\n"))
+#       next
+#     }
+#
+#     cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
+#   }
+# }
 
-    # Verify that user's selection did not throw an error in tryCatch()
-    if(!inherits(selection, "error")) {
-
-      # Verify that user chose at least two variables
-      if (length(selection) >= 2L) {
-
-        # Verify that user only input integers between 1 and the number of variables in the dataframe
-        if (all(selection %in% 1:num_choices)) {
-
-          selection <- selection %>%
-            unique() %>%
-            sort()
-
-          variables <- choices[selection]
-
-          invalid_factors <- data %>%
-            dplyr::select(tidyselect::all_of(variables)) %>%
-            .check.factor.levels()
-
-          # Verify that user didn't choose any factor variables with more than 4 levels
-          if (rlang::is_empty(invalid_factors)) {
-
-            na_variables <- data %>%
-              dplyr::select(tidyselect::all_of(variables)) %>%
-              sapply(function(x) sum(!is.na(x))) %>%
-              data.frame() %>%
-              dplyr::filter(. == 0) %>%
-              row.names()
-
-            # Verify that user didn't choose any variables with all observations missing
-            if (rlang::is_empty(na_variables)) {
-
-              cat("\nYou have selected the following stratifying variables:\n\n",
-                  paste(crayon::blue$bold(variables), collapse = ", "),
-                  "\n\n",
-                  sep = "")
-
-              data %>%
-                dplyr::select(tidyselect::all_of(variables)) %>%
-                .make.var.overview(print_to_console = TRUE)
-
-              # Verify that user is happy with their selection
-              if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
-
-                return(choices[selection])
-              }
-
-              cat("\n")
-
-              data %>%
-                .make.var.overview()
-              next
-            }
-
-            cat(crayon::red("ERROR: Invalid selection. This function will not allow a selected variable to have only missing observations.\n\n"),
-                crayon::red("All observations are missing for the following variables you have chosen:\n\n"),
-                paste(crayon::blue$bold(na_variables), collapse = ", "),
-                sep = ""
-            )
-
-            next
-          }
-
-          cat(crayon::red("\nERROR: Invalid selection. This function will not allow a factor variable to have more \nthan 4 levels.\n\n"),
-              crayon::red("The following factor variables have more than 4 levels:\n\n"),
-              paste(crayon::blue$bold(invalid_factors), collapse = ", "),
-              crayon::red("\n\nIf you still wish to use these variables to stratify your population, please exit out of \nstratify() by hitting <Esc> and re-code your desired factor levels from these variables \nas dummy variables (see the package 'fastDummies').\n\n"),
-              sep = "")
-
-          next
-        }
-
-        cat(paste0(crayon::red("\nERROR: Invalid selection. Each input must be a single integer between 1 and "),
-                   crayon::red(num_choices),
-                   crayon::red(".\n\n")))
-        next
-      }
-
-      cat(crayon::red("\nERROR: Invalid selection. You must select at least 2 stratification variables.\n\n"))
-      next
-    }
-
-    cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
-  }
-}
-
-#' Internal function that checks whether any column in a dataset is a factor variable with more than a given number of levels
+#' #' Internal function that checks whether any column in a dataset is a factor variable with more than a given number of levels
+#' #'
+#' #' Intended only to be called within \code{stratify}, not as a standalone function
+#' #'
+#' #' @keywords internal
+#' #'
+#' #' @order 3
+#' #'
+#' #' @param data data.frame, a dataframe of factor variables of interest
+#' #' @param maxlevels integer, a maximum permissible number of levels
+#' #' @return invalid_factors, list of variable names with more than the permitted number of levels
+#' #'
+#' #' @md
+#' .check.factor.levels <- function(data,
+#'                                  maxlevels = 4L) {
+#'   invalid_factors <- data %>%
+#'     dplyr::select_if(is.factor) %>%
+#'     sapply(nlevels) %>%
+#'     `>`(maxlevels) %>%
+#'     which() %>%
+#'     names()
 #'
-#' Intended only to be called within \code{stratify}, not as a standalone function
-#'
-#' @keywords internal
-#'
-#' @order 3
-#'
-#' @param data data.frame, a dataframe of factor variables of interest
-#' @param maxlevels integer, a maximum permissible number of levels
-#' @return invalid_factors, list of variable names with more than the permitted number of levels
-#'
-#' @md
-.check.factor.levels <- function(data,
-                                 maxlevels = 4L) {
-  invalid_factors <- data %>%
-    dplyr::select_if(is.factor) %>%
-    sapply(nlevels) %>%
-    `>`(maxlevels) %>%
-    which() %>%
-    names()
-
-  return(invalid_factors)
-}
+#'   return(invalid_factors)
+#' }
 
 
 #' Internal function that checks whether a list provided is empty (avoiding conflict w/ check on >4 level factor categorical vars)
@@ -1321,25 +1320,25 @@ print.summary.generalizer_stratify <- function(x, ...) {
   return(cont_data_tbl)
 }
 
-#' #' Internal function that ensures that the number of strata requested does not exceed the maximum possible (maximum n-2 where n is number of observations w/ no missing variables of interest)
-#' #'
-#' #' Intended only to be called within \code{stratify}, not as a standalone function
-#' #'
-#' #' @keywords internal
-#' #'
-#' #' @order 3
-#' #'
-#' #' @param n_strata integer, a number of strata in which to divide to cluster population
-#' #' @param data data.frame, a data.frame object with the population of interest (rows are observations)
-#' #' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
-#' #' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
-#' #' @return The function returns a boolean value indicating whether the number of observations with non-missing variables of interests exceeds 1 plus the number of strata requested
-#' #'
-#' #' @md
+#' Internal function that ensures that the number of strata requested does not exceed the maximum possible (maximum n-2 where n is number of observations w/ no missing variables of interest)
 #'
-#' .n.strata.less.than.max <- function(n_strata, data_interest, variables, idvar){
-#'   data_interest %>%
-#'     dplyr::select(tidyselect::all_of(variables), tidyselect::all_of(idvar)) %>%
-#'     tidyr::drop_na() %>%
-#'     nrow() - 1 > n_strata
-#' }
+#' Intended only to be called within \code{stratify}, not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 3
+#'
+#' @param n_strata integer, a number of strata in which to divide to cluster population
+#' @param data data.frame, a data.frame object with the population of interest (rows are observations)
+#' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
+#' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
+#' @return The function returns a boolean value indicating whether the number of observations with non-missing variables of interests exceeds 1 plus the number of strata requested
+#'
+#' @md
+
+.n.strata.less.than.max <- function(n_strata, data_interest, variables, idvar){
+  data_interest %>%
+    dplyr::select(tidyselect::all_of(variables), tidyselect::all_of(idvar)) %>%
+    tidyr::drop_na() %>%
+    nrow() - 1 > n_strata
+}
