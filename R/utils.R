@@ -231,8 +231,8 @@
                         escape = FALSE) %>%
         kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
         kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey") %>%
-        kableExtra::footnote(symbol = c("Weighted Sample Mean [Unweighted Sample Mean]; ",
-                                        "Uses Weighted Sample Mean [Uses Unweighted Sample Mean]"))
+        kableExtra::footnote(symbol = c("Weighted Sample Mean [Unweighted Sample Mean]",
+                                        "Calculated Using Weighted Sample Mean [Calculated Using Unweighted Sample Mean]"))
 
   } else {
 
