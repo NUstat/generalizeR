@@ -57,10 +57,10 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">assess</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  guided <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  <span class="va">sample_var</span>,</span>
+<span>  <span class="va">sample_indicator</span>,</span>
 <span>  <span class="va">covariates</span>,</span>
 <span>  estimation_method <span class="op">=</span> <span class="st">"lr"</span>,</span>
-<span>  is_data_disjoint <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  disjoint_data <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  trim_pop <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -71,7 +71,7 @@
 <dd><p>data frame comprised of "stacked" sample and target population data</p></dd>
 
 
-<dt>sample_var</dt>
+<dt>sample_indicator</dt>
 <dd><p>variable name denoting sample membership (1 = in sample, 0 = out of sample)</p></dd>
 
 
@@ -83,8 +83,8 @@
 <dd><p>method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")</p></dd>
 
 
-<dt>is_data_disjoint</dt>
-<dd><p>logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.</p></dd>
+<dt>disjoint_data</dt>
+<dd><p>logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.</p></dd>
 
 
 <dt>trim_pop</dt>
