@@ -112,8 +112,8 @@
   } else {
 
     data <- data %>%
-      dplyr::rename(weights = !!rlang::sym(sample_weights)) %>%
-      dplyr::mutate(weights = ifelse(data[, sample_indicator] == 0, 1, sample_weights))
+      dplyr::rename(sample_weights = !!rlang::sym(sample_weights)) %>%
+      dplyr::mutate(sample_weights = ifelse(data[, sample_indicator] == 0, 1, sample_weights))
   }
 
   expanded.data <- data.frame(data[, sample_indicator],
