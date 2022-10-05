@@ -237,7 +237,8 @@
                     `Population SD` = pop_sd) %>%
       kableExtra::kbl(caption = "Covariate Table",
                       align = "l") %>%
-      kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE)
+      kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+      kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
   }
 
   return(list(covariate_table = covariate_table,
