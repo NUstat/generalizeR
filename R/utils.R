@@ -89,7 +89,7 @@
 #' @param data Dataframe comprised of "stacked" sample and target population data
 #' @param sample_indicator Binary variable denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates Vector of covariates in dataframe that predict sample membership
-#' @param weighted_table Logical. Defaults to FALSE. If TRUE, sample means of covariates are calculated using weights
+#' @param sample_weights Name of column in dataframe holding weights for calculating weighted sample means of covariates in dataframe. If NULL, sample means are unweighted.
 #' @param estimation_method Method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso").
 #' @param disjoint_data Logical. Defaults to TRUE. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights.
 #' @importFrom stats model.matrix weighted.mean
@@ -98,7 +98,7 @@
 .make.covariate.table <- function(data,
                                   sample_indicator,
                                   covariates,
-                                  weighted_table = FALSE,
+                                  sample_weights = NULL,
                                   estimation_method = "lr",
                                   disjoint_data = TRUE) {
 
@@ -106,16 +106,18 @@
     tidyr::drop_na(tidyselect::all_of(covariates)) %>%
     as.data.frame()
 
-  if (weighted_table) {
+  if (is.null(sample_weights)) {
 
-    data$weights <- ifelse(data[, sample_indicator] == 0, 1, data$weights)
+    data$sample_weights <- 1
   } else {
 
-    data$weights <- 1
+    data <- data %>%
+      dplyr::rename(weights = !!rlang::sym(sample_weights)) %>%
+      dplyr::mutate(weights = ifelse(data[, sample_indicator] == 0, 1, sample_weights))
   }
 
   expanded.data <- data.frame(data[, sample_indicator],
-                              model.matrix(~ -1 + ., data = data[, c(covariates, "weights")]))
+                              model.matrix(~ -1 + ., data = data[, c(covariates, "sample_weights")]))
 
   names(expanded.data)[1] <- sample_indicator
 
@@ -125,7 +127,7 @@
       dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
       rbind(expanded.data %>%
               dplyr::mutate(!!rlang::sym(sample_indicator) := 0,
-                            weights = 1))
+                            sample_weights = 1))
   }
 
   get_covariate <- function(name) {
@@ -155,7 +157,7 @@
     dplyr::group_by(!!rlang::sym(sample_indicator)) %>%
     dplyr::summarise(dplyr::across(tidyselect::all_of(covariates),
                                    list(mean = mean,
-                                        mean_weighted = ~weighted.mean(., weights),
+                                        mean_weighted = ~weighted.mean(., sample_weights),
                                         var = var)))
 
   tab_pop <- tab %>%
@@ -190,7 +192,7 @@
 
 
 
-  if (weighted_table) {
+  if (!is.null(sample_weights)) {
 
     covariate_table <- tab_merged %>%
       dplyr::select(covariate, sample_mean_unweighted, sample_mean_weighted,

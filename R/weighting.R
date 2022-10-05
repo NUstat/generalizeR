@@ -157,34 +157,34 @@ weighting <- function(data,
   if(disjoint_data) {
 
     data <- data %>%
-      dplyr::mutate(weights = ifelse(!!sym(sample_indicator) == 0,
-                                     0,
-                                     (1-ps)/ps))
+      dplyr::mutate(sample_weights = ifelse(!!sym(sample_indicator) == 0,
+                                            0,
+                                            (1-ps)/ps))
   }
 
   else {
 
     data <- data %>%
-      dplyr::mutate(weights = ifelse(!!sym(sample_indicator) == 0,
-                                     0,
-                                     1/ps))
+      dplyr::mutate(sample_weights = ifelse(!!sym(sample_indicator) == 0,
+                                            0,
+                                            1/ps))
   }
 
   # Trim any of the weights if necessary
-  data$weights[which(data$weights == 0 & data[,sample_indicator] == 1)] <- quantile(data$weights[which(data[,sample_indicator] == 1)], 0.01, na.rm = TRUE)
+  data$sample_weights[which(data$sample_weights == 0 & data[,sample_indicator] == 1)] <- quantile(data$sample_weights[which(data[,sample_indicator] == 1)], 0.01, na.rm = TRUE)
 
   # Make weighted covariate table
   covariate_table_output <- .make.covariate.table(data = data,
                                                   sample_indicator = sample_indicator,
                                                   covariates = covariates,
-                                                  weighted_table = TRUE,
+                                                  sample_weights = "sample_weights",
                                                   estimation_method = estimation_method,
                                                   disjoint_data = disjoint_data)
 
   # Make histogram of weights
   weights_hist <- data %>%
     dplyr::filter(!!sym(sample_indicator) == 1) %>%
-    ggplot(aes(x = weights)) +
+    ggplot(aes(x = sample_weights)) +
     geom_histogram(bins = 20,
                    fill = viridis::viridis(1, alpha = 0.7),
                    color = "black") +
@@ -197,7 +197,7 @@ weighting <- function(data,
 
   # Items to return out
   out <- list(participation_probs = participation_probs,
-              weights = data$weights,
+              sample_weights = data$sample_weights,
               covariate_table = covariate_table_output$covariate_table,
               covariate_kable = covariate_table_output$covariate_kable,
               hist = weights_hist)
@@ -211,7 +211,7 @@ weighting <- function(data,
     # Make weighted regression model predicting outcome with treatment
     TATE_model <- paste(outcome, treatment_indicator, sep = "~") %>%
       as.formula() %>%
-      lm(data = data, weights = weights)
+      lm(data = data, weights = sample_weights)
 
     # Extract total average treatment effect and standard error from weighted model
     TATE <- TATE_model %>%
