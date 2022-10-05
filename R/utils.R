@@ -219,21 +219,21 @@
                     `Population SD` = pop_sd)
 
 
-    names(covariate_kable)[2] <- paste0(names(covariate_kable)[2],
-                                        kableExtra::footnote_marker_symbol(1))
+      names(covariate_kable)[2] <- paste0(names(covariate_kable)[2],
+                                          kableExtra::footnote_marker_symbol(1))
 
-    names(covariate_kable)[5] <- paste0(names(covariate_kable)[5],
-                                        kableExtra::footnote_marker_symbol(2))
+      names(covariate_kable)[5] <- paste0(names(covariate_kable)[5],
+                                          kableExtra::footnote_marker_symbol(2))
 
-
-      kableExtra::kbl(caption = "Covariate Table",
-                      align = "l",
-                      escape = FALSE) %>%
-      kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-      kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey") %>%
-      kableExtra::footnote(symbol = c("Weighted Sample Mean [Unweighted Sample Mean]",
-                                      "Uses Weighted Sample Mean [Uses Unweighted Sample Mean]"),
-                           footnote_as_chunk = TRUE)
+      covariate_kable <- covariate_kable %>%
+        kableExtra::kbl(caption = "Covariate Table",
+                        align = "l",
+                        escape = FALSE) %>%
+        kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
+        kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey") %>%
+        kableExtra::footnote(symbol = c("Weighted Sample Mean [Unweighted Sample Mean]",
+                                        "Uses Weighted Sample Mean [Uses Unweighted Sample Mean]"),
+                             footnote_as_chunk = TRUE)
 
   } else {
 
