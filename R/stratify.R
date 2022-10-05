@@ -1218,7 +1218,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
   invalid_factors <- data %>%
     dplyr::select_if(is.factor) %>%
     sapply(nlevels) %>%
-    `>`(maxlevels) %>%
+    {. > maxlevels} %>%
     which() %>%
     names()
 
