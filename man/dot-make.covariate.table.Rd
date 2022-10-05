@@ -6,25 +6,25 @@
 \usage{
 .make.covariate.table(
   data,
-  sample_var,
+  sample_indicator,
   covariates,
-  weighted_table = FALSE,
+  sample_weights = NULL,
   estimation_method = "lr",
-  is_data_disjoint = TRUE
+  disjoint_data = TRUE
 )
 }
 \arguments{
-\item{data}{data frame comprised of "stacked" sample and target population data}
+\item{data}{Dataframe comprised of "stacked" sample and target population data}
 
-\item{sample_var}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
+\item{sample_indicator}{Binary variable denoting sample membership (1 = in sample, 0 = out of sample)}
 
-\item{covariates}{vector of covariate names in data set that predict sample membership}
+\item{covariates}{Vector of covariates in dataframe that predict sample membership}
 
-\item{weighted_table}{defaults to FALSE; whether weights are already included and do not need to be estimated}
+\item{sample_weights}{Name of column in dataframe holding weights for calculating weighted sample means of covariates in dataframe. If NULL, sample means are unweighted.}
 
-\item{estimation_method}{method to estimate the probability of sample membership.  Default is logistic regression ("lr").  Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
+\item{estimation_method}{Method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso").}
 
-\item{is_data_disjoint}{defaults to TRUE. If TRUE, then sample and population data are considered independent.  This affects calculation of the weights}
+\item{disjoint_data}{Logical. Defaults to TRUE. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights.}
 }
 \description{
 This function is designed for use within \code{weighting()} and \code{assess()}.'

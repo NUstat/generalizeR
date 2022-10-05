@@ -4,12 +4,12 @@
 \alias{.trim.pop}
 \title{Subset Population so Population Covariates are within bounds of Sample Covariates}
 \usage{
-.trim.pop(data, sample_var, covariates)
+.trim.pop(data, sample_indicator, covariates)
 }
 \arguments{
 \item{data}{data frame comprised of "stacked" sample and target population data}
 
-\item{sample_var}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
+\item{sample_indicator}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
 
 \item{covariates}{vector of covariate names in data set that predict sample membership}
 }

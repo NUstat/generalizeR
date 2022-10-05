@@ -7,23 +7,23 @@
 assess(
   data,
   guided = TRUE,
-  sample_var,
+  sample_indicator,
   covariates,
   estimation_method = "lr",
-  is_data_disjoint = TRUE,
+  disjoint_data = TRUE,
   trim_pop = FALSE
 )
 }
 \arguments{
 \item{data}{data frame comprised of "stacked" sample and target population data}
 
-\item{sample_var}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
+\item{sample_indicator}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
 
 \item{covariates}{vector of covariate names in data set that predict sample membership}
 
 \item{estimation_method}{method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
 
-\item{is_data_disjoint}{logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.}
+\item{disjoint_data}{logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.}
 
 \item{trim_pop}{logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.}
 }

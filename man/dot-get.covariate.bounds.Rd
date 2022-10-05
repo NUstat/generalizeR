@@ -4,12 +4,12 @@
 \alias{.get.covariate.bounds}
 \title{Find covariate bounds in the sample data}
 \usage{
-.get.covariate.bounds(covariate, sample_var, data)
+.get.covariate.bounds(covariate, sample_indicator, data)
 }
 \arguments{
 \item{covariate}{covariate in data set that predicts sample membership}
 
-\item{sample_var}{variable denoting sample membership (1 = in sample, 0 = out of sample)}
+\item{sample_indicator}{variable denoting sample membership (1 = in sample, 0 = out of sample)}
 
 \item{data}{data frame comprised of "stacked" sample and target population data}
 }

@@ -11,7 +11,7 @@ weighting(
   outcome = NULL,
   covariates,
   estimation_method = "lr",
-  is_data_disjoint = TRUE
+  disjoint_data = TRUE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ weighting(
 
 \item{estimation_method}{method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
 
-\item{is_data_disjoint}{logical. If TRUE, then sample and population data are considered independent. This affects calculation of the weights - see details for more information.}
+\item{disjoint_data}{logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.}
 }
 \description{
 This function is designed for use within 'covariate_table()' and 'assess()'.

@@ -4,12 +4,12 @@
 \alias{.generate.ps}
 \title{Generate Sample Participation Probabilities}
 \usage{
-.generate.ps(data, sample_var, covariates, estimation_method)
+.generate.ps(data, sample_indicator, covariates, estimation_method)
 }
 \arguments{
 \item{data}{data frame comprised of "stacked" sample and target population data}
 
-\item{sample_var}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
+\item{sample_indicator}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
 
 \item{covariates}{vector of covariate names in data set that predict sample membership}
 
