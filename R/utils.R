@@ -221,7 +221,8 @@
                       align = "l",
                       escape = FALSE) %>%
       kableExtra::kable_styling(c("striped", "hover"), fixed_thead = TRUE) %>%
-      kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
+      kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey") %>%
+      kableExtra::add_footnote("The values inside the square brackets in the Sample Mean and ASMD columns represent the unweighted versions of their respective calculations.")
 
   } else {
 
