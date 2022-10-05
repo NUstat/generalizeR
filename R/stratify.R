@@ -1082,38 +1082,38 @@ print.summary.generalizer_stratify <- function(x, ...) {
                     ":  ",
                     choices)
 
-  repeat {
-
-    if (num_choices > 10L) {
-
-      formatted_options <- format(options)
-      nw <- nchar(formatted_options[1L], "w") + 2L
-      ncol <- getOption("width") %/% nw
-
-      if (ncol > 1L) {
-
-        options <- paste0(formatted_options,
-                          c(rep.int("  ", ncol - 1L), "\n"),
-                          collapse = "")
-      }
-
-      cat("", options, sep = "\n")
-    } else {
-
-      cat("", options, "", sep = "\n")
-    }
-
-    cat("Type two or more numbers separated by spaces and then hit <Return> to continue. \n\n")
-
-    selection <- tryCatch(
-
-      scan("",
-           what = 0,
-           quiet = TRUE,
-           nlines = 1
-      ),
-      error = identity
-    )
+  # repeat {
+  #
+  #   if (num_choices > 10L) {
+  #
+  #     formatted_options <- format(options)
+  #     nw <- nchar(formatted_options[1L], "w") + 2L
+  #     ncol <- getOption("width") %/% nw
+  #
+  #     if (ncol > 1L) {
+  #
+  #       options <- paste0(formatted_options,
+  #                         c(rep.int("  ", ncol - 1L), "\n"),
+  #                         collapse = "")
+  #     }
+  #
+  #     cat("", options, sep = "\n")
+  #   } else {
+  #
+  #     cat("", options, "", sep = "\n")
+  #   }
+  #
+  #   cat("Type two or more numbers separated by spaces and then hit <Return> to continue. \n\n")
+  #
+  #   selection <- tryCatch(
+  #
+  #     scan("",
+  #          what = 0,
+  #          quiet = TRUE,
+  #          nlines = 1
+  #     ),
+  #     error = identity
+  #   )
 #
 #     # Verify that user's selection did not throw an error in tryCatch()
 #     if(!inherits(selection, "error")) {
@@ -1199,7 +1199,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 #
 #     cat(crayon::red("\nERROR: Invalid selection. Please try again.\n\n"))
 #   }
-# }
+  }
 
 #' #' Internal function that checks whether any column in a dataset is a factor variable with more than a given number of levels
 #' #'
