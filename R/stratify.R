@@ -10,7 +10,7 @@
 #' @param variables character, defaults to NULL. If guided is set to FALSE, must provide a character vector of the names of stratifying variables (from population data frame)
 #' @param idvar character, defaults to NULL. If guided is set to FALSE, must provide a character vector of the name of the ID variable (from population data frame)
 #' @param verbose logical, defaults to TRUE.
-#' @return The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+#' @return The function returns a list of class "generalizeR_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 #' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 #'
 #' \itemize{
@@ -104,7 +104,7 @@ stratify <- function(data = NULL,
     envir = .GlobalEnv
   ) # delete object data_name from global environment
 
-  class(output) <- "generalizer_stratify"
+  class(output) <- "generalizeR_stratify"
 
   return(invisible(output))
 }
@@ -122,7 +122,7 @@ stratify <- function(data = NULL,
 #' @param variables character, character vector of the names of stratifying variables (from population data frame)
 #' @param idvar character, haracter vector of the name of the ID variable (from population data frame)
 #' @param verbose logical, defaults to TRUE.
-#' @return The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+#' @return The function returns a list of class "generalizeR_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 #' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 #'
 #' @md
@@ -512,7 +512,7 @@ stratify <- function(data = NULL,
     heat_plot = heat_plot_final
   )
 
-  class(out) <- "generalizer_stratify"
+  class(out) <- "generalizeR_stratify"
 
   return(invisible(out))
 }
@@ -525,32 +525,28 @@ stratify <- function(data = NULL,
 #'
 #' @order 2
 #'
-#' @param x generalizer_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
-#' @return The function invisible returns the input generalizer_stratify object
+#' @param x generalizeR_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
+#' @return The function invisible returns the input generalizeR_stratify object
 #'
 #' @md
 
-print.generalizer_stratify <- function(x, ...) {
-  cat("A generalizer_stratify object: \n")
+print.generalizeR_stratify <- function(x, ...) {
 
-  cat(paste0(" - Dataset used: ", crayon::bold(x$dataset), "\n"))
+  cat("A generalizeR_stratify object: \n\n")
 
-  cat(paste0(" - Stratification variables: "))
+  cat(" - Dataset used:", crayon::bold(x$dataset), "\n\n")
 
-  cat(paste0(crayon::bold$blue(x$variables)), sep = ", ")
+  cat(" - Stratification variables:", paste0(crayon::bold$blue(x$variables), collapse = ", "))
 
-  cat(paste0("\n"))
+  cat("\n\n - Number of strata:", crayon::bold(x$n_strata))
 
-  cat(paste0(" - Number of strata: ", crayon::bold(x$n_strata), "\n"))
+  cat("\n\n - Number of observations dropped due to missing data:",
+      crayon::bold(nrow(x$data_omitted)),
+      "(see $data_omitted for dropped observations)")
 
-  cat(paste0(" - Number of observations dropped due to missing data: ", crayon::bold(nrow(x$data_omitted)), "\n"))
-
-  cat(paste0("   (see $data_omitted for dropped observations)"))
-
-  invisible(x)
 }
 
-#' Internal function that assigns class generalizer_stratify to the inputted object
+#' Internal function that assigns class generalizeR_stratify to the inputted object
 #'
 #' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
 #'
@@ -558,20 +554,20 @@ print.generalizer_stratify <- function(x, ...) {
 #'
 #' @order 3
 #'
-#' @param object generalizer_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
-#' @return The function returns the input generalizer_stratify object as a summary.generalizer_stratify object
+#' @param object generalizeR_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
+#' @return The function returns the input generalizeR_stratify object as a summary.generalizeR_stratify object
 #'
 #' @md
 
-summary.generalizer_stratify <- function(object, ...) {
+summary.generalizeR_stratify <- function(object, ...) {
   out <- object
 
-  class(out) <- "summary.generalizer_stratify"
+  class(out) <- "summary.generalizeR_stratify"
 
   return(out)
 }
 
-#' Internal function that formats and prints a summary.generalizer_stratify object
+#' Internal function that formats and prints a summary.generalizeR_stratify object
 #'
 #' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
 #'
@@ -579,12 +575,12 @@ summary.generalizer_stratify <- function(object, ...) {
 #'
 #' @order 4
 #'
-#' @param x summary.generalizer_stratify, an object produced by the summary.generalizer_stratify() function
-#' @return The function invisible returns the inputted summary.generalizer_stratify object x
+#' @param x summary.generalizeR_stratify, an object produced by the summary.generalizeR_stratify() function
+#' @return The function invisible returns the inputted summary.generalizeR_stratify object x
 #'
 #' @md
 
-print.summary.generalizer_stratify <- function(x, ...) {
+print.summary.generalizeR_stratify <- function(x, ...) {
   cat("============================================ \n")
 
   cat(paste0("Summary of stratification performed with '", x$dataset, "' dataset:", "\n", "\n"))
@@ -624,7 +620,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
         print()
     },
     error = function(cond) {
-      message("Your Plots pane is too small for the heat map to be displayed. If you still want to \nview the plot, try resizing the pane and then running 'x$heat_plot' where 'x' is the \nname assigned to your 'generalizer_stratify' object.")
+      message("Your Plots pane is too small for the heat map to be displayed. If you still want to \nview the plot, try resizing the pane and then running 'x$heat_plot' where 'x' is the \nname assigned to your 'generalizeR_stratify' object.")
       return(NA)
     }
   )
@@ -925,7 +921,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 
   cat(crayon::blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n\n"))
 
-  cat("You can pull up the results at any time by passing your 'generalizer_stratify' \nobject into summary().\n\n")
+  cat("You can pull up the results at any time by passing your 'generalizeR_stratify' \nobject into summary().\n\n")
 
   readline(prompt = "Hit <Return> to view the results.")
 
@@ -952,7 +948,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 #' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
 #' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
 #' @param verbose logical, defaults to TRUE.
-#' @return The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+#' @return The function returns a list of class "generalizeR_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 #' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 #'
 #' @md
@@ -1213,6 +1209,7 @@ print.summary.generalizer_stratify <- function(x, ...) {
 #' @return invalid_factors, list of variable names with more than the permitted number of levels
 #'
 #' @md
+#'
 .check.factor.levels <- function(data,
                                  maxlevels = 4L) {
   invalid_factors <- data %>%
