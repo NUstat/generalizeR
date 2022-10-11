@@ -272,7 +272,7 @@
          title = "Covariate Distributions") +
     theme_minimal() +
     theme(axis.ticks.x = element_line(),
-          axis.text.y = element_blank(),
+          axis.text = element_blank(),
           axis.line = element_line(),
           axis.title.x = element_blank(),
           plot.title = element_text(size = 12))
