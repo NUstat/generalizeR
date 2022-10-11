@@ -190,7 +190,8 @@
                   ASMD_weighted = abs((sample_mean_weighted - pop_mean) / pop_sd)) %>%
     dplyr::mutate(dplyr::across(where(is.numeric), round, digits = 3))
 
-
+  tab_merged %>% ggplot2::ggplot(aes(x = covariates[1])) +
+    geom_density() %>% print()
 
   if (!is.null(sample_weights)) {
 
@@ -252,6 +253,27 @@
       kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
   }
 
+  cov_dist_plot <- expanded.data %>%
+    tidyr::pivot_longer(cols = tidyselect::all_of(covariates),
+                        names_to = "covariate") %>%
+    ggplot() +
+    facet_wrap(~covariate, scales = "free") +
+    geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
+                 alpha = 0.7) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    scale_fill_discrete(name = NULL,
+                        labels = c("Sample", "Population")) +
+    labs(y = "Density",
+         title = "Covariate Distributions") +
+    theme_minimal() +
+    theme(axis.ticks = element_line(),
+          axis.line = element_line(),
+          axis.title.x = element_blank(),
+          plot.title = element_text(size = 12))
+
+
   return(list(covariate_table = covariate_table,
-              covariate_kable = covariate_kable))
+              covariate_kable = covariate_kable,
+              cov_dist_plot = cov_dist_plot))
 }
