@@ -171,7 +171,8 @@ assess <- function(data,
     participation_probs = participation_probs,
     covariate_table = cov_tab_out$covariate_table,
     covariate_kable = cov_tab_out$covariate_kable,
-    cov_dist_plot = cov_tab_out$cov_dist_plot,
+    cov_dist_facet_plot = cov_tab_out$cov_dist_facet_plot,
+    cov_dist_plots = cov_tab_out$cov_dist_plots,
     data = data_output
   )
 

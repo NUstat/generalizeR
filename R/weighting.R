@@ -200,7 +200,8 @@ weighting <- function(data,
               sample_weights = data$sample_weights,
               covariate_table = covariate_table_output$covariate_table,
               covariate_kable = covariate_table_output$covariate_kable,
-              cov_dist_plot = covariate_table_output$cov_dist_plot,
+              cov_dist_facet_plot = covariate_table_output$cov_dist_facet_plot,
+              cov_dist_plots = covariate_table_output$cov_dist_plots,
               hist = weights_hist)
 
   if(!is.null(outcome) & !is.null(treatment_indicator)) {

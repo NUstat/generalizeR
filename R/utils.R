@@ -253,8 +253,8 @@
       kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
   }
 
-  cov_dist_plot <- expanded.data %>%
-    tidyr::pivot_longer(cols = tidyselect::all_of(covariates),
+  cov_dist_facet_plot <- expanded.data %>%
+    tidyr::pivot_longer(cols = na.omit(tidyselect::all_of(covariates[1:25])),
                         names_to = "covariate") %>%
     ggplot() +
     facet_wrap(~covariate, scales = "free") +
@@ -272,8 +272,32 @@
           axis.title.x = element_blank(),
           plot.title = element_text(size = 12))
 
+  cov_dist_plots <- list()
+
+  for (covariate in selection_covariates) {
+
+    new_plot <- expanded.data %>%
+      ggplot() +
+      geom_density(aes(x = !!rlang::sym(covariate), fill = factor(!!rlang::sym(sample_indicator))),
+                   alpha = 0.7) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_fill_discrete(name = NULL,
+                          labels = c("Sample", "Population")) +
+      labs(y = "Density",
+           title = paste("Distribution of", covariate)) +
+      theme_minimal() +
+      theme(axis.ticks = element_line(),
+            axis.line = element_line(),
+            axis.title.x = element_blank(),
+            plot.title = element_text(size = 12))
+
+    cov_dist_plots[[covariate]] <- new_plot
+  }
+
 
   return(list(covariate_table = covariate_table,
               covariate_kable = covariate_kable,
-              cov_dist_plot = cov_dist_plot))
+              cov_dist_facet_plot = cov_dist_facet_plot,
+              cov_dist_plots = cov_dist_plots))
 }
