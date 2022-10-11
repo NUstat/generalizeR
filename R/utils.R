@@ -273,6 +273,7 @@
     theme_minimal() +
     theme(axis.ticks.x = element_line(),
           axis.text.y = element_blank(),
+          axis.text.x = element_text(angle = 45),
           axis.line = element_line(),
           axis.title = element_blank(),
           plot.title = element_text(size = 12))
@@ -291,7 +292,8 @@
                           labels = c("Sample", "Population")) +
       ggtitle(paste(covariate, "Density Plot")) +
       theme_minimal() +
-      theme(axis.ticks = element_line(),
+      theme(axis.ticks.x = element_line(),
+            axis.text.y = element_blank(),
             axis.line = element_line(),
             axis.title = element_blank(),
             plot.title = element_text(size = 12))
