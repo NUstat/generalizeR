@@ -254,7 +254,9 @@
   }
 
   cov_dist_facet_plot <- expanded.data %>%
-    tidyr::pivot_longer(cols = na.omit(tidyselect::all_of(covariates[1:25])),
+    tidyr::pivot_longer(cols = covariates[1:25] %>%
+                          tidyselect::all_of() %>%
+                          na.omit(),
                         names_to = "covariate") %>%
     ggplot() +
     facet_wrap(~covariate, scales = "free") +
@@ -274,7 +276,7 @@
 
   cov_dist_plots <- list()
 
-  for (covariate in selection_covariates) {
+  for (covariate in covariates) {
 
     new_plot <- expanded.data %>%
       ggplot() +
