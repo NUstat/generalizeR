@@ -264,15 +264,15 @@
                nrow = ifelse(length(covariates) > 25, 5, NULL)) +
     geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
                  alpha = 0.7) +
-    scale_x_continuous(expand = c(0, 0)) +
+    scale_x_continuous(expand = c(0, 0),
+                       n.breaks = 4) +
     scale_y_continuous(expand = c(0, 0)) +
     scale_fill_discrete(name = NULL,
                         labels = c("Sample", "Population")) +
-    labs(y = "Density",
-         title = "Covariate Distributions") +
+    ggtitle("Covariate Density Plots") +
     theme_minimal() +
     theme(axis.ticks.x = element_line(),
-          axis.text = element_blank(),
+          axis.text.y = element_blank(),
           axis.line = element_line(),
           axis.title.x = element_blank(),
           plot.title = element_text(size = 12))
