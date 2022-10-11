@@ -532,7 +532,7 @@ stratify <- function(data = NULL,
 
 print.generalizeR_stratify <- function(x, ...) {
 
-  cat("A generalizeR_stratify object: \n\n")
+  cat("\nA generalizeR_stratify object: \n\n")
 
   cat(" - Dataset used:", crayon::bold(x$dataset), "\n\n")
 
@@ -542,8 +542,7 @@ print.generalizeR_stratify <- function(x, ...) {
 
   cat("\n\n - Number of observations dropped due to missing data:",
       crayon::bold(nrow(x$data_omitted)),
-      "(see $data_omitted for dropped observations)")
-
+      "(see $data_omitted for dropped observations)\n\n")
 }
 
 #' Internal function that assigns class generalizeR_stratify to the inputted object
@@ -560,6 +559,7 @@ print.generalizeR_stratify <- function(x, ...) {
 #' @md
 
 summary.generalizeR_stratify <- function(object, ...) {
+
   out <- object
 
   class(out) <- "summary.generalizeR_stratify"
@@ -581,17 +581,14 @@ summary.generalizeR_stratify <- function(object, ...) {
 #' @md
 
 print.summary.generalizeR_stratify <- function(x, ...) {
-  cat("============================================ \n")
 
-  cat(paste0("Summary of stratification performed with '", x$dataset, "' dataset:", "\n", "\n"))
+  cat(paste0(rep("=", 80), collapse = ""))
 
-  cat(paste0("Stratification Variables: "))
+  cat(paste0("\nSummary of stratification performed with '", x$dataset, "' dataset:", "\n\n"))
 
-  cat(paste0(crayon::blue$bold(x$variables)), sep = ", ")
+  cat("Stratification variables:", paste0(crayon::bold$blue(x$variables), collapse = ", "))
 
-  cat("\n")
-
-  cat(paste0("Observations dropped due to missing data: ", crayon::bold(nrow(x$data_omitted)), " (see $data_omitted)\n"))
+  cat(paste0("\nObservations dropped due to missing data: ", crayon::bold(nrow(x$data_omitted)), " (see $data_omitted)\n"))
 
   cat(paste0("Population size: ", crayon::bold(nrow(x$pop_data_by_stratum)), "\n"))
 
@@ -603,9 +600,9 @@ print.summary.generalizeR_stratify <- function(x, ...) {
 
   cat("\n")
 
-  cat("============================================ \n")
+  cat(paste0(rep("=", 80), collapse = ""))
 
-  cat("Covariate Statistics by Stratum: \n\n")
+  cat("\nCovariate Statistics by Stratum: \n\n")
 
   x$heat_data_simple %>%
     as.data.frame() %>%
