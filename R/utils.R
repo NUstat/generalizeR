@@ -254,12 +254,14 @@
   }
 
   cov_dist_facet_plot <- expanded.data %>%
-    tidyr::pivot_longer(cols = covariates[1:25] %>%
+    tidyr::pivot_longer(cols = covariates[1:40] %>%
                           tidyselect::all_of() %>%
                           na.omit(),
                         names_to = "covariate") %>%
     ggplot() +
-    facet_wrap(~covariate, scales = "free") +
+    facet_wrap(~covariate,
+               scales = "free",
+               nrow = ifelse(length(covariates) > 25, 5, NULL)) +
     geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
                  alpha = 0.7) +
     scale_x_continuous(expand = c(0, 0)) +
@@ -269,7 +271,8 @@
     labs(y = "Density",
          title = "Covariate Distributions") +
     theme_minimal() +
-    theme(axis.ticks = element_line(),
+    theme(axis.ticks.x = element_line(),
+          axis.text.y = element_blank(),
           axis.line = element_line(),
           axis.title.x = element_blank(),
           plot.title = element_text(size = 12))
