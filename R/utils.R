@@ -279,33 +279,33 @@
   #         axis.title = element_blank(),
   #         plot.title = element_text(size = 12))
 
-  cov_dist_plots <- list()
-
-  for (covariate in covariates) {
-
-    new_plot <- expanded.data %>%
-      ggplot() +
-      geom_density(aes(x = !!rlang::sym(covariate), fill = factor(!!rlang::sym(sample_indicator))),
-                   alpha = 0.7) +
-      scale_x_continuous(expand = c(0, 0)) +
-      scale_y_continuous(expand = c(0, 0)) +
-      scale_fill_discrete(name = NULL,
-                          labels = c("Sample", "Population")) +
-      ggtitle(paste(covariate, "Density Plot")) +
-      theme_minimal() +
-      theme(axis.ticks.x = element_line(),
-            axis.text.y = element_blank(),
-            axis.line = element_line(),
-            axis.title = element_blank(),
-            plot.title = element_text(size = 12))
-
-    cov_dist_plots[[covariate]] <- new_plot
-  }
+  # cov_dist_plots <- list()
+  #
+  # for (covariate in covariates) {
+  #
+  #   new_plot <- expanded.data %>%
+  #     ggplot() +
+  #     geom_density(aes(x = !!rlang::sym(covariate), fill = factor(!!rlang::sym(sample_indicator))),
+  #                  alpha = 0.7) +
+  #     scale_x_continuous(expand = c(0, 0)) +
+  #     scale_y_continuous(expand = c(0, 0)) +
+  #     scale_fill_discrete(name = NULL,
+  #                         labels = c("Sample", "Population")) +
+  #     ggtitle(paste(covariate, "Density Plot")) +
+  #     theme_minimal() +
+  #     theme(axis.ticks.x = element_line(),
+  #           axis.text.y = element_blank(),
+  #           axis.line = element_line(),
+  #           axis.title = element_blank(),
+  #           plot.title = element_text(size = 12))
+  #
+  #   cov_dist_plots[[covariate]] <- new_plot
+  # }
 
   out <- list(covariate_table = covariate_table,
-              covariate_kable = covariate_kable,
+              covariate_kable = covariate_kable)
               #cov_dist_facet_plot = cov_dist_facet_plot,
-              cov_dist_plots = cov_dist_plots)
+              #cov_dist_plots = cov_dist_plots)
 
   return(invisible(out))
 }
