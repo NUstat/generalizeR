@@ -644,7 +644,7 @@ print.generalizeR_assess <- function(x,...) {
 
   cat("\nA generalizeR_assess object: \n\n")
 
-  cat(" - Dataset name:", crayon::bold(x$data_name), "\n\n")
+  cat(" - Dataset name:", crayon::cyan::bold(x$data_name), "\n\n")
 
   covariate_names <- x$covariates %>%
     crayon::cyan$bold() %>%
@@ -658,20 +658,20 @@ print.generalizeR_assess <- function(x,...) {
              "lr" = "Logistic Regression",
              "rf" = "Random Forest",
              "lasso" = "LASSO") %>%
-        crayon::bold(),
+        crayon::cyan::bold(),
       "\n\n")
 
   if (x$disjoint_data) {cat(" - The sample and population were considered wholly disjoint from one another.\n\n")}
 
-  else {cat(" - Sample was considered a proper subset of population.\n\n")}
+  else {cat(" - The sample was considered a proper subset of population.\n\n")}
 
-  cat(" - Sample size:", crayon::bold(x$n_sample), "\n\n")
+  cat(" - Sample size:", crayon::cyan$bold(x$n_sample), "\n\n")
 
-  cat(" - Population size:", crayon::bold(x$n_pop), "\n\n")
+  cat(" - Population size:", crayon::cyan$bold(x$n_pop), "\n\n")
 
-  if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", crayon::bold(x$n_excluded), "\n\n")}
+  if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", crayon::cyan::bold(x$n_excluded), "\n\n")}
 
-  cat(paste0(" - The generalizability index of the sample to the target population based on the selected covariates is ", crayon::bold(x$gen_index), "."))
+  cat(paste0(" - The generalizability index of the sample to the target population based on the selected covariates is ", crayon::cyan::bold(x$gen_index), "."))
 }
 
 summary.generalizeR_assess <- function(x,...) {
