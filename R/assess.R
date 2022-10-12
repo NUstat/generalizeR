@@ -661,9 +661,9 @@ print.generalizeR_assess <- function(x,...) {
         crayon::cyan$bold(),
       "\n\n")
 
-  if (x$disjoint_data) {cat(" - The sample and population were considered wholly disjoint from one another.\n\n")}
+  if (x$disjoint_data) {cat(paste0(" - The sample and the population were considered ", crayon::cyan$bold("disjoint"), " from one another.\n\n"))}
 
-  else {cat(" - The sample was considered a proper subset of population.\n\n")}
+  else {cat(paste0(" - The sample was considered a ", crayon::cyan$bold("subset"), " of the population.\n\n"))}
 
   cat(" - Sample size:", crayon::cyan$bold(x$n_sample), "\n\n")
 
