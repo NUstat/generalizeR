@@ -302,9 +302,10 @@
     cov_dist_plots[[covariate]] <- new_plot
   }
 
-
-  return(list(covariate_table = covariate_table,
+  out <- list(covariate_table = covariate_table,
               covariate_kable = covariate_kable,
               cov_dist_facet_plot = cov_dist_facet_plot,
-              cov_dist_plots = cov_dist_plots))
+              cov_dist_plots = cov_dist_plots)
+
+  return(invisible(out))
 }
