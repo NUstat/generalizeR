@@ -146,7 +146,7 @@ assess <- function(data,
       nrow()
   }
 
-  cat(paste0("The generalizability index of the sample to the target population based on the selected covariates is ", gen_index, ".\n\n"))
+  cat(paste0("The generalizability index of the sample to the target population based on the selected covariates is ", crayon::bold(gen_index), ".\n\n"))
 
   cov_tab_out <- .make.covariate.table(data,
                                        sample_indicator = sample_indicator,
@@ -172,8 +172,14 @@ assess <- function(data,
     covariate_kable = cov_tab_out$covariate_kable,
     cov_dist_facet_plot = cov_tab_out$cov_dist_facet_plot,
     cov_dist_plots = cov_tab_out$cov_dist_plots,
-    data = data_output
+    data = data_output,
+    data_name = data_name
   )
+
+  rm(
+    list = deparse(substitute(data_name)),
+    envir = .GlobalEnv
+  ) # delete object data_name from global environment
 
   class(out) <- "generalizeR_assess"
 
@@ -637,28 +643,29 @@ print.generalizeR_assess <- function(x,...) {
 
   cat("\nA generalizeR_assess object: \n\n")
 
-  cat(" - Dataset used:", crayon::bold(x$data), "\n\n")
+  cat(" - Dataset name:", crayon::bold(x$data_name), "\n\n")
 
-  cat(" - Covariates selected: ", paste(x$covariates, collapse = ", "), "\n")
+  cat(" - Covariates selected: ", paste(crayon::blue$bold(x$covariates), collapse = ", "), "\n")
 
   cat(" - Probability of sample membership estimation method: ",
       switch(x$estimation_method,
              "lr" = "Logistic Regression",
              "rf" = "Random Forest",
-             "lasso" = "Lasso"),
+             "lasso" = "Lasso") %>%
+        crayon::bold(),
       "\n")
 
-  if (disjoint_data) {cat(" - Sample and population were considered wholly disjoint from one another.")}
+  if (x$disjoint_data) {cat(" - Sample and population were considered wholly disjoint from one another.")}
 
   else {cat(" - Sample was considered a proper subset of population.")}
 
-  cat(" - Sample size: ", x$n_sample, "\n")
+  cat(" - Sample size: ", crayon::bold(x$n_sample), "\n")
 
-  cat(" - Population size: ", x$n_pop, "\n")
+  cat(" - Population size: ", crayon::bold(x$n_pop), "\n")
 
-  if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", x$n_excluded, "\n\n")}
+  if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", crayon::bold(x$n_excluded), "\n\n")}
 
-  cat("The generalizability index of the sample to the target population based on the selected covariates is ", x$gen_index, ".\n\n")
+  cat("The generalizability index of the sample to the target population based on the selected covariates is ", crayon::bold(x$gen_index), ".\n\n")
 }
 
 summary.generalizeR_assess <- function(x,...) {
