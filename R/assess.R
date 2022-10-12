@@ -2,8 +2,6 @@
 #'
 #' This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.
 #'
-#' 'assess_wrap()' is a wrapper for this function that allows assessment over levels of a grouping variable.
-#'
 #' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param data data frame comprised of "stacked" sample and target population data
@@ -31,7 +29,7 @@ assess <- function(data,
   data_name <<- data %>%
     lazyeval::expr_text()
 
-  ##### GUIDED VERSION #####
+  # GUIDED VERSION
 
   if(guided) {
 
@@ -48,14 +46,14 @@ assess <- function(data,
     estimation_method <- user_choices$estimation_method
   }
 
-  ##### NON-GUIDED VERSION #####
+  # NON-GUIDED VERSION
   else {
 
     estimation_method <- tolower(estimation_method)
 
     invalid_covariates <- covariates %>% setdiff(names(data))
 
-    ##### Ensure selection covariates are variables in the dataframe provided #####
+    # Ensure selection covariates are variables in the dataframe provided
     assertthat::on_failure(is_empty) <- function(call, env) {
 
       paste("The following covariates are not variables in the data provided:\n",
@@ -66,7 +64,7 @@ assess <- function(data,
 
     assertthat::assert_that(is_empty(invalid_covariates))
 
-    ##### Ensure sample variable is binary #####
+    # Ensure sample variable is binary
     is_sample_indicator_binary <- function(sample_indicator) {
 
       all(dplyr::pull(data, tidyselect::all_of(sample_indicator)) %in% c(0, 1))
@@ -79,7 +77,7 @@ assess <- function(data,
 
     assertthat::assert_that(is_sample_indicator_binary(sample_indicator))
 
-    ##### Ensure estimation method is valid #####
+    # Ensure estimation method is valid
     is_estimation_method_valid <- function(estimation_method){
 
       estimation_method %in% c("lr","rf","lasso")
@@ -112,7 +110,7 @@ assess <- function(data,
     data <- trim_pop_output$trimmed_data
   }
 
-  ##### Generate Participation Probabilities #####
+  # Generate Participation Probabilities
   ps <- .generate.ps(data,
                      sample_indicator,
                      covariates,
@@ -122,22 +120,23 @@ assess <- function(data,
                               in_sample = ps[which(data[,sample_indicator] == 1)],
                               population = ps)
 
-  ##### Calculate Generalizability Index and sample and population sizes #####
+  # Calculate Generalizability Index and sample and population sizes
 
   n_sample <- data %>%
     dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
     nrow()
 
-  ## If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
+  # If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
   if(!disjoint_data) {
 
-    gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$population) %>% round(4)
+    gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$population) %>%
+      round(4)
 
     n_pop <- data %>%
       nrow()
   }
 
-  ## If data is disjoint, compare in_sample to not_in_sample
+  # If data is disjoint, compare in_sample to not_in_sample
   else {
 
     gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$not_in_sample) %>% round(4)
@@ -147,7 +146,7 @@ assess <- function(data,
       nrow()
   }
 
-  cat(paste0("\nThe generalizability index of the sample on the selected covariates is ", gen_index, ".\n\n"))
+  cat("The generalizability index of the sample to the target population based on the selected covariates is ", gen_index, ".\n\n")
 
   cov_tab_out <- .make.covariate.table(data,
                                        sample_indicator = sample_indicator,
@@ -176,7 +175,7 @@ assess <- function(data,
     data = data_output
   )
 
-  class(out) <- "generalizer_assess"
+  class(out) <- "generalizeR_assess"
 
   return(invisible(out))
 }
@@ -621,12 +620,12 @@ assess <- function(data,
       return(optim_binwidth)
     }
 
-    # kernel estimators of the density and the distribution
+    # Kernel estimators of the density and the distribution
     kg = function(x, data){
 
-      hb = h(data) #bin width
+      hb = h(data) # Bin width
       k = r = length(x)
-      for(i in 1:k) r[i] = mean(dnorm((x[i] - data)/hb))/hb # we divide by bin width, which is a problem when bin width goes to zero
+      for(i in 1:k) r[i] = mean(dnorm((x[i] - data)/hb))/hb # We divide by bin width, which is a problem when bin width goes to zero
       return(r)
     }
 
@@ -634,56 +633,96 @@ assess <- function(data,
   }
 }
 
-print.generalize_assess <- function(x,...) {
-  cat("A generalizer_assess object: \n")
-  cat(paste0(" - probability of sample membership estimation method: ", x$estimation_method, "\n"))
-  cat(paste0(" - common covariates included: ", paste(x$covariates, collapse = ", "), "\n"))
-  cat(paste0(" - sample size: ", x$n_sample, "\n"))
-  cat(paste0(" - population size : ", x$n_pop, "\n"))
-  cat(paste0(" - was population trimmed according to sample covariate bounds?: ", ifelse(x$trim_pop, "Yes", "No"), "\n"))
-  if(x$trim_pop){
-    cat(paste0("    - number excluded from population data: ", x$n_excluded, "\n"))
-  }
+print.generalizeR_assess <- function(x,...) {
 
-  invisible(x)
+  cat("\nA generalizeR_assess object: \n\n")
+
+  cat(" - Dataset used:", crayon::bold(x$data), "\n\n")
+
+  cat(" - Covariates selected: ", paste(x$covariates, collapse = ", "), "\n")
+
+  cat(" - Probability of sample membership estimation method: ",
+      switch(x$estimation_method,
+             "lr" = "Logistic Regression",
+             "rf" = "Random Forest",
+             "lasso" = "Lasso"),
+      "\n")
+
+  if (disjoint_data) {cat(" - Sample and population were considered wholly disjoint from one another.")}
+
+  else {cat(" - Sample was considered a proper subset of population.")}
+
+  cat(" - Sample size: ", x$n_sample, "\n")
+
+  cat(" - Population size: ", x$n_pop, "\n")
+
+  if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", x$n_excluded, "\n\n")}
+
+  cat("The generalizability index of the sample to the target population based on the selected covariates is ", x$gen_index, ".\n\n")
 }
 
-summary.generalize_assess <- function(object,...){
-  estimation_method_name = c("Logistic Regression", "Random Forest", "Lasso")
-  estimation_method = c("lr", "rf", "lasso")
-  prob_dist_table = rbind(summary(object$participation_probs$sample_indicator),
-                          summary(object$participation_probs$population))
-  row.names(prob_dist_table) = paste0(c("Sample","Population"), " (n = ", c(object$n_sample, object$n_pop),")")
+summary.generalizeR_assess <- function(x,...) {
 
-  selection_formula = paste0(object$sample_indicator," ~ ", paste(object$covariates, collapse = " + "))
+  estimation_method <- switch(x$estimation_method,
+                              "lr" = "Logistic Regression",
+                              "rf" = "Random Forest",
+                              "lasso" = "Lasso")
 
-  out = list(
-    selection_formula = selection_formula,
-    estimation_method = estimation_method_name[estimation_method == object$estimation_method],
-    gen_index = object$gen_index,
-    prob_dist_table = prob_dist_table,
-    covariate_table = round(object$covariate_table, 4),
-    trim_pop = object$trim_pop,
-    n_excluded = object$n_excluded
-  )
+  if(x$disjoint_data) {
 
-  class(out) <- "summary.generalize_assess"
+    prob_dist_table <- rbind(summary(x$participation_probs$in_sample),
+                             summary(x$participation_probs$population))
+
+    row.names(prob_dist_table) <- paste0(c("Sample","Population"), " (n = ", c(x$n_sample, x$n_pop),")")
+
+  }
+
+  else {
+
+    prob_dist_table <- rbind(summary(x$participation_probs$in_sample),
+                             summary(x$participation_probs$not_in_sample))
+
+    row.names(prob_dist_table) <- paste0(c("In Sample","Not In Sample"), " (n = ", c(x$n_sample, x$n_pop - x$n_sample),")")
+  }
+
+  selection_formula <- paste0(x$sample_indicator," ~ ", paste(x$covariates, collapse = " + "))
+
+  out <- list(selection_formula = selection_formula,
+              estimation_method = estimation_method,
+              gen_index = x$gen_index,
+              prob_dist_table = prob_dist_table,
+              covariate_table = round(x$covariate_table, 4),
+              n_excluded = x$n_excluded)
+
+  class(out) <- "summary.generalizeR_assess"
+
   return(out)
 }
 
-print.summary.generalize_assess <- function(x,...){
-  cat("Probability of Sample Participation: \n \n")
-  cat(paste0("Selection Model: ", x$selection_formula," \n \n"))
+print.summary.generalizeR_assess <- function(x,...) {
+
+  cat("Sample Participation Probabilities: \n\n")
+
   print(x$prob_dist_table)
+
+  cat("Selection Model: ", x$selection_formula," \n\n")
+
   cat("\n")
-  cat(paste0("Estimated by ", x$estimation_method, "\n"))
-  cat(paste0("Generalizability Index: ", gen_index, "\n"))
+
+  cat("Estimated by ", x$estimation_method, "\n")
+
+  cat("Generalizability Index: ", gen_index, "\n")
+
   cat("============================================ \n")
-  if(x$trim_pop){
-    cat("Population data were trimmed for covariates to not exceed sample covariate bounds \n")
-    cat(paste0("Number excluded from population: ", x$n_excluded , "\n \n"))
+
+  if (x$n_excluded > 0) {
+
+    cat("Dataset was trimmed to ensure population covariates do not exceed sample covariate bounds \n")
+
+    cat("Number of observations trimmed from population: ", x$n_excluded , "\n\n")
   }
-  cat("Covariate Table: \n \n")
+
+  cat("Covariate Table: \n\n")
+
   print(round(x$covariate_table, 4))
-  invisible(x)
 }
