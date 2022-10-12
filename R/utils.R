@@ -253,31 +253,31 @@
       kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
   }
 
-  cov_dist_facet_plot <- expanded.data %>%
-    tidyr::pivot_longer(cols = covariates[1:40] %>%
-                          tidyselect::all_of() %>%
-                          na.omit(),
-                        names_to = "covariate") %>%
-    ggplot() +
-    facet_wrap(~covariate,
-               scales = "free",
-               nrow = ifelse(length(covariates) > 25, 5, NULL)) +
-    geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
-                 alpha = 0.7) +
-    scale_x_continuous(expand = c(0, 0),
-                       n.breaks = 3) +
-    scale_y_continuous(expand = c(0, 0)) +
-    scale_fill_discrete(name = NULL,
-                        labels = c("Sample", "Population")) +
-    ggtitle("Covariate Density Plots") +
-    theme_minimal() +
-    theme(axis.ticks.x = element_line(),
-          axis.text.y = element_blank(),
-          axis.text.x = element_text(angle = 45,
-                                     hjust = 1),
-          axis.line = element_line(),
-          axis.title = element_blank(),
-          plot.title = element_text(size = 12))
+  # cov_dist_facet_plot <- expanded.data %>%
+  #   tidyr::pivot_longer(cols = covariates[1:40] %>%
+  #                         tidyselect::all_of() %>%
+  #                         na.omit(),
+  #                       names_to = "covariate") %>%
+  #   ggplot() +
+  #   facet_wrap(~covariate,
+  #              scales = "free",
+  #              nrow = ifelse(length(covariates) > 25, 5, NULL)) +
+  #   geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
+  #                alpha = 0.7) +
+  #   scale_x_continuous(expand = c(0, 0),
+  #                      n.breaks = 3) +
+  #   scale_y_continuous(expand = c(0, 0)) +
+  #   scale_fill_discrete(name = NULL,
+  #                       labels = c("Sample", "Population")) +
+  #   ggtitle("Covariate Density Plots") +
+  #   theme_minimal() +
+  #   theme(axis.ticks.x = element_line(),
+  #         axis.text.y = element_blank(),
+  #         axis.text.x = element_text(angle = 45,
+  #                                    hjust = 1),
+  #         axis.line = element_line(),
+  #         axis.title = element_blank(),
+  #         plot.title = element_text(size = 12))
 
   cov_dist_plots <- list()
 
@@ -304,7 +304,7 @@
 
   out <- list(covariate_table = covariate_table,
               covariate_kable = covariate_kable,
-              cov_dist_facet_plot = cov_dist_facet_plot,
+              #cov_dist_facet_plot = cov_dist_facet_plot,
               cov_dist_plots = cov_dist_plots)
 
   return(invisible(out))

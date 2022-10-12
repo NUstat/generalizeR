@@ -146,7 +146,7 @@ assess <- function(data,
       nrow()
   }
 
-  cat(paste0("The generalizability index of the sample to the target population based on the selected covariates is ", crayon::bold(gen_index), ".\n\n"))
+  cat(paste0("The generalizability index of the sample to the target population based on the selected covariates is ", crayon::cyan$bold(gen_index), ".\n\n"))
 
   cov_tab_out <- .make.covariate.table(data,
                                        sample_indicator = sample_indicator,
