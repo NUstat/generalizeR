@@ -190,9 +190,6 @@
                   ASMD_weighted = abs((sample_mean_weighted - pop_mean) / pop_sd)) %>%
     dplyr::mutate(dplyr::across(where(is.numeric), round, digits = 3))
 
-  tab_merged %>% ggplot2::ggplot(aes(x = covariates[1])) +
-    geom_density() %>% print()
-
   if (!is.null(sample_weights)) {
 
     covariate_table <- tab_merged %>%
@@ -253,54 +250,54 @@
       kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
   }
 
-  # cov_dist_facet_plot <- expanded.data %>%
-  #   tidyr::pivot_longer(cols = covariates[1:40] %>%
-  #                         tidyselect::all_of() %>%
-  #                         na.omit(),
-  #                       names_to = "covariate") %>%
-  #   ggplot() +
-  #   facet_wrap(~covariate,
-  #              scales = "free",
-  #              nrow = ifelse(length(covariates) > 25, 5, NULL)) +
-  #   geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
-  #                alpha = 0.7) +
-  #   scale_x_continuous(expand = c(0, 0),
-  #                      n.breaks = 3) +
-  #   scale_y_continuous(expand = c(0, 0)) +
-  #   scale_fill_discrete(name = NULL,
-  #                       labels = c("Sample", "Population")) +
-  #   ggtitle("Covariate Density Plots") +
-  #   theme_minimal() +
-  #   theme(axis.ticks.x = element_line(),
-  #         axis.text.y = element_blank(),
-  #         axis.text.x = element_text(angle = 45,
-  #                                    hjust = 1),
-  #         axis.line = element_line(),
-  #         axis.title = element_blank(),
-  #         plot.title = element_text(size = 12))
+  cov_dist_facet_plot <- expanded.data %>%
+    tidyr::pivot_longer(cols = covariates[1:40] %>%
+                          tidyselect::all_of() %>%
+                          na.omit(),
+                        names_to = "covariate") %>%
+    ggplot() +
+    facet_wrap(~covariate,
+               scales = "free",
+               nrow = ifelse(length(covariates) > 25, 5, NULL)) +
+    geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
+                 alpha = 0.7) +
+    scale_x_continuous(expand = c(0, 0),
+                       n.breaks = 3) +
+    scale_y_continuous(expand = c(0, 0)) +
+    scale_fill_discrete(name = NULL,
+                        labels = c("Sample", "Population")) +
+    ggtitle("Covariate Density Plots") +
+    theme_minimal() +
+    theme(axis.ticks.x = element_line(),
+          axis.text.y = element_blank(),
+          axis.text.x = element_text(angle = 45,
+                                     hjust = 1),
+          axis.line = element_line(),
+          axis.title = element_blank(),
+          plot.title = element_text(size = 12))
 
-  # cov_dist_plots <- list()
-  #
-  # for (covariate in covariates) {
-  #
-  #   new_plot <- expanded.data %>%
-  #     ggplot() +
-  #     geom_density(aes(x = !!rlang::sym(covariate), fill = factor(!!rlang::sym(sample_indicator))),
-  #                  alpha = 0.7) +
-  #     scale_x_continuous(expand = c(0, 0)) +
-  #     scale_y_continuous(expand = c(0, 0)) +
-  #     scale_fill_discrete(name = NULL,
-  #                         labels = c("Sample", "Population")) +
-  #     ggtitle(paste(covariate, "Density Plot")) +
-  #     theme_minimal() +
-  #     theme(axis.ticks.x = element_line(),
-  #           axis.text.y = element_blank(),
-  #           axis.line = element_line(),
-  #           axis.title = element_blank(),
-  #           plot.title = element_text(size = 12))
-  #
-  #   cov_dist_plots[[covariate]] <- new_plot
-  # }
+  cov_dist_plots <- list()
+
+  for (covariate in covariates) {
+
+    new_plot <- expanded.data %>%
+      ggplot() +
+      geom_density(aes(x = !!rlang::sym(covariate), fill = factor(!!rlang::sym(sample_indicator))),
+                   alpha = 0.7) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_fill_discrete(name = NULL,
+                          labels = c("Sample", "Population")) +
+      ggtitle(paste(covariate, "Density Plot")) +
+      theme_minimal() +
+      theme(axis.ticks.x = element_line(),
+            axis.text.y = element_blank(),
+            axis.line = element_line(),
+            axis.title = element_blank(),
+            plot.title = element_text(size = 12))
+
+    cov_dist_plots[[covariate]] <- new_plot
+  }
 
   out <- list(covariate_table = covariate_table,
               covariate_kable = covariate_kable)
