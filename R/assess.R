@@ -646,27 +646,32 @@ print.generalizeR_assess <- function(x,...) {
 
   cat(" - Dataset name:", crayon::bold(x$data_name), "\n\n")
 
-  cat(" - Covariates selected: ", paste(crayon::blue$bold(x$covariates), collapse = ", "), "\n")
+  covariate_names <- x$covariates %>%
+    crayon::cyan$bold() %>%
+    paste(collapse = ", ") %>%
+    gsub('(.{200})\\s(,*)', '\\1\n \\2', .)
 
-  cat(" - Probability of sample membership estimation method: ",
+  cat(" - Covariates selected:\n\n", covariate_names, "\n\n")
+
+  cat(" - Method used to estimate probability of sample membership:",
       switch(x$estimation_method,
              "lr" = "Logistic Regression",
              "rf" = "Random Forest",
-             "lasso" = "Lasso") %>%
+             "lasso" = "LASSO") %>%
         crayon::bold(),
-      "\n")
+      "\n\n")
 
-  if (x$disjoint_data) {cat(" - Sample and population were considered wholly disjoint from one another.")}
+  if (x$disjoint_data) {cat(" - The sample and population were considered wholly disjoint from one another.\n\n")}
 
-  else {cat(" - Sample was considered a proper subset of population.")}
+  else {cat(" - Sample was considered a proper subset of population.\n\n")}
 
-  cat(" - Sample size: ", crayon::bold(x$n_sample), "\n")
+  cat(" - Sample size:", crayon::bold(x$n_sample), "\n\n")
 
-  cat(" - Population size: ", crayon::bold(x$n_pop), "\n")
+  cat(" - Population size:", crayon::bold(x$n_pop), "\n\n")
 
   if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", crayon::bold(x$n_excluded), "\n\n")}
 
-  cat("The generalizability index of the sample to the target population based on the selected covariates is ", crayon::bold(x$gen_index), ".\n\n")
+  cat(paste0(" - The generalizability index of the sample to the target population based on the selected covariates is ", crayon::bold(x$gen_index), "."))
 }
 
 summary.generalizeR_assess <- function(x,...) {
@@ -699,7 +704,7 @@ summary.generalizeR_assess <- function(x,...) {
               estimation_method = estimation_method,
               gen_index = x$gen_index,
               prob_dist_table = prob_dist_table,
-              covariate_table = round(x$covariate_table, 4),
+              covariate_table = x$covariate_table,
               n_excluded = x$n_excluded)
 
   class(out) <- "summary.generalizeR_assess"
@@ -719,7 +724,7 @@ print.summary.generalizeR_assess <- function(x,...) {
 
   cat("Estimated by ", x$estimation_method, "\n")
 
-  cat("Generalizability Index: ", gen_index, "\n")
+  cat("Generalizability Index: ", x$gen_index, "\n")
 
   cat("============================================ \n")
 
