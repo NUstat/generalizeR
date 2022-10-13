@@ -704,6 +704,31 @@ summary.generalizeR_assess <- function(x, ...) {
 
     row.names(prob_dist_table) <- paste0(c("Sample","Population"), " (n = ", c(x$n_sample, x$n_pop),")")
 
+    sample_probs <- data.frame(probs = x$participation_probs$in_sample) %>%
+      mutate(sample_indicator = 1)
+
+    pop_probs <- data.frame(probs = x$participation_probs$population) %>%
+      mutate(sample_indicator = 0)
+
+    probs <- rbind(sample_probs, pop_probs)
+
+    prob_dist_plot <- probs %>%
+      ggplot2::ggplot() +
+      geom_density(aes(x = probs, fill = sample_indicator),
+                   alpha = 0.7) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_fill_discrete(name = NULL,
+                          labels = c("Population", "Sample")) +
+      labs(x = "Probability",
+           y = "Density",
+           title = "Distribution of Estimated Sample Membership Probabilities") +
+      theme_minimal() +
+      theme(axis.ticks.x = element_line(),
+            axis.text.y = element_blank(),
+            axis.line = element_line(),
+            axis.title = element_blank(),
+            plot.title = element_text(size = 12))
   }
 
   else {
@@ -712,14 +737,38 @@ summary.generalizeR_assess <- function(x, ...) {
                              summary(x$participation_probs$not_in_sample))
 
     row.names(prob_dist_table) <- paste0(c("In Sample","Not In Sample"), " (n = ", c(x$n_sample, x$n_pop - x$n_sample),")")
+
+    in_sample_probs <- data.frame(probs = x$participation_probs$in_sample) %>%
+      mutate(sample_indicator = 1)
+
+    not_in_sample_probs <- data.frame(probs = x$participation_probs$not_in_sample) %>%
+      mutate(sample_indicator = 0)
+
+    probs <- rbind(in_sample_probs, not_in_sample_probs)
+
+    prob_dist_plot <- probs %>%
+      ggplot2::ggplot() +
+      geom_density(aes(x = probs, fill = sample_indicator),
+                   alpha = 0.7) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_fill_discrete(name = NULL,
+                          labels = c("Not in Sample", "In Sample")) +
+      labs(x = "Probability",
+           y = "Density",
+           title = "Distribution of Estimated Sample Membership Probabilities") +
+      theme_minimal() +
+      theme(axis.ticks.x = element_line(),
+            axis.text.y = element_blank(),
+            axis.line = element_line(),
+            axis.title = element_blank(),
+            plot.title = element_text(size = 12))
   }
 
-  selection_formula <- paste0(x$sample_indicator," ~ ", paste(x$covariates, collapse = " + "))
-
-  out <- list(selection_formula = selection_formula,
-              estimation_method = estimation_method,
+  out <- list(estimation_method = estimation_method,
               gen_index = x$gen_index,
               prob_dist_table = prob_dist_table,
+              prob_dist_plot = prob_dist_plot,
               covariate_table = x$covariate_table,
               n_excluded = x$n_excluded)
 
@@ -742,24 +791,27 @@ print.summary.generalizeR_assess <- function(x, ...) {
 
   print(x$prob_dist_table)
 
-  cat("Selection Model: ", x$selection_formula," \n\n")
+  print(x$prob_dist_plot)
 
-  cat("\n")
+  cat("\n\nEstimated by ", crayon::cyan$bold(x$estimation_method), "\n\n")
 
-  cat("Estimated by ", x$estimation_method, "\n")
+  covariate_names <- x$covariates %>%
+    crayon::cyan$bold() %>%
+    paste(collapse = ", ") %>%
+    gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
 
-  cat("Generalizability Index: ", x$gen_index, "\n")
+  cat(" - Covariates used:\n\n  ", covariate_names, "\n\n")
 
-  cat("============================================ \n")
+  cat("Generalizability Index: ", crayon::cyan$bold(x$gen_index), "\n\n")
 
   if (x$n_excluded > 0) {
 
-    cat("Dataset was trimmed to ensure population covariates do not exceed sample covariate bounds \n")
+    cat("The dataset was trimmed to ensure population covariates do not exceed sample covariate bounds.\n\n")
 
-    cat("Number of observations trimmed from population: ", x$n_excluded , "\n\n")
+    cat("Number of observations trimmed from population: ", crayon::cyan$bold(x$n_excluded), "\n\n")
   }
 
   cat("Covariate Table: \n\n")
 
-  print(round(x$covariate_table, 4))
+  print(x$covariate_table)
 }

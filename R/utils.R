@@ -265,7 +265,7 @@
                        n.breaks = 3) +
     scale_y_continuous(expand = c(0, 0)) +
     scale_fill_discrete(name = NULL,
-                        labels = c("Sample", "Population")) +
+                        labels = c("Population", "Sample")) +
     ggtitle("Covariate Density Plots") +
     theme_minimal() +
     theme(axis.ticks.x = element_line(),
@@ -287,7 +287,7 @@
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
       scale_fill_discrete(name = NULL,
-                          labels = c("Sample", "Population")) +
+                          labels = c("Population", "Sample")) +
       ggtitle(paste(covariate, "Density Plot")) +
       theme_minimal() +
       theme(axis.ticks.x = element_line(),
