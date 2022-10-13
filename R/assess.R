@@ -727,8 +727,8 @@ summary.generalizeR_assess <- function(x, ...) {
       theme(axis.ticks.x = element_line(),
             axis.text.y = element_blank(),
             axis.line = element_line(),
-            axis.title = element_blank(),
-            plot.title = element_text(size = 12))
+            plot.title = element_text(size = 12),
+            legend.position = "topright")
   }
 
   else {
