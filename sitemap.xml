@@ -79,7 +79,19 @@
     <loc>https://nustat.github.io/generalizeR/reference/print.generalizeR_assess.html</loc>
   </url>
   <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.generalizeR_stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.generalizeR_weighting.html</loc>
+  </url>
+  <url>
     <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalizeR_assess.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalizeR_stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/print.summary.generalizeR_weighting.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/recruit.html</loc>
@@ -89,6 +101,12 @@
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/summary.generalizeR_assess.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/summary.generalizeR_stratify.html</loc>
+  </url>
+  <url>
+    <loc>https://nustat.github.io/generalizeR/reference/summary.generalizeR_weighting.html</loc>
   </url>
   <url>
     <loc>https://nustat.github.io/generalizeR/reference/weighting.html</loc>
