@@ -714,7 +714,7 @@ summary.generalizeR_assess <- function(x, ...) {
 
     prob_dist_plot <- probs %>%
       ggplot2::ggplot() +
-      geom_density(aes(x = probs, fill = sample_indicator),
+      geom_density(aes(x = probs, fill = factor(sample_indicator)),
                    alpha = 0.7) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
@@ -769,7 +769,7 @@ summary.generalizeR_assess <- function(x, ...) {
 
   prob_dist_table <- prob_dist_table %>%
     data.frame() %>%
-    colorDF::colorDF(theme = "universal")
+    colorDF::colorDF(theme = "dark")
 
   out <- list(estimation_method = estimation_method,
               gen_index = x$gen_index,
@@ -795,20 +795,20 @@ summary.generalizeR_assess <- function(x, ...) {
 
 print.summary.generalizeR_assess <- function(x, ...) {
 
-  cat("\nSample Participation Probabilities: \n\n")
+  cat("\nEstimated Sample Participation Probabilities: \n\n")
 
   print(x$prob_dist_table)
 
   print(x$prob_dist_plot)
 
-  cat("\n\nEstimated by ", crayon::cyan$bold(x$estimation_method), "\n\n")
+  cat("\n\nEstimation Method:", crayon::cyan$bold(x$estimation_method), "\n\n")
 
   covariate_names <- x$covariates %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
     gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
 
-  cat("Covariates used:\n\n  ", covariate_names, "\n\n")
+  cat("Covariates Used:\n\n  ", covariate_names, "\n\n")
 
   cat("Generalizability Index: ", crayon::cyan$bold(x$gen_index), "\n\n")
 
