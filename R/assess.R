@@ -822,4 +822,6 @@ print.summary.generalizeR_assess <- function(x, ...) {
   cat("Covariate Table: \n\n")
 
   print(x$covariate_table)
+
+  x$covariate_kable
 }
