@@ -428,7 +428,7 @@ summary.generalizeR_weighting <- function(x, ...) {
 #' @param x An object of class "summary.generalizeR_weighting"
 #' @param ... Other arguments passed to or from other methods
 #'
-#' @export print.summary..generalizeR_weighting
+#' @export print.summary.generalizeR_weighting
 #' @export
 
 print.summary.generalizeR_weighting <- function(x, ...) {
