@@ -823,5 +823,5 @@ print.summary.generalizeR_assess <- function(x, ...) {
 
   print(x$covariate_table)
 
-  x$covariate_kable
+  print(x$covariate_kable)
 }
