@@ -5,7 +5,7 @@
 #' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param data data frame comprised of "stacked" sample and target population data
-#' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
+#' @param estimation_method method to estimate the probability of sample membership (propensity scores). Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
 #' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.
 #' @export
@@ -116,9 +116,9 @@ assess <- function(data,
                      covariates,
                      estimation_method)
 
-  participation_probs <- list(not_in_sample = ps[which(data[,sample_indicator] == 0)],
-                              in_sample = ps[which(data[,sample_indicator] == 1)],
-                              population = ps)
+  propensity_scores <- list(not_in_sample = ps[which(data[,sample_indicator] == 0)],
+                            in_sample = ps[which(data[,sample_indicator] == 1)],
+                            population = ps)
 
   # Calculate Generalizability Index and sample and population sizes
 
@@ -129,7 +129,7 @@ assess <- function(data,
   # If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
   if(!disjoint_data) {
 
-    gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$population) %>%
+    gen_index <- .get.gen.index(propensity_scores$in_sample, propensity_scores$population) %>%
       round(4)
 
     n_pop <- data %>%
@@ -139,7 +139,7 @@ assess <- function(data,
   # If data is disjoint, compare in_sample to not_in_sample
   else {
 
-    gen_index <- .get.gen.index(participation_probs$in_sample, participation_probs$not_in_sample) %>% round(4)
+    gen_index <- .get.gen.index(propensity_scores$in_sample, propensity_scores$not_in_sample) %>% round(4)
 
     n_pop <- data %>%
       dplyr::filter(!!rlang::sym(sample_indicator) == 0) %>%
@@ -161,14 +161,13 @@ assess <- function(data,
   out <- list(
     gen_index = gen_index,
     estimation_method = estimation_method,
-    covariates = covariates,
     disjoint_data = disjoint_data,
     sample_indicator = sample_indicator,
     n_sample = n_sample,
     n_pop = n_pop,
     trim_pop = trim_pop,
     n_excluded = n_excluded,
-    participation_probs = participation_probs,
+    propensity_scores = propensity_scores,
     covariate_table = cov_tab_out$covariate_table,
     covariate_kable = cov_tab_out$covariate_kable,
     cov_dist_facet_plot = cov_tab_out$cov_dist_facet_plot,
@@ -654,7 +653,8 @@ print.generalizeR_assess <- function(x, ...) {
 
   cat(" - Dataset name:", crayon::cyan$bold(x$data_name), "\n\n")
 
-  covariate_names <- x$covariates %>%
+  covariate_names <- x$covariate_table %>%
+    pull(covariate) %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
     gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
@@ -697,24 +697,24 @@ summary.generalizeR_assess <- function(x, ...) {
                               "rf" = "Random Forest",
                               "lasso" = "Lasso")
 
-  if(x$disjoint_data) {
+  if (x$disjoint_data) {
 
-    prob_dist_table <- rbind(summary(x$participation_probs$in_sample),
-                             summary(x$participation_probs$population))
+    prop_score_dist_table <- rbind(summary(x$propensity_scores$in_sample),
+                                   summary(x$propensity_scores$population))
 
-    row.names(prob_dist_table) <- paste0(c("Sample","Population"), " (n = ", c(x$n_sample, x$n_pop),")")
+    row.names(prop_score_dist_table) <- paste0(c("Sample","Population"), " (n = ", c(x$n_sample, x$n_pop),")")
 
-    sample_probs <- data.frame(probs = x$participation_probs$in_sample) %>%
+    sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
       mutate(sample_indicator = 1)
 
-    pop_probs <- data.frame(probs = x$participation_probs$population) %>%
+    pop_prop_scores <- data.frame(prop_scores = x$propensity_scores$population) %>%
       mutate(sample_indicator = 0)
 
-    probs <- rbind(sample_probs, pop_probs)
+    prop_scores <- rbind(sample_prop_scores, pop_prop_scores)
 
-    prob_dist_plot <- probs %>%
+    prop_score_dist_plot <- prop_scores %>%
       ggplot2::ggplot() +
-      geom_density(aes(x = probs, fill = factor(sample_indicator)),
+      geom_density(aes(x = prop_scores, fill = factor(sample_indicator)),
                    alpha = 0.7) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
@@ -722,7 +722,7 @@ summary.generalizeR_assess <- function(x, ...) {
                           labels = c("Population", "Sample")) +
       labs(x = "Probability",
            y = "Density",
-           title = "Distribution of Estimated Sample Membership Probabilities") +
+           title = "Distribution of Estimated Propensity Scores") +
       theme_minimal() +
       theme(axis.ticks.x = element_line(),
             axis.text.y = element_blank(),
@@ -733,22 +733,22 @@ summary.generalizeR_assess <- function(x, ...) {
 
   else {
 
-    prob_dist_table <- rbind(summary(x$participation_probs$in_sample),
-                             summary(x$participation_probs$not_in_sample))
+    prop_score_dist_table <- rbind(summary(x$propensity_scores$in_sample),
+                             summary(x$propensity_scores$not_in_sample))
 
-    row.names(prob_dist_table) <- paste0(c("In Sample","Not In Sample"), " (n = ", c(x$n_sample, x$n_pop - x$n_sample),")")
+    row.names(prop_score_dist_table) <- paste0(c("In Sample","Not In Sample"), " (n = ", c(x$n_sample, x$n_pop),")")
 
-    in_sample_probs <- data.frame(probs = x$participation_probs$in_sample) %>%
+    in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
       mutate(sample_indicator = 1)
 
-    not_in_sample_probs <- data.frame(probs = x$participation_probs$not_in_sample) %>%
+    not_in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$not_in_sample) %>%
       mutate(sample_indicator = 0)
 
-    probs <- rbind(in_sample_probs, not_in_sample_probs)
+    prop_scores <- rbind(in_sample_prop_scores, not_in_sample_prop_scores)
 
-    prob_dist_plot <- probs %>%
+    prop_score_dist_plot <- prop_scores %>%
       ggplot2::ggplot() +
-      geom_density(aes(x = probs, fill = factor(sample_indicator)),
+      geom_density(aes(x = prop_scores, fill = factor(sample_indicator)),
                    alpha = 0.7) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
@@ -765,19 +765,17 @@ summary.generalizeR_assess <- function(x, ...) {
             plot.title = element_text(size = 12))
   }
 
-  colnames(prob_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
+  colnames(prop_score_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
 
-  prob_dist_table <- prob_dist_table %>%
+  prop_score_dist_table <- prop_score_dist_table %>%
     data.frame() %>%
     colorDF::colorDF(theme = "dark")
 
   out <- list(estimation_method = estimation_method,
               gen_index = x$gen_index,
-              prob_dist_table = prob_dist_table,
-              prob_dist_plot = prob_dist_plot,
+              prop_score_dist_table = prop_score_dist_table,
+              prop_score_dist_plot = prop_score_dist_plot,
               covariate_table = x$covariate_table,
-              covariate_kable = x$covariate_kable,
-              covariates = x$covariates,
               n_excluded = x$n_excluded)
 
   class(out) <- "summary.generalizeR_assess"
@@ -795,15 +793,16 @@ summary.generalizeR_assess <- function(x, ...) {
 
 print.summary.generalizeR_assess <- function(x, ...) {
 
-  cat("\nEstimated Sample Participation Probabilities: \n\n")
+  cat("\nSummary of Estimated Propensity Scores: \n\n")
 
-  print(x$prob_dist_table)
+  print(x$prop_score_dist_table)
 
-  print(x$prob_dist_plot)
+  print(x$prop_score_dist_plot)
 
   cat("\n\nEstimation Method:", crayon::cyan$bold(x$estimation_method), "\n\n")
 
-  covariate_names <- x$covariates %>%
+  covariate_names <- x$covariate_table %>%
+    pull(covariate) %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
     gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)

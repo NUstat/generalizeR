@@ -1,13 +1,11 @@
 #' Estimate Weights for Generalizing Average Treatment Effect
 #'
-#' This function is designed for use within 'covariate_table()' and 'assess()'.
-#'
 #' @param data data frame comprised of "stacked" sample and target population data
 #' @param sample_indicator variable name denoting binary sample membership (1 = in sample, 0 = out of sample)
 #' @param treatment_indicator variable name denoting binary treatment assignment (ok if only available in sample, not population)
 #' @param outcome variable name denoting outcome
 #' @param covariates vector of covariate names in data set that predict sample membership
-#' @param estimation_method method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
+#' @param estimation_method method to estimate the probability of sample membership (propensity scores). Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
 #' @export
 #' @importFrom stats quantile
@@ -150,8 +148,8 @@ weighting <- function(data,
   # Generate propensity scores
   data$ps <- .generate.ps(data, sample_indicator, covariates, estimation_method)
 
-  participation_probs <- list(population = data$ps[which(data[,sample_indicator] == 0)],
-                              sample = data$ps[which(data[,sample_indicator] == 1)])
+  propensity_scores <- list(population = data$ps[which(data[,sample_indicator] == 0)],
+                      sample = data$ps[which(data[,sample_indicator] == 1)])
 
   # Generate Weights #
   if(disjoint_data) {
@@ -195,14 +193,30 @@ weighting <- function(data,
          y = "Frequency",
          title = "Histogram of Sample Weights")
 
+  # Calculate sample and population sizes
+
+  n_sample <- data %>%
+    dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
+    nrow()
+
+  n_pop <- data %>%
+    nrow()
+
+  if (disjoint_data) {n_pop <- n_pop - n_sample}
+
   # Items to return out
-  out <- list(participation_probs = participation_probs,
+  out <- list(propensity_scores = propensity_scores,
               sample_weights = data$sample_weights,
               covariate_table = covariate_table_output$covariate_table,
               covariate_kable = covariate_table_output$covariate_kable,
               cov_dist_facet_plot = covariate_table_output$cov_dist_facet_plot,
               cov_dist_plots = covariate_table_output$cov_dist_plots,
-              hist = weights_hist)
+              weights_hist = weights_hist,
+              data_name = lazyeval::expr_text(data),
+              estimation_method = estimation_method,
+              disjoint_data = disjoint_data,
+              n_sample = n_sample,
+              n_pop = n_pop)
 
   if(!is.null(outcome) & !is.null(treatment_indicator)) {
 
@@ -259,67 +273,188 @@ weighting <- function(data,
                        CI = TATE_CI_unadj)
 
     # Append TATE and TATE_unadj to list of items to return
-    out <- c(out, list(TATE = TATE, TATE_unadj = TATE_unadj))
+    out <- c(out, outcome, list(TATE = TATE, TATE_unadj = TATE_unadj))
   }
 
-  class(out) <- "generalizer_weighting"
+  class(out) <- "generalizeR_weighting"
 
   return(invisible(out))
 }
 
-# print.generalize_weighting <- function(x,...) {
-#   cat("A generalizer_weighting object: \n")
-#   cat(paste0(" - Outcome variable: ", x$outcome, "\n"))
-#   cat(paste0(" - Sample indicator variable: ", x$sample_indicator, "\n"))
-#   cat(paste0(" - Treatment indicator variable: ", x$treatment, "\n"))
-#   cat(paste0(" - Covariates included: ", paste(x$covariates, collapse = ", "), "\n"))
-#   cat(paste0(" - Probability of sample membership estimation method: ", x$estimation_method, "\n"))
-#   cat(paste0(" - Are sample and population data considered disjoint?: ", ifelse(x$disjoint_data, "Yes", "No"), "\n"))
-#   cat(paste0(" - Sample size: ", x$n_sample, "\n"))
-#   cat(paste0(" - Population size : ", x$n_pop, "\n"))
-#
-#   invisible(x)
-# }
-#
-# summary.generalize_weighting <- function(object,...) {
-#   estimation_method_name = c("Logistic Regression", "Random Forest", "Lasso")
-#   estimation_method = c("lr", "rf", "lasso")
-#   prob_dist_table = rbind(summary(object$participation_probs$sample_indicator),
-#                           summary(object$participation_probs$population))
-#   row.names(prob_dist_table) = paste0(c("Sample","Population"), " (n = ", c(object$n_sample, object$n_pop),")")
-#
-#   selection_formula = paste0(object$sample_indicator," ~ ", paste(object$covariates, collapse = " + "))
-#
-#   out = list(
-#     selection_formula = selection_formula,
-#     estimation_method = estimation_method_name[estimation_method == object$estimation_method],
-#     gen_index = object$gen_index,
-#     prob_dist_table = prob_dist_table,
-#     covariate_table = round(object$covariate_table, 4),
-#     trim_pop = object$trim_pop,
-#     n_excluded = object$n_excluded
-#   )
-#
-#   class(out) <- "summary.generalize_weighting"
-#   return(out)
-# }
-#
-# print.summary.generalize_weighting <- function(x,...){
-#   cat("Probability of Sample Participation: \n \n")
-#   cat(paste0("Selection Model: ", x$selection_formula," \n \n"))
-#   print(x$prob_dist_table)
-#   cat("\n")
-#   cat(paste0("Estimated by ", x$estimation_method, "\n"))
-#   cat(paste0("Generalizability Index: ", gen_index, "\n"))
-#   cat("============================================ \n")
-#   if(x$trim_pop){
-#     cat("Population data were trimmed for covariates to not exceed sample covariate bounds \n")
-#     cat(paste0("Number excluded from population: ", x$n_excluded , "\n \n"))
-#   }
-#   cat("Covariate Distributions: \n \n")
-#   print(round(x$covariate_table, 4))
-#   invisible(x)
-# }
+#' Print method for "generalizeR_weighting" class
+#'
+#' @param x An object of class "generalizeR_weighting"
+#' @param ... Other arguments passed to or from other methods
+#'
+#' @export print.generalizeR_weighting
+#' @export
+
+print.generalizeR_weighting <- function(x, ...) {
+
+  cat("\nA generalizeR_weighting object: \n\n")
+
+  cat(" - Dataset name:", crayon::cyan$bold(x$data_name), "\n\n")
+
+  if (!is.null(x$outcome)) {cat(" - Outcome variable:", crayon::cyan$bold(x$outcome), "\n")}
+
+  covariate_names <- x$covariate_table %>%
+    pull(covariate) %>%
+    crayon::cyan$bold() %>%
+    paste(collapse = ", ") %>%
+    gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
+
+  cat(" - Covariates selected:\n\n  ", covariate_names, "\n\n")
+
+  cat(" - Method used to estimate propensity scores:",
+      switch(x$estimation_method,
+             "lr" = "Logistic Regression",
+             "rf" = "Random Forest",
+             "lasso" = "LASSO") %>%
+        crayon::cyan$bold(),
+      "\n\n")
+
+
+  if (x$disjoint_data) {cat(paste0(" - The sample and the population were considered ", crayon::cyan$bold("disjoint"), " from one another.\n\n"))}
+
+  else {cat(paste0(" - The sample was considered a ", crayon::cyan$bold("subset"), " of the population.\n\n"))}
+
+  cat(" - Sample size:", crayon::cyan$bold(x$n_sample), "\n\n")
+
+  cat(" - Population size:", crayon::cyan$bold(x$n_pop), "\n\n")
+}
+
+#' Summary method for "generalizeR_weighting" class
+#'
+#' @param x An object of class "generalizeR_weighting"
+#' @param ... Other arguments passed to or from other methods
+#'
+#' @export summary.generalizeR_weighting
+#' @export
+
+summary.generalizeR_weighting <- function(x, ...) {
+
+  estimation_method <- switch(x$estimation_method,
+                              "lr" = "Logistic Regression",
+                              "rf" = "Random Forest",
+                              "lasso" = "Lasso")
+
+  if (x$disjoint_data) {
+
+    prop_score_dist_table <- rbind(summary(x$propensity_scores$in_sample),
+                                   summary(x$propensity_scores$population))
+
+    row.names(prop_score_dist_table) <- paste0(c("Sample","Population"), " (n = ", c(x$n_sample, x$n_pop),")")
+
+    sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
+      mutate(sample_indicator = 1)
+
+    pop_prop_scores <- data.frame(prop_scores = x$propensity_scores$population) %>%
+      mutate(sample_indicator = 0)
+
+    prop_scores <- rbind(sample_prop_scores, pop_prop_scores)
+
+    prop_score_dist_plot <- prop_scores %>%
+      ggplot2::ggplot() +
+      geom_density(aes(x = prop_scores, fill = factor(sample_indicator)),
+                   alpha = 0.7) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_fill_discrete(name = NULL,
+                          labels = c("Population", "Sample")) +
+      labs(x = "Probability",
+           y = "Density",
+           title = "Distribution of Propensity Scores") +
+      theme_minimal() +
+      theme(axis.ticks.x = element_line(),
+            axis.text.y = element_blank(),
+            axis.line = element_line(),
+            plot.title = element_text(size = 12),
+            legend.position = c(0.8, 0.8))
+  }
+
+  else {
+
+    prop_score_dist_table <- rbind(summary(x$propensity_scores$in_sample),
+                                   summary(x$propensity_scores$not_in_sample))
+
+    row.names(prop_score_dist_table) <- paste0(c("In Sample","Not In Sample"), " (n = ", c(x$n_sample, x$n_pop),")")
+
+    in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
+      mutate(sample_indicator = 1)
+
+    not_in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$not_in_sample) %>%
+      mutate(sample_indicator = 0)
+
+    prop_scores <- rbind(in_sample_prop_scores, not_in_sample_prop_scores)
+
+    prop_score_dist_plot <- prop_scores %>%
+      ggplot2::ggplot() +
+      geom_density(aes(x = prop_scores, fill = factor(sample_indicator)),
+                   alpha = 0.7) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_fill_discrete(name = NULL,
+                          labels = c("Not in Sample", "In Sample")) +
+      labs(x = "Probability",
+           y = "Density",
+           title = "Distribution of Propensity Scores") +
+      theme_minimal() +
+      theme(axis.ticks.x = element_line(),
+            axis.text.y = element_blank(),
+            axis.line = element_line(),
+            axis.title = element_blank(),
+            plot.title = element_text(size = 12))
+  }
+
+  colnames(prop_score_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
+
+  prop_score_dist_table <- prop_score_dist_table %>%
+    data.frame() %>%
+    colorDF::colorDF(theme = "dark")
+
+  out = list(estimation_method = estimation_method,
+             prop_score_dist_table = prop_score_dist_table,
+             prop_score_dist_plot = prop_score_dist_plot,
+             covariate_table = x$covariate_table,
+             weights_hist = x$weights_hist)
+
+  class(out) <- "summary.generalizeR_weighting"
+
+  return(out)
+}
+
+#' Print method for "summary.generalizeR_weighting" class
+#'
+#' @param x An object of class "summary.generalizeR_weighting"
+#' @param ... Other arguments passed to or from other methods
+#'
+#' @export print.summary..generalizeR_weighting
+#' @export
+
+print.summary.generalizeR_weighting <- function(x, ...) {
+
+  cat("\nSummary of Estimated Propensity Scores: \n\n")
+
+  print(x$prop_score_dist_table)
+
+  print(x$prop_score_dist_plot)
+
+  cat("\n\nEstimation Method:", crayon::cyan$bold(x$estimation_method), "\n\n")
+
+  covariate_names <- x$covariate_table %>%
+    pull(covariate) %>%
+    crayon::cyan$bold() %>%
+    paste(collapse = ", ") %>%
+    gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
+
+  cat("Covariates Used:\n\n  ", covariate_names, "\n\n")
+
+  cat("Covariate Table: \n\n")
+
+  print(x$covariate_table)
+
+  print(x$weights_hist)
+}
 
 
 

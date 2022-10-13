@@ -25,10 +25,10 @@ weighting(
 
 \item{covariates}{vector of covariate names in data set that predict sample membership}
 
-\item{estimation_method}{method to estimate the probability of sample membership. Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
+\item{estimation_method}{method to estimate the probability of sample membership (propensity scores). Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")}
 
 \item{disjoint_data}{logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.}
 }
 \description{
-This function is designed for use within 'covariate_table()' and 'assess()'.
+Estimate Weights for Generalizing Average Treatment Effect
 }
