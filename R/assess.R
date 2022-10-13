@@ -765,7 +765,7 @@ summary.generalizeR_assess <- function(x, ...) {
             plot.title = element_text(size = 12))
   }
 
-  names(prob_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
+  colnames(prob_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
 
   prob_dist_table <- prob_dist_table %>%
     data.frame() %>%
