@@ -27,7 +27,7 @@ stratify(
 \item{verbose}{logical, defaults to TRUE.}
 }
 \value{
-The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+The function returns a list of class "generalizeR_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 }
 \description{
 The function \code{stratify()} takes as input any data frame with observations (rows) that you wish to stratify into clusters. Typically, the goal of such stratification is developing a sampling design for maximizing generalizability. This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/.

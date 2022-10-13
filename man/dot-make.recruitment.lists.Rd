@@ -7,7 +7,7 @@
 .make.recruitment.lists(stratify_output)
 }
 \arguments{
-\item{stratify_output}{list of class generalizer_stratify}
+\item{stratify_output}{list of class generalizeR_stratify}
 }
 \value{
 The function returns a list of dataframes, each corresponding to a recruitment list for a different stratum

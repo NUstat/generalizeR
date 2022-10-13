@@ -12,7 +12,7 @@ recruit(
 )
 }
 \arguments{
-\item{stratify_output}{output from 'stratify()', of S3 class 'generalizer_stratify'}
+\item{stratify_output}{output from 'stratify()', of S3 class 'generalizeR_stratify'}
 
 \item{guided}{logical; defaults to TRUE. Whether the function should be guided (ask questions and behave interactively throughout) or not. If set to FALSE, must provide values for other arguments below}
 

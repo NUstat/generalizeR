@@ -7,7 +7,7 @@
 .make.recruitment.table(stratify_output, sample_size)
 }
 \arguments{
-\item{stratify_output}{list of class generalizer_stratify}
+\item{stratify_output}{list of class generalizeR_stratify}
 
 \item{sample_size}{integer, total sample size selected to guide recruitment}
 }

@@ -30,6 +30,3 @@ assess(
 \description{
 This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.
 }
-\details{
-'assess_wrap()' is a wrapper for this function that allows assessment over levels of a grouping variable.
-}

@@ -18,7 +18,7 @@
 \item{verbose}{logical, defaults to TRUE.}
 }
 \value{
-The function returns a list of class "generalizer_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
+The function returns a list of class "generalizeR_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 }
 \description{
 Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function

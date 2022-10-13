@@ -640,7 +640,15 @@ assess <- function(data,
   }
 }
 
-print.generalizeR_assess <- function(x,...) {
+#' Print method for "generalizeR_assess" class
+#'
+#' @param x An object of class "generalizeR_assess"
+#' @param ... Other arguments passed to or from other methods
+#'
+#' @export print.generalizeR_assess
+#' @export
+
+print.generalizeR_assess <- function(x, ...) {
 
   cat("\nA generalizeR_assess object: \n\n")
 
@@ -674,7 +682,15 @@ print.generalizeR_assess <- function(x,...) {
   cat(paste0(" - The generalizability index of the sample to the target population based on the selected covariates is ", crayon::cyan$bold(x$gen_index), "."))
 }
 
-summary.generalizeR_assess <- function(x,...) {
+#' Summary method for "generalizeR_assess" class
+#'
+#' @param x An object of class "generalizeR_assess"
+#' @param ... Other arguments passed to or from other methods
+#'
+#' @export summary.generalizeR_assess
+#' @export
+
+summary.generalizeR_assess <- function(x, ...) {
 
   estimation_method <- switch(x$estimation_method,
                               "lr" = "Logistic Regression",
@@ -712,7 +728,15 @@ summary.generalizeR_assess <- function(x,...) {
   return(out)
 }
 
-print.summary.generalizeR_assess <- function(x,...) {
+#' Print method for "summary.generalizeR_assess" class
+#'
+#' @param x An object of class "summary.generalizeR_assess"
+#' @param ... Other arguments passed to or from other methods
+#'
+#' @export print.summary.generalizeR_assess
+#' @export
+
+print.summary.generalizeR_assess <- function(x, ...) {
 
   cat("Sample Participation Probabilities: \n\n")
 
