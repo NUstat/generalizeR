@@ -748,7 +748,7 @@ summary.generalizeR_assess <- function(x, ...) {
 
     prob_dist_plot <- probs %>%
       ggplot2::ggplot() +
-      geom_density(aes(x = probs, fill = sample_indicator),
+      geom_density(aes(x = probs, fill = factor(sample_indicator)),
                    alpha = 0.7) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
@@ -765,7 +765,10 @@ summary.generalizeR_assess <- function(x, ...) {
             plot.title = element_text(size = 12))
   }
 
+  names(prob_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
+
   prob_dist_table <- prob_dist_table %>%
+    data.frame() %>%
     colorDF::colorDF(theme = "universal")
 
   out <- list(estimation_method = estimation_method,
