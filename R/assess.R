@@ -146,7 +146,7 @@ assess <- function(data,
       nrow()
   }
 
-  cat(paste0("The generalizability index of the sample to the target population based on the selected covariates is ", crayon::cyan$bold(gen_index), ".\n\n"))
+  cat(paste0("\nThe generalizability index of the sample to the target population based on the \nselected covariates is ", crayon::cyan$bold(gen_index), ".\n\n"))
 
   cov_tab_out <- .make.covariate.table(data,
                                        sample_indicator = sample_indicator,
@@ -728,7 +728,7 @@ summary.generalizeR_assess <- function(x, ...) {
             axis.text.y = element_blank(),
             axis.line = element_line(),
             plot.title = element_text(size = 12),
-            legend.position = c(1, 1))
+            legend.position = c(0.8, 0.8))
   }
 
   else {
@@ -823,5 +823,5 @@ print.summary.generalizeR_assess <- function(x, ...) {
 
   print(x$covariate_table)
 
-  print(x$covariate_kable)
+  x$covariate_kable
 }
