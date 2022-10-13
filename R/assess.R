@@ -765,11 +765,16 @@ summary.generalizeR_assess <- function(x, ...) {
             plot.title = element_text(size = 12))
   }
 
+  prob_dist_table <- prob_dist_table %>%
+    colorDF::colorDF(theme = "universal")
+
   out <- list(estimation_method = estimation_method,
               gen_index = x$gen_index,
               prob_dist_table = prob_dist_table,
               prob_dist_plot = prob_dist_plot,
               covariate_table = x$covariate_table,
+              covariate_kable = x$covariate_kable,
+              covariates = x$covariates,
               n_excluded = x$n_excluded)
 
   class(out) <- "summary.generalizeR_assess"
@@ -787,7 +792,7 @@ summary.generalizeR_assess <- function(x, ...) {
 
 print.summary.generalizeR_assess <- function(x, ...) {
 
-  cat("Sample Participation Probabilities: \n\n")
+  cat("\nSample Participation Probabilities: \n\n")
 
   print(x$prob_dist_table)
 
@@ -800,7 +805,7 @@ print.summary.generalizeR_assess <- function(x, ...) {
     paste(collapse = ", ") %>%
     gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
 
-  cat(" - Covariates used:\n\n  ", covariate_names, "\n\n")
+  cat("Covariates used:\n\n  ", covariate_names, "\n\n")
 
   cat("Generalizability Index: ", crayon::cyan$bold(x$gen_index), "\n\n")
 
@@ -814,4 +819,6 @@ print.summary.generalizeR_assess <- function(x, ...) {
   cat("Covariate Table: \n\n")
 
   print(x$covariate_table)
+
+  print(x$covariate_kable)
 }
