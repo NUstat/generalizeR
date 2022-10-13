@@ -657,9 +657,9 @@ print.generalizeR_assess <- function(x, ...) {
   covariate_names <- x$covariates %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
-    gsub('(.{200})\\s(,*)', '\\1\n \\2', .)
+    gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
 
-  cat(" - Covariates selected:\n\n", covariate_names, "\n\n")
+  cat(" - Covariates selected:\n\n  ", covariate_names, "\n\n")
 
   cat(" - Method used to estimate probability of sample membership:",
       switch(x$estimation_method,
