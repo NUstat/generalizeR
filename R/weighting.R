@@ -21,8 +21,6 @@ weighting <- function(data,
 
   estimation_method <- tolower(estimation_method)
 
-  data_names <- names(data)
-
   # Check whether data object is of type 'data.frame'
   assertthat::on_failure(is.data.frame) <- function(call, env) {
 
@@ -30,6 +28,11 @@ weighting <- function(data,
   }
 
   assertthat::assert_that(is.data.frame(data))
+
+  data_name <- data %>%
+    lazyeval::expr_text()
+
+  data_names <- names(data)
 
   # Check whether sample indicator variable is binary
   is_sample_indicator_binary <- function(sample_indicator) {
@@ -131,7 +134,7 @@ weighting <- function(data,
   assertthat::assert_that(is_empty(invalid_covariates))
 
   # Check whether estimation method is valid
-  is_estimation_method_valid <- function(estimation_method){
+  is_estimation_method_valid <- function(estimation_method) {
 
     estimation_method %in% c("lr","rf","lasso")
   }
@@ -148,8 +151,9 @@ weighting <- function(data,
   # Generate propensity scores
   data$ps <- .generate.ps(data, sample_indicator, covariates, estimation_method)
 
-  propensity_scores <- list(population = data$ps[which(data[,sample_indicator] == 0)],
-                      sample = data$ps[which(data[,sample_indicator] == 1)])
+  propensity_scores <- list(not_in_sample = data$ps[which(data[,sample_indicator] == 0)],
+                            in_sample = data$ps[which(data[,sample_indicator] == 1)],
+                            population = data$ps)
 
   # Generate Weights #
   if(disjoint_data) {
@@ -212,7 +216,7 @@ weighting <- function(data,
               cov_dist_facet_plot = covariate_table_output$cov_dist_facet_plot,
               cov_dist_plots = covariate_table_output$cov_dist_plots,
               weights_hist = weights_hist,
-              data_name = lazyeval::expr_text(data),
+              data_name = data_name,
               estimation_method = estimation_method,
               disjoint_data = disjoint_data,
               n_sample = n_sample,
@@ -241,7 +245,7 @@ weighting <- function(data,
       dplyr::pull(std.error)
 
     # Calculate 95% confidence interval for total average treatment effect
-    TATE_CI <- TATE + 2.262*TATE_se*c(-1, 1)
+    TATE_CI <- round(TATE + 2.262*TATE_se*c(-1, 1), 3)
 
     TATE <- list(estimate = TATE,
                  SE = TATE_se,
@@ -266,7 +270,7 @@ weighting <- function(data,
       dplyr::pull(std.error)
 
     # Calculate 95% confidence interval for unweighted total average treatment effect
-    TATE_CI_unadj <- TATE_unadj + 2.262*TATE_se_unadj*c(-1, 1)
+    TATE_CI_unadj <- round(TATE_unadj + 2.262*TATE_se_unadj*c(-1, 1), 3)
 
     TATE_unadj <- list(estimate = TATE_unadj,
                        SE = TATE_se_unadj,
@@ -295,7 +299,12 @@ print.generalizeR_weighting <- function(x, ...) {
 
   cat(" - Dataset name:", crayon::cyan$bold(x$data_name), "\n\n")
 
-  if (!is.null(x$outcome)) {cat(" - Outcome variable:", crayon::cyan$bold(x$outcome), "\n")}
+  if (!is.null(x$outcome) & !is.null(x$treatment)) {
+
+    cat(" - Outcome variable:", crayon::cyan$bold(x$outcome), "\n")
+
+    cat(" - Treatment variable:", crayon::cyan$bold(x$treatment_indicator), "\n")
+  }
 
   covariate_names <- x$covariate_table %>%
     pull(covariate) %>%
@@ -412,11 +421,18 @@ summary.generalizeR_weighting <- function(x, ...) {
     data.frame() %>%
     colorDF::colorDF(theme = "dark")
 
+  TATE_table = data.frame(TATE = c(x$TATE$estimate, x$TATE_unadj$estimate),
+                          SE = c(x$TATE$SE, x$TATE_unadj$SE),
+                          CI = c(paste0("(", x$TATE$CI[1], ", ", x$TATE$CI[2], ")"),
+                                                    paste0("(", x$TATE_unadj$CI[1], ", ", x$TATE_unadj$CI[2], ")")),
+                          row.names = c("Weighted", "Unweighted"))
+
   out = list(estimation_method = estimation_method,
              prop_score_dist_table = prop_score_dist_table,
              prop_score_dist_plot = prop_score_dist_plot,
              covariate_table = x$covariate_table,
-             weights_hist = x$weights_hist)
+             weights_hist = x$weights_hist,
+             TATE_table = TATE_table)
 
   class(out) <- "summary.generalizeR_weighting"
 
@@ -454,6 +470,10 @@ print.summary.generalizeR_weighting <- function(x, ...) {
   print(x$covariate_table)
 
   print(x$weights_hist)
+
+  cat("\nTATE Table: \n\n")
+
+  print(x$TATE_table)
 }
 
 
