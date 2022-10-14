@@ -393,8 +393,7 @@ summary.generalizeR_weighting <- function(x, ...) {
       theme(axis.ticks.x = element_line(),
             axis.text.y = element_blank(),
             axis.line = element_line(),
-            plot.title = element_text(size = 12),
-            legend.position = c(0.8, 0.8))
+            plot.title = element_text(size = 12))
   }
 
   else {

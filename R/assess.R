@@ -714,21 +714,20 @@ summary.generalizeR_assess <- function(x, ...) {
 
     prop_score_dist_plot <- prop_scores %>%
       ggplot2::ggplot() +
-      geom_density(aes(x = prop_scores, fill = factor(sample_indicator)),
+      geom_density(aes(x = gtools::logit(prop_scores), fill = factor(sample_indicator)),
                    alpha = 0.7) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
       scale_fill_discrete(name = NULL,
                           labels = c("Population", "Sample")) +
-      labs(x = "Probability",
+      labs(x = "Propensity Score Logits",
            y = "Density",
-           title = "Distribution of Estimated Propensity Scores") +
+           title = "Distribution of Propensity Score Logits") +
       theme_minimal() +
       theme(axis.ticks.x = element_line(),
             axis.text.y = element_blank(),
             axis.line = element_line(),
-            plot.title = element_text(size = 12),
-            legend.position = c(0.8, 0.8))
+            plot.title = element_text(size = 12))
   }
 
   else {
