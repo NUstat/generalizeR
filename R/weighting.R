@@ -247,7 +247,8 @@ weighting <- function(data,
     # Calculate 95% confidence interval for total average treatment effect
     TATE_CI <- round(TATE + 2.262*TATE_se*c(-1, 1), 3)
 
-    TATE <- list(estimate = TATE,
+    TATE <- list(model = TATE_model,
+                 estimate = TATE,
                  SE = TATE_se,
                  CI = TATE_CI)
 
@@ -272,12 +273,28 @@ weighting <- function(data,
     # Calculate 95% confidence interval for unweighted total average treatment effect
     TATE_CI_unadj <- round(TATE_unadj + 2.262*TATE_se_unadj*c(-1, 1), 3)
 
-    TATE_unadj <- list(estimate = TATE_unadj,
+    TATE_unadj <- list(model = TATE_model_unadj,
+                       estimate = TATE_unadj,
                        SE = TATE_se_unadj,
                        CI = TATE_CI_unadj)
 
-    # Append TATE and TATE_unadj to list of items to return
-    out <- c(out, outcome, list(TATE = TATE, TATE_unadj = TATE_unadj))
+    # Summarize results in table
+    TATE_table = data.frame(TATE = c(TATE$estimate, TATE_unadj$estimate),
+                            SE = c(TATE$SE, TATE_unadj$SE),
+                            "95% CI" = c(paste0("(", TATE$CI[1], ", ", TATE$CI[2], ")"),
+                                         paste0("(", TATE_unadj$CI[1], ", ", TATE_unadj$CI[2], ")")),
+                            row.names = c("Weighted", "Unweighted"),
+                            check.names = FALSE) %>%
+      colorDF::colorDF(theme = "dark")
+
+    print(TATE_table)
+
+    # Append outcome variable, treatment variable, TATE, TATE_unadj, and TATE_table to list of items to return
+    out <- c(out, list(outcome = outcome,
+                       treatment = treatment_indicator,
+                       TATE = TATE,
+                       TATE_unadj = TATE_unadj,
+                       TATE_table = TATE_table))
   }
 
   class(out) <- "generalizeR_weighting"
@@ -303,7 +320,7 @@ print.generalizeR_weighting <- function(x, ...) {
 
     cat(" - Outcome variable:", crayon::cyan$bold(x$outcome), "\n")
 
-    cat(" - Treatment variable:", crayon::cyan$bold(x$treatment_indicator), "\n")
+    cat(" - Treatment variable:", crayon::cyan$bold(x$treatment), "\n")
   }
 
   covariate_names <- x$covariate_table %>%
@@ -321,7 +338,6 @@ print.generalizeR_weighting <- function(x, ...) {
              "lasso" = "LASSO") %>%
         crayon::cyan$bold(),
       "\n\n")
-
 
   if (x$disjoint_data) {cat(paste0(" - The sample and the population were considered ", crayon::cyan$bold("disjoint"), " from one another.\n\n"))}
 
@@ -421,20 +437,14 @@ summary.generalizeR_weighting <- function(x, ...) {
     data.frame() %>%
     colorDF::colorDF(theme = "dark")
 
-  TATE_table = data.frame(TATE = c(x$TATE$estimate, x$TATE_unadj$estimate),
-                          SE = c(x$TATE$SE, x$TATE_unadj$SE),
-                          CI = c(paste0("(", x$TATE$CI[1], ", ", x$TATE$CI[2], ")"),
-                                                    paste0("(", x$TATE_unadj$CI[1], ", ", x$TATE_unadj$CI[2], ")")),
-                          row.names = c("Weighted", "Unweighted"))
-
-  print(TATE_table)
-
-  out = list(estimation_method = estimation_method,
-             prop_score_dist_table = prop_score_dist_table,
-             prop_score_dist_plot = prop_score_dist_plot,
-             covariate_table = x$covariate_table,
-             weights_hist = x$weights_hist,
-             TATE_table = TATE_table)
+  out <- list(estimation_method = estimation_method,
+              prop_score_dist_table = prop_score_dist_table,
+              prop_score_dist_plot = prop_score_dist_plot,
+              covariate_table = x$covariate_table,
+              weights_hist = x$weights_hist,
+              weighted_model = x$TATE$model,
+              unweighted_model = x$TATE_unadj$model,
+              TATE_table = x$TATE_table)
 
   class(out) <- "summary.generalizeR_weighting"
 
@@ -473,7 +483,11 @@ print.summary.generalizeR_weighting <- function(x, ...) {
 
   print(x$weights_hist)
 
-  cat("\nTATE Table: \n\n")
+  cat("\nSummary of Weighted Regresssion Model: \n")
+
+  summary(x$weighted_model) %>% print()
+
+  cat("TATE Table: \n\n")
 
   print(x$TATE_table)
 }
