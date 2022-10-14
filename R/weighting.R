@@ -427,6 +427,8 @@ summary.generalizeR_weighting <- function(x, ...) {
                                                     paste0("(", x$TATE_unadj$CI[1], ", ", x$TATE_unadj$CI[2], ")")),
                           row.names = c("Weighted", "Unweighted"))
 
+  print(TATE_table)
+
   out = list(estimation_method = estimation_method,
              prop_score_dist_table = prop_score_dist_table,
              prop_score_dist_plot = prop_score_dist_plot,
