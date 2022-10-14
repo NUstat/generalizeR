@@ -318,9 +318,9 @@ print.generalizeR_weighting <- function(x, ...) {
 
   if (!is.null(x$outcome) & !is.null(x$treatment)) {
 
-    cat(" - Outcome variable:", crayon::cyan$bold(x$outcome), "\n")
+    cat(" - Outcome variable:", crayon::cyan$bold(x$outcome), "\n\n")
 
-    cat(" - Treatment variable:", crayon::cyan$bold(x$treatment), "\n")
+    cat(" - Treatment variable:", crayon::cyan$bold(x$treatment), "\n\n")
   }
 
   covariate_names <- x$covariate_table %>%
@@ -380,15 +380,15 @@ summary.generalizeR_weighting <- function(x, ...) {
 
     prop_score_dist_plot <- prop_scores %>%
       ggplot2::ggplot() +
-      geom_density(aes(x = prop_scores, fill = factor(sample_indicator)),
+      geom_density(aes(x = gtools::logit(prop_scores), fill = factor(sample_indicator)),
                    alpha = 0.7) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
       scale_fill_discrete(name = NULL,
                           labels = c("Population", "Sample")) +
-      labs(x = "Probability",
+      labs(x = "Propensity Score Logits",
            y = "Density",
-           title = "Distribution of Propensity Scores") +
+           title = "Distribution of Propensity Score Logits") +
       theme_minimal() +
       theme(axis.ticks.x = element_line(),
             axis.text.y = element_blank(),
@@ -482,6 +482,10 @@ print.summary.generalizeR_weighting <- function(x, ...) {
   print(x$covariate_table)
 
   print(x$weights_hist)
+
+  cat("\nSummary of Unweighted Regresssion Model: \n")
+
+  summary(x$unweighted_model) %>% print()
 
   cat("\nSummary of Weighted Regresssion Model: \n")
 
