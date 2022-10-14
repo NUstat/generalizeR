@@ -31,8 +31,7 @@ assess <- function(data,
 
   # GUIDED VERSION
 
-  if(guided) {
-
+  if (guided) {
     user_choices <- .assess.guided(data)
 
     sample_indicator <- user_choices$sample_indicator
@@ -48,43 +47,39 @@ assess <- function(data,
 
   # NON-GUIDED VERSION
   else {
-
     estimation_method <- tolower(estimation_method)
 
     invalid_covariates <- covariates %>% setdiff(names(data))
 
     # Ensure selection covariates are variables in the dataframe provided
     assertthat::on_failure(is_empty) <- function(call, env) {
-
-      paste("The following covariates are not variables in the data provided:\n",
-            paste(crayon::blue$bold(invalid_covariates),
-                  collapse = ", ")
-            )
+      paste(
+        "The following covariates are not variables in the data provided:\n",
+        paste(crayon::blue$bold(invalid_covariates),
+          collapse = ", "
+        )
+      )
     }
 
     assertthat::assert_that(is_empty(invalid_covariates))
 
     # Ensure sample variable is binary
     is_sample_indicator_binary <- function(sample_indicator) {
-
       all(dplyr::pull(data, tidyselect::all_of(sample_indicator)) %in% c(0, 1))
     }
 
     assertthat::on_failure(is_sample_indicator_binary) <- function(call, env) {
-
       "Sample membership variable must be coded as `0` (out of sample) or `1` (in sample)."
     }
 
     assertthat::assert_that(is_sample_indicator_binary(sample_indicator))
 
     # Ensure estimation method is valid
-    is_estimation_method_valid <- function(estimation_method){
-
-      estimation_method %in% c("lr","rf","lasso")
+    is_estimation_method_valid <- function(estimation_method) {
+      estimation_method %in% c("lr", "rf", "lasso")
     }
 
     assertthat::on_failure(is_estimation_method_valid) <- function(call, env) {
-
       "Invalid estimation method. Please choose one of 'lr' (logistic regression), 'rf' (random forest), or 'lasso' as your estimation method."
     }
 
@@ -96,13 +91,9 @@ assess <- function(data,
     dplyr::select(tidyselect::all_of(sample_indicator), tidyselect::all_of(covariates)) %>%
     tidyr::drop_na()
 
-  if(!trim_pop) {
-
+  if (!trim_pop) {
     n_excluded <- 0
-  }
-
-  else {
-
+  } else {
     trim_pop_output <- .trim.pop(data, sample_indicator, covariates)
 
     n_excluded <- trim_pop_output$n_excluded
@@ -111,14 +102,18 @@ assess <- function(data,
   }
 
   # Generate Participation Probabilities
-  ps <- .generate.ps(data,
-                     sample_indicator,
-                     covariates,
-                     estimation_method)
+  ps <- .generate.ps(
+    data,
+    sample_indicator,
+    covariates,
+    estimation_method
+  )
 
-  propensity_scores <- list(not_in_sample = ps[which(data[,sample_indicator] == 0)],
-                            in_sample = ps[which(data[,sample_indicator] == 1)],
-                            population = ps)
+  propensity_scores <- list(
+    not_in_sample = ps[which(data[, sample_indicator] == 0)],
+    in_sample = ps[which(data[, sample_indicator] == 1)],
+    population = ps
+  )
 
   # Calculate Generalizability Index and sample and population sizes
 
@@ -127,8 +122,7 @@ assess <- function(data,
     nrow()
 
   # If data is not disjoint, compare in_sample to (not_in_sample + in_sample)
-  if(!disjoint_data) {
-
+  if (!disjoint_data) {
     gen_index <- .get.gen.index(propensity_scores$in_sample, propensity_scores$population) %>%
       round(4)
 
@@ -138,7 +132,6 @@ assess <- function(data,
 
   # If data is disjoint, compare in_sample to not_in_sample
   else {
-
     gen_index <- .get.gen.index(propensity_scores$in_sample, propensity_scores$not_in_sample) %>% round(4)
 
     n_pop <- data %>%
@@ -149,11 +142,12 @@ assess <- function(data,
   cat(paste0("The generalizability index of the sample to the target population based on the \nselected covariates is ", crayon::cyan$bold(gen_index), ".\n\n"))
 
   cov_tab_out <- .make.covariate.table(data,
-                                       sample_indicator = sample_indicator,
-                                       covariates = covariates,
-                                       sample_weights = NULL,
-                                       estimation_method = estimation_method,
-                                       disjoint_data = disjoint_data)
+    sample_indicator = sample_indicator,
+    covariates = covariates,
+    sample_weights = NULL,
+    estimation_method = estimation_method,
+    disjoint_data = disjoint_data
+  )
 
   data_output <- data %>%
     dplyr::select(tidyselect::all_of(sample_indicator), tidyselect::all_of(covariates))
@@ -187,7 +181,6 @@ assess <- function(data,
 }
 
 .assess.guided <- function(data) {
-
   var_names <- names(data)
 
   cat(crayon::bold("\nWelcome to assess()! \n\n"))
@@ -208,47 +201,49 @@ assess <- function(data,
 
   estimation_method <- .select.method()
 
-  output <- list(sample_indicator = sample_indicator,
-                 covariates = covariates,
-                 disjoint_data = disjoint_data,
-                 trim_pop = trim_pop,
-                 estimation_method = estimation_method)
+  output <- list(
+    sample_indicator = sample_indicator,
+    covariates = covariates,
+    disjoint_data = disjoint_data,
+    trim_pop = trim_pop,
+    estimation_method = estimation_method
+  )
 
   return(invisible(output))
 }
 
 .select.sample.indicator <- function(data) {
-
   choices <- names(data)
 
   num_choices <- length(choices)
 
-  options <- paste0(format(1:num_choices),
-                    ":  ",
-                    choices)
+  options <- paste0(
+    format(1:num_choices),
+    ":  ",
+    choices
+  )
 
   repeat {
-
-    cat(paste0("Here is a list of the variables in the '",
-               data_name,
-               "' dataframe.\n"))
+    cat(paste0(
+      "Here is a list of the variables in the '",
+      data_name,
+      "' dataframe.\n"
+    ))
 
     if (num_choices > 10L) {
-
       formatted_options <- format(options)
       nw <- nchar(formatted_options[1L], "w") + 2L
       ncol <- getOption("width") %/% nw
 
       if (ncol > 1L) {
-
         options <- paste0(formatted_options,
-                          c(rep.int("  ", ncol - 1L), "\n"),
-                          collapse = "")
+          c(rep.int("  ", ncol - 1L), "\n"),
+          collapse = ""
+        )
       }
 
       cat("", options, sep = "\n")
     } else {
-
       cat("", options, "", sep = "\n")
     }
 
@@ -257,16 +252,15 @@ assess <- function(data,
     selection <- tryCatch(
 
       scan("",
-           what = 0,
-           quiet = TRUE,
-           nlines = 1
+        what = 0,
+        quiet = TRUE,
+        nlines = 1
       ),
       error = identity
     )
 
     # Verify that user's selection did not throw an error in tryCatch()
-    if(!inherits(selection, "error")) {
-
+    if (!inherits(selection, "error")) {
       selection <- selection %>%
         unique()
 
@@ -278,7 +272,6 @@ assess <- function(data,
 
           # Verify user chose a binary variable
           if (all(dplyr::pull(data, choices[selection]) %in% c(0, 1))) {
-
             return(choices[selection])
           }
 
@@ -286,9 +279,11 @@ assess <- function(data,
           next
         }
 
-        cat(paste0(crayon::red("\nERROR: Invalid selection. Your input must be a single integer between 1 and "),
-                   crayon::red(num_choices),
-                   crayon::red(".\n\n")))
+        cat(paste0(
+          crayon::red("\nERROR: Invalid selection. Your input must be a single integer between 1 and "),
+          crayon::red(num_choices),
+          crayon::red(".\n\n")
+        ))
         next
       }
 
@@ -301,39 +296,39 @@ assess <- function(data,
 }
 
 .select.covariates <- function(data) {
-
   choices <- names(data)
 
   num_choices <- length(choices)
 
-  options <- paste0(format(1:num_choices),
-                    ":  ",
-                    choices)
+  options <- paste0(
+    format(1:num_choices),
+    ":  ",
+    choices
+  )
 
   cat("\n")
 
   repeat {
-
-    cat(paste0("Here are the remaining variables in the '",
-               data_name,
-               "' dataframe.\n"))
+    cat(paste0(
+      "Here are the remaining variables in the '",
+      data_name,
+      "' dataframe.\n"
+    ))
 
     if (num_choices > 10L) {
-
       formatted_options <- format(options)
       nw <- nchar(formatted_options[1L], "w") + 2L
       ncol <- getOption("width") %/% nw
 
       if (ncol > 1L) {
-
         options <- paste0(formatted_options,
-                          c(rep.int("  ", ncol - 1L), "\n"),
-                          collapse = "")
+          c(rep.int("  ", ncol - 1L), "\n"),
+          collapse = ""
+        )
       }
 
       cat("", options, sep = "\n")
     } else {
-
       cat("", options, "", sep = "\n")
     }
 
@@ -342,16 +337,15 @@ assess <- function(data,
     selection <- tryCatch(
 
       scan("",
-           what = 0,
-           quiet = TRUE,
-           nlines = 1
+        what = 0,
+        quiet = TRUE,
+        nlines = 1
       ),
       error = identity
     )
 
     # Verify that user's selection did not throw an error in tryCatch()
-    if(!inherits(selection, "error")) {
-
+    if (!inherits(selection, "error")) {
       selection <- selection %>%
         unique()
 
@@ -360,13 +354,14 @@ assess <- function(data,
 
         # Verify that user only input integers between 1 and the number of variables in the dataframe
         if (all(selection %in% 1:num_choices)) {
-
           return(choices[selection])
         }
 
-        cat(paste0(crayon::red("\nERROR: Invalid selection. Each input must be a single integer between 1 and "),
-                   crayon::red(num_choices),
-                   crayon::red(".\n\n")))
+        cat(paste0(
+          crayon::red("\nERROR: Invalid selection. Each input must be a single integer between 1 and "),
+          crayon::red(num_choices),
+          crayon::red(".\n\n")
+        ))
         next
       }
 
@@ -379,15 +374,15 @@ assess <- function(data,
 }
 
 .yes.no <- function(message = "") {
-
-  options <- paste0(format(1:2),
-                    ":  ",
-                    c("Yes", "No"))
+  options <- paste0(
+    format(1:2),
+    ":  ",
+    c("Yes", "No")
+  )
 
   cat("\n")
 
   repeat {
-
     cat(message)
 
     cat("", options, "", sep = "\n")
@@ -395,16 +390,15 @@ assess <- function(data,
     selection <- tryCatch(
 
       scan("",
-           what = 0,
-           quiet = TRUE,
-           nlines = 1
+        what = 0,
+        quiet = TRUE,
+        nlines = 1
       ),
       error = identity
     )
 
     # Verify that user's selection did not throw an error in tryCatch()
-    if(!inherits(selection, "error")) {
-
+    if (!inherits(selection, "error")) {
       selection <- selection %>%
         unique()
 
@@ -412,11 +406,11 @@ assess <- function(data,
       if (length(selection) == 1) {
 
         # Verify that user only input either a 1 or a 2
-        if(selection %in% 1:2) {
-
+        if (selection %in% 1:2) {
           disjoint_data <- switch(selection,
-                                  "1" = TRUE,
-                                  "2" = FALSE)
+            "1" = TRUE,
+            "2" = FALSE
+          )
 
           return(disjoint_data)
         }
@@ -428,17 +422,17 @@ assess <- function(data,
 }
 
 .select.method <- function() {
-
   choices <- c("Logistic Regression", "Random Forest", "Lasso")
 
-  options <- paste0(format(1:3),
-                    ":  ",
-                    c("Logistic Regression", "Random Forest", "Lasso"))
+  options <- paste0(
+    format(1:3),
+    ":  ",
+    c("Logistic Regression", "Random Forest", "Lasso")
+  )
 
   cat("\n")
 
   repeat {
-
     cat("Please select the method that will be used to estimate the probability of sample membership.\n")
 
     cat("", options, "", sep = "\n")
@@ -446,16 +440,15 @@ assess <- function(data,
     selection <- tryCatch(
 
       scan("",
-           what = 0,
-           quiet = TRUE,
-           nlines = 1
+        what = 0,
+        quiet = TRUE,
+        nlines = 1
       ),
       error = identity
     )
 
     # Verify that user's selection did not throw an error in tryCatch()
-    if(!inherits(selection, "error")) {
-
+    if (!inherits(selection, "error")) {
       selection <- selection %>%
         unique()
 
@@ -464,11 +457,11 @@ assess <- function(data,
 
         # Verify that user only input an integer between 1 and the number of variables in the dataframe
         if (selection %in% 1:3) {
-
           estimation_method <- switch(choices[selection],
-                                     "Logistic Regression" = "lr",
-                                     "Random Forest" = "rf",
-                                     "Lasso" = "lasso")
+            "Logistic Regression" = "lr",
+            "Random Forest" = "rf",
+            "Lasso" = "lasso"
+          )
 
           return(estimation_method)
         }
@@ -499,13 +492,12 @@ assess <- function(data,
 
   # Make covariate vector but only for observations selected to be part of the sample
   sample_covariate <- data %>%
-     dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
-     dplyr::pull(covariate)
+    dplyr::filter(!!rlang::sym(sample_indicator) == 1) %>%
+    dplyr::pull(covariate)
 
   return(sample_covariate)
 
-  if(sample_covariate %>% is.factor()) {
-
+  if (sample_covariate %>% is.factor()) {
     sample_covariate_levels <- sample_covariate %>%
       droplevels() %>%
       levels()
@@ -518,8 +510,7 @@ assess <- function(data,
     )
   }
 
-  if(sample_covariate %>% is.numeric()) {
-
+  if (sample_covariate %>% is.numeric()) {
     sample_bounds <- c(sample_covariate %>% min(na.rm = TRUE), sample_covariate %>% max(na.rm = TRUE))
 
     return(
@@ -549,7 +540,7 @@ assess <- function(data,
 
   invalid_covariates <- covariates %>% setdiff(names(data))
 
-  if(!is_empty(invalid_covariates)) {
+  if (!is_empty(invalid_covariates)) {
     stop(paste("The following covariates are not variables in the data provided:\n", paste(blue$bold(invalid_covariates), collapse = ", ")))
   }
 
@@ -560,7 +551,7 @@ assess <- function(data,
     names() %>%
     setequal(c("0", "1"))
 
-  if(!sample_indicator_valid) {
+  if (!sample_indicator_valid) {
     stop("Sample membership variable must be binary and coded as `0` (out of sample) or `1` (in sample)")
   }
 
@@ -579,9 +570,11 @@ assess <- function(data,
   n_excluded <- missing_rows %>%
     length()
 
-  out <- list(n_excluded = n_excluded,
-              trimmed_data = trimmed_data,
-              untrimmed_data = data)
+  out <- list(
+    n_excluded = n_excluded,
+    trimmed_data = trimmed_data,
+    untrimmed_data = data
+  )
 
   return(invisible(out))
 }
@@ -602,40 +595,36 @@ assess <- function(data,
 
 .get.gen.index <- function(sample_ps,
                            pop_ps) {
-  ##Baklizi and Eidous (2006) estimator
+  ## Baklizi and Eidous (2006) estimator
   # bandwidth
 
-  if(var(sample_ps) == 0 & var(pop_ps) == 0) {return(1)}
+  if (var(sample_ps) == 0 & var(pop_ps) == 0) {
+    return(1)
+  } else {
+    h <- function(x) {
+      n <- length(x)
+      optim_binwidth <- (4 * sqrt(var(x))^5 / (3 * n))^(1 / 5)
 
-  else {
-
-    h = function(x){
-
-      n = length(x)
-      optim_binwidth = (4*sqrt(var(x))^5/(3*n))^(1/5)
-
-      if(is.na(optim_binwidth) | is.nan(optim_binwidth)){
-
-        optim_binwidth = 0
+      if (is.na(optim_binwidth) | is.nan(optim_binwidth)) {
+        optim_binwidth <- 0
       }
-      if(optim_binwidth < 0.001) { # this yielded a b index of 0.9999501 for (at least one specific case of) "perfectly" stratified data
+      if (optim_binwidth < 0.001) { # this yielded a b index of 0.9999501 for (at least one specific case of) "perfectly" stratified data
 
-        optim_binwidth = 0.001
+        optim_binwidth <- 0.001
       }
 
       return(optim_binwidth)
     }
 
     # Kernel estimators of the density and the distribution
-    kg = function(x, data){
-
-      hb = h(data) # Bin width
-      k = r = length(x)
-      for(i in 1:k) r[i] = mean(dnorm((x[i] - data)/hb))/hb # We divide by bin width, which is a problem when bin width goes to zero
+    kg <- function(x, data) {
+      hb <- h(data) # Bin width
+      k <- r <- length(x)
+      for (i in 1:k) r[i] <- mean(dnorm((x[i] - data) / hb)) / hb # We divide by bin width, which is a problem when bin width goes to zero
       return(r)
     }
 
-    return(as.numeric(integrate(function(x) sqrt(kg(x, sample_ps)*kg(x, pop_ps)), -Inf, Inf)$value))
+    return(as.numeric(integrate(function(x) sqrt(kg(x, sample_ps) * kg(x, pop_ps)), -Inf, Inf)$value))
   }
 }
 
@@ -648,7 +637,6 @@ assess <- function(data,
 #' @export
 
 print.generalizeR_assess <- function(x, ...) {
-
   cat("\nA generalizeR_assess object: \n\n")
 
   cat(" - Dataset name:", crayon::cyan$bold(x$data_name), "\n\n")
@@ -657,27 +645,34 @@ print.generalizeR_assess <- function(x, ...) {
     pull(covariate) %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
-    gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
+    gsub("(.{200})\\s(,*)", "\\1\n   \\2", .)
 
   cat(" - Covariates selected:\n\n  ", covariate_names, "\n\n")
 
-  cat(" - Method used to estimate probability of sample membership:",
-      switch(x$estimation_method,
-             "lr" = "Logistic Regression",
-             "rf" = "Random Forest",
-             "lasso" = "LASSO") %>%
-        crayon::cyan$bold(),
-      "\n\n")
+  cat(
+    " - Method used to estimate probability of sample membership:",
+    switch(x$estimation_method,
+      "lr" = "Logistic Regression",
+      "rf" = "Random Forest",
+      "lasso" = "LASSO"
+    ) %>%
+      crayon::cyan$bold(),
+    "\n\n"
+  )
 
-  if (x$disjoint_data) {cat(paste0(" - The sample and the population were considered ", crayon::cyan$bold("disjoint"), " from one another.\n\n"))}
-
-  else {cat(paste0(" - The sample was considered a ", crayon::cyan$bold("subset"), " of the population.\n\n"))}
+  if (x$disjoint_data) {
+    cat(paste0(" - The sample and the population were considered ", crayon::cyan$bold("disjoint"), " from one another.\n\n"))
+  } else {
+    cat(paste0(" - The sample was considered a ", crayon::cyan$bold("subset"), " of the population.\n\n"))
+  }
 
   cat(" - Sample size:", crayon::cyan$bold(x$n_sample), "\n\n")
 
   cat(" - Population size:", crayon::cyan$bold(x$n_pop), "\n\n")
 
-  if (x$n_excluded > 0) {cat(" - Number of observations trimmed from population: ", crayon::cyan$bold(x$n_excluded), "\n\n")}
+  if (x$n_excluded > 0) {
+    cat(" - Number of observations trimmed from population: ", crayon::cyan$bold(x$n_excluded), "\n\n")
+  }
 
   cat(paste0(" - The generalizability index of the sample to the target population based on the selected covariates is ", crayon::cyan$bold(x$gen_index), "."))
 }
@@ -691,18 +686,19 @@ print.generalizeR_assess <- function(x, ...) {
 #' @export
 
 summary.generalizeR_assess <- function(x, ...) {
-
   estimation_method <- switch(x$estimation_method,
-                              "lr" = "Logistic Regression",
-                              "rf" = "Random Forest",
-                              "lasso" = "Lasso")
+    "lr" = "Logistic Regression",
+    "rf" = "Random Forest",
+    "lasso" = "Lasso"
+  )
 
   if (x$disjoint_data) {
+    prop_score_dist_table <- rbind(
+      summary(x$propensity_scores$in_sample),
+      summary(x$propensity_scores$population)
+    )
 
-    prop_score_dist_table <- rbind(summary(x$propensity_scores$in_sample),
-                                   summary(x$propensity_scores$population))
-
-    row.names(prop_score_dist_table) <- paste0(c("Sample","Population"), " (n = ", c(x$n_sample, x$n_pop),")")
+    row.names(prop_score_dist_table) <- paste0(c("Sample", "Population"), " (n = ", c(x$n_sample, x$n_pop), ")")
 
     sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
       mutate(sample_indicator = 1)
@@ -715,27 +711,33 @@ summary.generalizeR_assess <- function(x, ...) {
     prop_score_dist_plot <- prop_scores %>%
       ggplot2::ggplot() +
       geom_density(aes(x = gtools::logit(prop_scores), fill = factor(sample_indicator)),
-                   alpha = 0.7) +
+        alpha = 0.7
+      ) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
-      scale_fill_discrete(name = NULL,
-                          labels = c("Population", "Sample")) +
-      labs(x = "Propensity Score Logits",
-           y = "Density",
-           title = "Distribution of Propensity Score Logits") +
+      scale_fill_discrete(
+        name = NULL,
+        labels = c("Population", "Sample")
+      ) +
+      labs(
+        x = "Propensity Score Logits",
+        y = "Density",
+        title = "Distribution of Propensity Score Logits"
+      ) +
       theme_minimal() +
-      theme(axis.ticks.x = element_line(),
-            axis.text.y = element_blank(),
-            axis.line = element_line(),
-            plot.title = element_text(size = 12))
-  }
+      theme(
+        axis.ticks.x = element_line(),
+        axis.text.y = element_blank(),
+        axis.line = element_line(),
+        plot.title = element_text(size = 12)
+      )
+  } else {
+    prop_score_dist_table <- rbind(
+      summary(x$propensity_scores$in_sample),
+      summary(x$propensity_scores$not_in_sample)
+    )
 
-  else {
-
-    prop_score_dist_table <- rbind(summary(x$propensity_scores$in_sample),
-                             summary(x$propensity_scores$not_in_sample))
-
-    row.names(prop_score_dist_table) <- paste0(c("In Sample","Not In Sample"), " (n = ", c(x$n_sample, x$n_pop),")")
+    row.names(prop_score_dist_table) <- paste0(c("In Sample", "Not In Sample"), " (n = ", c(x$n_sample, x$n_pop), ")")
 
     in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
       mutate(sample_indicator = 1)
@@ -748,20 +750,27 @@ summary.generalizeR_assess <- function(x, ...) {
     prop_score_dist_plot <- prop_scores %>%
       ggplot2::ggplot() +
       geom_density(aes(x = gtools::logit(prop_scores), fill = factor(sample_indicator)),
-                   alpha = 0.7) +
+        alpha = 0.7
+      ) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
-      scale_fill_discrete(name = NULL,
-                          labels = c("Not in Sample", "In Sample")) +
-      labs(x = "Propensity Score Logits",
-           y = "Density",
-           title = "Distribution of Propensity Score Logits") +
+      scale_fill_discrete(
+        name = NULL,
+        labels = c("Not in Sample", "In Sample")
+      ) +
+      labs(
+        x = "Propensity Score Logits",
+        y = "Density",
+        title = "Distribution of Propensity Score Logits"
+      ) +
       theme_minimal() +
-      theme(axis.ticks.x = element_line(),
-            axis.text.y = element_blank(),
-            axis.line = element_line(),
-            axis.title = element_blank(),
-            plot.title = element_text(size = 12))
+      theme(
+        axis.ticks.x = element_line(),
+        axis.text.y = element_blank(),
+        axis.line = element_line(),
+        axis.title = element_blank(),
+        plot.title = element_text(size = 12)
+      )
   }
 
   colnames(prop_score_dist_table) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
@@ -770,12 +779,14 @@ summary.generalizeR_assess <- function(x, ...) {
     data.frame() %>%
     colorDF::colorDF(theme = "dark")
 
-  out <- list(estimation_method = estimation_method,
-              gen_index = x$gen_index,
-              prop_score_dist_table = prop_score_dist_table,
-              prop_score_dist_plot = prop_score_dist_plot,
-              covariate_table = x$covariate_table,
-              n_excluded = x$n_excluded)
+  out <- list(
+    estimation_method = estimation_method,
+    gen_index = x$gen_index,
+    prop_score_dist_table = prop_score_dist_table,
+    prop_score_dist_plot = prop_score_dist_plot,
+    covariate_table = x$covariate_table,
+    n_excluded = x$n_excluded
+  )
 
   class(out) <- "summary.generalizeR_assess"
 
@@ -791,7 +802,6 @@ summary.generalizeR_assess <- function(x, ...) {
 #' @export
 
 print.summary.generalizeR_assess <- function(x, ...) {
-
   cat("\nSummary of Estimated Propensity Scores: \n\n")
 
   print(x$prop_score_dist_table)
@@ -804,14 +814,13 @@ print.summary.generalizeR_assess <- function(x, ...) {
     pull(covariate) %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
-    gsub('(.{200})\\s(,*)', '\\1\n   \\2', .)
+    gsub("(.{200})\\s(,*)", "\\1\n   \\2", .)
 
   cat("Covariates Used:\n\n  ", covariate_names, "\n\n")
 
   cat("Generalizability Index: ", crayon::cyan$bold(x$gen_index), "\n\n")
 
   if (x$n_excluded > 0) {
-
     cat("The dataset was trimmed to ensure population covariates do not exceed sample covariate bounds.\n\n")
 
     cat("Number of observations trimmed from population: ", crayon::cyan$bold(x$n_excluded), "\n\n")
