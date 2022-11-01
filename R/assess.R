@@ -9,6 +9,7 @@
 #' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
 #' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.
 #' @export
+#' @importFrom rlang is_empty
 
 
 assess <- function(data,

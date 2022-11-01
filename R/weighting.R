@@ -10,6 +10,7 @@
 #' @export
 #' @importFrom stats quantile
 #' @importFrom crayon bold blue
+#' @importFrom rlang is_empty
 
 weighting <- function(data,
                       sample_indicator,
