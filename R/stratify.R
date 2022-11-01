@@ -39,6 +39,7 @@
 #' @importFrom stringr str_sub
 #' @importFrom grid unit
 #' @importFrom tidyselect contains
+#' @importFrom forcats fct_reorder as_factor
 #' @references
 #' Tipton, E. (2014). Stratified sampling using cluster analysis: A sample selection strategy for improved generalizations from experiments. *Evaluation Review*, *37*(2), 109-139.
 #'
