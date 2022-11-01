@@ -10,6 +10,7 @@
 #' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.
 #' @export
 #' @importFrom rlang is_empty
+#' @importFrom dplyr pull
 
 
 assess <- function(data,
@@ -802,6 +803,8 @@ summary.generalizeR_assess <- function(x, ...) {
 #' @export print.summary.generalizeR_assess
 #' @export
 
+
+
 print.summary.generalizeR_assess <- function(x, ...) {
   cat("\nSummary of Estimated Propensity Scores: \n\n")
 
@@ -812,7 +815,7 @@ print.summary.generalizeR_assess <- function(x, ...) {
   cat("\n\nEstimation Method:", crayon::cyan$bold(x$estimation_method), "\n\n")
 
   covariate_names <- x$covariate_table %>%
-    pull(covariate) %>%
+    dplyr::pull(covariate) %>%
     crayon::cyan$bold() %>%
     paste(collapse = ", ") %>%
     gsub("(.{200})\\s(,*)", "\\1\n   \\2", .)
