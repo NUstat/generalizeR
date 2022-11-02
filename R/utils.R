@@ -250,6 +250,10 @@
       kableExtra::column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
   }
 
+  if(length(covariates) > 25) nrow <- 5
+
+  else nrow <- NULL
+
   cov_dist_facet_plot <- expanded.data %>%
     tidyr::pivot_longer(cols = covariates[1:40] %>%
                           tidyselect::all_of() %>%
@@ -258,7 +262,7 @@
     ggplot() +
     facet_wrap(~covariate,
                scales = "free",
-               nrow = ifelse(length(covariates) > 25, 5, NULL)) +
+               nrow = nrow) +
     geom_density(aes(x = value, fill = factor(!!rlang::sym(sample_indicator))),
                  alpha = 0.7) +
     scale_x_continuous(expand = c(0, 0),
