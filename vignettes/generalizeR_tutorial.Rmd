@@ -46,7 +46,7 @@ Welcome to the generalizeR! This package is designed to guide education research
 - Using important features of their inference population to stratify units 
 - Developing a recruitment plan for a future evaluation
 - Assessing the generalizability of a completed evaluation
-sdfghjk
+
 
 Note that it is possible to use the package at either end of the sampling process: you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously obtained sample data and assess its generalizability.
 
