@@ -896,37 +896,63 @@ print.summary.generalizeR_stratify <- function(x, ...) {
 
   n_strata_correct <- FALSE
 
-  while (!n_strata_correct) {
-    n_strata <- suppressWarnings(as.numeric(readline(prompt = "Number of strata: ")))
+  try_again <- TRUE
 
-    if (is.na(n_strata) || !is.numeric(n_strata) || n_strata <= 1 || n_strata %% 1 != 0 || n_strata >= (nrow(data_subset)) - 1) {
-      cat(crayon::red("\nERROR: The number of strata must be a single integer greater than 1 and at most 2 less \nthan the the number of observations.\n\n"))
+  while (try_again) {
 
-      next
+    while (!n_strata_correct) {
+      n_strata <- suppressWarnings(as.numeric(readline(prompt = "Number of strata: ")))
+
+      if (is.na(n_strata) || !is.numeric(n_strata) || n_strata <= 1 || n_strata %% 1 != 0 || n_strata >= (nrow(data_subset)) - 1) {
+        cat(crayon::red("\nERROR: The number of strata must be a single integer greater than 1 and at most 2 less \nthan the the number of observations.\n\n"))
+
+        next
+      }
+
+      n_strata_correct <- TRUE
     }
 
-    n_strata_correct <- TRUE
+    # 9) Pass arguments to .stratify.calculate() where actual stratification is performed
+
+    output <- .stratify.calculate(
+      data = data,
+      n_strata = n_strata,
+      variables = variables,
+      idvar = idvar,
+      verbose = verbose
+    )
+
+    cat(crayon::blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n\n"))
+
+    cat("You can pull up the results at any time by passing your 'generalizeR_stratify' \nobject into summary().\n\n")
+
+    readline(prompt = "Hit <Return> to view the results.")
+
+    output %>%
+      summary() %>%
+      print()
+
+    try <- "1"
+
+    while (T) {
+      cat("\n\nDo you want to try a different number of strata?\n1: Yes\n2: No\n\n")
+
+      try <- readline(prompt = "Enter your selection: ")
+
+      if (try == "1" | try == "2") {
+        break
+      }
+      cat("Invalid Input. Please enter 1 or 2\n\n")
+    }
+
+    if (try == "1") {
+      try_again <- TRUE
+      n_strata_correct <- FALSE
+    } else {
+      try_again <- FALSE
+    }
+
   }
-
-  # 9) Pass arguments to .stratify.calculate() where actual stratification is performed
-
-  output <- .stratify.calculate(
-    data = data,
-    n_strata = n_strata,
-    variables = variables,
-    idvar = idvar,
-    verbose = verbose
-  )
-
-  cat(crayon::blue$bold("Congratulations, you have successfully grouped your data into", n_strata, "strata!\n\n"))
-
-  cat("You can pull up the results at any time by passing your 'generalizeR_stratify' \nobject into summary().\n\n")
-
-  readline(prompt = "Hit <Return> to view the results.")
-
-  output %>%
-    summary() %>%
-    print()
 
   # 8) Return output
 

@@ -56,7 +56,7 @@ recruit <- function(stratify_output,
     }
 
     assertthat::on_failure(is_valid_sample_size) <- function(call, env) {
-      paste("The number of units you wish to recruit must be a single integer ranging from 1 to the total number of units in your population (",
+      paste("You must enter a sample size when using the unguided version of this function. The number of units you wish to recruit must be a single integer ranging from 1 to the total number of units in your population (",
         pop_size,
         ").",
         sep = ""
@@ -139,25 +139,25 @@ recruit <- function(stratify_output,
     cat("\n")
 
     if (save_as_csv) {
-      cat("The lists will be saved as 'Recruitment_list_#', one for each stratum.\n")
-      cat("Where should they be saved?\n\n")
+      cat("The lists will be saved as 'Recruitment_list_#', one for each stratum, in the current working directory.\n")
+      #cat("Where should they be saved?\n\n")
     }
   }
 
   # for the unguided version of the function, save the recruitment output as a csv if requested
   if (save_as_csv) {
-    filepath <- ifelse(guided, easycsv::choose_dir(), "")
+    filepath <- "" #ifelse(guided, easycsv::choose_dir(), "")
 
     for (i in 1:(n_strata)) {
       filename <- paste(filepath, "Recruitment_list_", i, ".csv", sep = "")
       readr::write_csv(recruitment_lists[[i]], file = filename)
     }
 
-    if (guided) {
-      cat("Lists saved successfully!\n\n")
-    } else {
-      cat("You've chosen to save your recruitment lists as .csv files. The lists have been saved \nas 'Recruitment_list_#', one for each stratum, inside your current working directory.\n\n")
-    }
+    #if (guided) {
+     # cat("Lists saved successfully!\n\n")
+    #} else {
+     # cat("You've chosen to save your recruitment lists as .csv files. The lists have been saved \nas 'Recruitment_list_#', one for each stratum, inside your current working directory.\n\n")
+    #}
   }
 
   cat("If you have stored the output of 'recruit()' in an object, you can use it to access \nthese lists by typing the name of the object followed by '$recruitment_lists'.")
