@@ -18,7 +18,7 @@
 #' }
 #' @export
 #' @importFrom graphics par
-#' @importFrom assertthat assert_that not_empty
+#' @importFrom assertthat assert_that not_empty on_failure is.count
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu
 #' @importFrom crayon red yellow blue bold
