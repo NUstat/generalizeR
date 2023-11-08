@@ -22,6 +22,8 @@ The goal of generalizeR is to guide K-12 researchers through the process of (1) 
 
 TEST TEST TEST
 
+TEST TEST TEST (this time for real)
+
 ## Installation
 
 You can install the development version from [GitHub](https://github.com/) with:
