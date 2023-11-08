@@ -11,6 +11,8 @@ of (1) designing a sample recruitment plan with generalization in mind
 and (2) reporting where the results of a study may (or may not)
 generalize well.
 
+TEST TEST TEST
+
 ## Installation
 
 You can install the development version from
