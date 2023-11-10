@@ -306,7 +306,7 @@ rec_output <- recruit(strat_output)
 ```
 
 ```{r include = FALSE}
-#rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
+rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
 ```
 
 We are immediately greeted with the following welcome message:
@@ -374,10 +374,10 @@ output <- test
 ```
 
 ```{r eval=FALSE}
-sample <- tibble(ncessch = c(recruit_output$recruitment_lists[[1]]$ncessch[1:20],
-                recruit_output$recruitment_lists[[2]]$ncessch[1:4],
-                recruit_output$recruitment_lists[[3]]$ncessch[1:5],
-                recruit_output$recruitment_lists[[4]]$ncessch[1:11]))
+sample <- tibble(ncessch = c(rec_output$recruitment_lists[[1]]$ncessch[1:20],
+                rec_output$recruitment_lists[[2]]$ncessch[1:4],
+                rec_output$recruitment_lists[[3]]$ncessch[1:5],
+                rec_output$recruitment_lists[[4]]$ncessch[1:11]))
 ```
 
 They specify their inference population again -- this time a data frame including all states with and without charter high schools. The data frame should include unit IDs, variables of interest, and (if applicable) a grouping variable; since the researcher wants to generalize to US states, the grouping variable is 'st' (state).
