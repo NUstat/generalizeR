@@ -20,6 +20,7 @@ BugReports: https://github.com/NUstat/generalizeR/issues
 Depends: 
     ggplot2
 Imports: 
+    assertthat,
     cluster (>= 2.1.0),
     ClusterR (>= 1.2.2),
     colorDF,
