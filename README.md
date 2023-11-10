@@ -13,6 +13,8 @@ generalize well.
 
 ## Installation
 
+TEST
+
 You can install the development version from
 [GitHub](https://github.com/) with:
 
