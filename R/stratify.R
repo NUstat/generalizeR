@@ -547,18 +547,13 @@ print.generalizeR_stratify <- function(x, ...) {
       "(see $data_omitted for dropped observations) \n\n")
 }
 
-#' Internal function that assigns class generalizeR_stratify to the inputted object
+#' Summary method for "generalizeR_stratify" class
 #'
-#' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+#' @param x An object of class "generalizeR_stratify"
+#' @param ... Other arguments passed to or from other methods
 #'
-#' @keywords internal
-#'
-#' @order 3
-#'
-#' @param object generalizeR_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
-#' @return The function returns the input generalizeR_stratify object as a summary.generalizeR_stratify object
-#'
-#' @md
+#' @export summary.generalizeR_stratify
+#' @export
 
 summary.generalizeR_stratify <- function(object, ...) {
 
@@ -569,18 +564,13 @@ summary.generalizeR_stratify <- function(object, ...) {
   return(out)
 }
 
-#' Internal function that formats and prints a summary.generalizeR_stratify object
+#' Print method for "generalizeR_stratify" class
 #'
-#' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+#' @param x An object of class "generalizeR_stratify"
+#' @param ... Other arguments passed to or from other methods
 #'
-#' @keywords internal
-#'
-#' @order 4
-#'
-#' @param x summary.generalizeR_stratify, an object produced by the summary.generalizeR_stratify() function
-#' @return The function invisible returns the inputted summary.generalizeR_stratify object x
-#'
-#' @md
+#' @export print.generalizeR_stratify
+#' @export
 
 print.summary.generalizeR_stratify <- function(x, ...) {
 
@@ -633,7 +623,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
 #'
 #' @keywords internal
 #'
-#' @order 5
+#' @order 3
 #'
 #' @param data data.frame object containing the population data to be stratified (rows are observations).
 #'
