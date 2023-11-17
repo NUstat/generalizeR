@@ -544,7 +544,7 @@ print.generalizeR_stratify <- function(x, ...) {
 
   cat("\n\n - Number of observations dropped due to missing data:",
       crayon::bold(nrow(x$data_omitted)),
-      "(see $data_omitted for dropped observations)\n\n")
+      "(see $data_omitted for dropped observations) \n\n")
 }
 
 #' Internal function that assigns class generalizeR_stratify to the inputted object
