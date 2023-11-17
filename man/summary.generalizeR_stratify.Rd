@@ -2,17 +2,15 @@
 % Please edit documentation in R/stratify.R
 \name{summary.generalizeR_stratify}
 \alias{summary.generalizeR_stratify}
-\title{Internal function that assigns class generalizeR_stratify to the inputted object}
+\title{Summary method for "generalizeR_stratify" class}
 \usage{
 \method{summary}{generalizeR_stratify}(object, ...)
 }
 \arguments{
-\item{object}{generalizeR_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution}
-}
-\value{
-The function returns the input generalizeR_stratify object as a summary.generalizeR_stratify object
+\item{...}{Other arguments passed to or from other methods}
+
+\item{x}{An object of class "generalizeR_stratify"}
 }
 \description{
-Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+Summary method for "generalizeR_stratify" class
 }
-\keyword{internal}

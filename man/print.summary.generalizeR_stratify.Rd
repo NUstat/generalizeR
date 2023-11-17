@@ -2,17 +2,15 @@
 % Please edit documentation in R/stratify.R
 \name{print.summary.generalizeR_stratify}
 \alias{print.summary.generalizeR_stratify}
-\title{Internal function that formats and prints a summary.generalizeR_stratify object}
+\title{Print method for "summary.generalizeR_stratify" class}
 \usage{
 \method{print}{summary.generalizeR_stratify}(x, ...)
 }
 \arguments{
-\item{x}{summary.generalizeR_stratify, an object produced by the summary.generalizeR_stratify() function}
-}
-\value{
-The function invisible returns the inputted summary.generalizeR_stratify object x
+\item{x}{An object of class "generalizeR_stratify"}
+
+\item{...}{Other arguments passed to or from other methods}
 }
 \description{
-Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+Print method for "summary.generalizeR_stratify" class
 }
-\keyword{internal}

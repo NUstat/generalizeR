@@ -519,18 +519,13 @@ stratify <- function(data = NULL,
   return(invisible(out))
 }
 
-#' Internal function that formats and prints a summary of stratification results.
+#' Print method for "generalizeR_stratify" class
 #'
-#' Intended only to be called within \code{stratify_guided} and \code{stratify_unguided}, not as a standalone function
+#' @param x An object of class "generalizeR_stratify"
+#' @param ... Other arguments passed to or from other methods
 #'
-#' @keywords internal
-#'
-#' @order 2
-#'
-#' @param x generalizeR_stratify, an object produced by the stratify() function including the dataset and parameters used to guide stratification as well as the stratification solution
-#' @return The function invisible returns the input generalizeR_stratify object
-#'
-#' @md
+#' @export print.generalizeR_stratify
+#' @export
 
 print.generalizeR_stratify <- function(x, ...) {
 
@@ -564,12 +559,12 @@ summary.generalizeR_stratify <- function(object, ...) {
   return(out)
 }
 
-#' Print method for "generalizeR_stratify" class
+#' Print method for "summary.generalizeR_stratify" class
 #'
 #' @param x An object of class "generalizeR_stratify"
 #' @param ... Other arguments passed to or from other methods
 #'
-#' @export print.generalizeR_stratify
+#' @export print.summary.generalizeR_stratify
 #' @export
 
 print.summary.generalizeR_stratify <- function(x, ...) {
