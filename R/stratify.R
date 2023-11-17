@@ -454,46 +454,48 @@ stratify <- function(data = NULL,
     ) %>%
     dplyr::mutate(values = values %>% round(1))
 
-  heat_plot_final <- heat_plot +
-    ggnewscale::new_scale("fill") +
-    ggrepel::geom_label_repel(
-      data = longer_heat_data %>% dplyr::filter(mn_or_sd == "mn"),
-      aes(
-        x = Stratum,
-        y = Variable,
-        label = values,
-        fill = mn_or_sd
-      ),
-      min.segment.length = 1,
-      direction = "y",
-      nudge_y = 0.05,
-      alpha = 0.7,
-      size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
-    ) +
-    ggrepel::geom_label_repel(
-      data = longer_heat_data %>% dplyr::filter(mn_or_sd == "sd"),
-      aes(
-        x = Stratum,
-        y = Variable,
-        label = values,
-        fill = mn_or_sd
-      ),
-      min.segment.length = 1,
-      direction = "y",
-      nudge_y = -0.05,
-      alpha = 0.7,
-      size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
-    ) +
-    viridis::scale_fill_viridis(
-      labels = c("Mean", "Standard Deviation"),
-      begin = 0.4,
-      end = 0.8,
-      direction = 1,
-      discrete = TRUE,
-      option = "D"
-    ) +
-    theme(legend.title = element_blank()) +
-    guides(fill = guide_legend(override.aes = aes(label = "")))
+  suppressWarnings(
+    heat_plot_final <- heat_plot +
+      ggnewscale::new_scale("fill") +
+      ggrepel::geom_label_repel(
+        data = longer_heat_data %>% dplyr::filter(mn_or_sd == "mn"),
+        aes(
+          x = Stratum,
+          y = Variable,
+          label = values,
+          fill = mn_or_sd
+        ),
+        min.segment.length = 1,
+        direction = "y",
+        nudge_y = 0.05,
+        alpha = 0.7,
+        size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
+      ) +
+      ggrepel::geom_label_repel(
+        data = longer_heat_data %>% dplyr::filter(mn_or_sd == "sd"),
+        aes(
+          x = Stratum,
+          y = Variable,
+          label = values,
+          fill = mn_or_sd
+        ),
+        min.segment.length = 1,
+        direction = "y",
+        nudge_y = -0.05,
+        alpha = 0.7,
+        size = ifelse((length(levels(heat_data$Variable %>% factor())) + 1) > 7, 2, 3.5)
+      ) +
+      viridis::scale_fill_viridis(
+        labels = c("Mean", "Standard Deviation"),
+        begin = 0.4,
+        end = 0.8,
+        direction = 1,
+        discrete = TRUE,
+        option = "D"
+      ) +
+      theme(legend.title = element_blank()) +
+      guides(fill = guide_legend(override.aes = aes(label = "")))
+  )
 
   # 5) Save output
 
@@ -598,17 +600,18 @@ print.summary.generalizeR_stratify <- function(x, ...) {
   x$heat_data_kable %>%
     print()
 
-  tryCatch(
-    {
-      x$heat_plot %>%
-        print()
-    },
-    error = function(cond) {
-      message("Your Plots pane is too small for the heat map to be displayed. If you still want to \nview the plot, try resizing the pane and then running 'x$heat_plot' where 'x' is the \nname assigned to your 'generalizeR_stratify' object.")
-      return(NA)
-    }
+  suppressWarnings(
+    tryCatch(
+      {
+        x$heat_plot %>%
+          print()
+      },
+      error = function(cond) {
+        message("Your Plots pane is too small for the heat map to be displayed. If you still want to \nview the plot, try resizing the pane and then running 'x$heat_plot' where 'x' is the \nname assigned to your 'generalizeR_stratify' object.")
+        return(NA)
+      }
+    )
   )
-
   invisible(x)
 }
 
@@ -1152,29 +1155,71 @@ print.summary.generalizeR_stratify <- function(x, ...) {
             # Verify that user didn't choose any variables with all observations missing
             if (rlang::is_empty(na_variables)) {
 
-              cat("\nYou have selected the following stratifying variables:\n\n",
-                  paste(crayon::blue$bold(variables), collapse = ", "),
-                  "\n\n",
-                  sep = "")
+              data_subset <- data %>%
+                dplyr::select(tidyselect::all_of(variables))
 
-              data %>%
-                dplyr::select(tidyselect::all_of(variables)) %>%
-                .make.var.overview(print_to_console = TRUE)
+              #lin_dep <- plm::detect.lindep(data_subset)
+              lin_dep <- NULL
 
-              # Verify that user is happy with their selection
-              if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
+              # Verify that user didn't choose any linearly dependent variables - currently not checking for this due to difficulty finding a linear matrix
+              if (is.null(lin_dep)) {
 
-                return(choices[selection])
+                num_single <- 0
+                list_single <- c()
+
+                for (name in colnames(data_subset)) {
+                  if (length(unique(data_subset[[name]])) == 1) {
+                    num_single <- num_single + 1
+                    list_single <- append(list_single, name)
+                  }
+                }
+
+                # Verify that users know if they have columns with one value
+                if (num_single == 0) {
+
+                  cat("\nYou have selected the following stratifying variables:\n\n",
+                      paste(crayon::blue$bold(variables), collapse = ", "),
+                      "\n\n",
+                      sep = "")
+
+                  data %>%
+                    dplyr::select(tidyselect::all_of(variables)) %>%
+                    .make.var.overview(print_to_console = TRUE)
+
+                  # Verify that user is happy with their selection
+                  if (utils::menu(choices = c("Yes", "No"), title = cat("\nIs this correct?")) == 1) {
+
+                    return(choices[selection])
+                  }
+
+
+
+                cat("\n")
+
+                data %>%
+                  .make.var.overview()
+                next
+
+                }
+
+                cat(crayon::red("ERROR: The variable(s),"),
+                    paste(crayon::blue$bold(list_single), collapse = ", "),
+                    crayon::red("have only one value. Please make sure none of your chosen covariates have only one value\n\n"))
+
+                next
               }
 
-              cat("\n")
+              cat(crayon::red("\nERROR: The variables:"))
+              for (name in names(lin_dep)) {
+                cat(names)
+                cat(" ")
+              }
+              cat("are linearly dependent. Please make sure none of your chosen covariates are independent \n\n")
 
-              data %>%
-                .make.var.overview()
               next
             }
 
-            cat(crayon::red("ERROR: Invalid selection. This function will not allow a selected variable to have only missing observations.\n\n"),
+            cat(crayon::red("\nERROR: Invalid selection. This function will not allow a selected variable to have only missing observations.\n\n"),
                 crayon::red("All observations are missing for the following variables you have chosen:\n\n"),
                 paste(crayon::blue$bold(na_variables), collapse = ", "),
                 sep = ""
