@@ -169,11 +169,31 @@ recruit <- function(stratify_output,
     recruitment_numbers = table_output$recruit_numbers
   )
 
-  class(out) <- "generalizer_recruit"
+  class(out) <- "generalizeR_recruit"
 
   return(invisible(out))
 }
 
+#' Internal function that formats and prints a summary of recruit results.
+#'
+#' Intended only to be called within \code{recruit} not as a standalone function
+#'
+#' @keywords internal
+#'
+#' @order 1
+#'
+#' @param x generalizeR_recruit, an object produced by the recruit() function including the dataset and parameters used to guide recruiting as well as the final recruiting lists
+#' @return The function invisible returns the input generalizeR_recruit object
+#'
+#' @md
+
+print.generalizeR_recruit <- function(x, ...) {
+
+  cat("\nA generalizeR_recruit object: \n\n")
+
+  print(x$recruitment_table)
+
+}
 
 
 #' Internal function that performs the actual recruitment calculations for \code{recruit()}
