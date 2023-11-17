@@ -1059,7 +1059,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
   assertthat::on_failure(is_empty) <- function(call, env) {
 
     paste0(
-      crayon::red("ERROR: This function will not allow a variable with all observations missing.\n\n"),
+      crayon::red("This function will not allow a variable with all observations missing.\n\n"),
       crayon::red("All observations are missing for the following variables:\n\n"),
       paste(crayon::blue$bold(na_variables), collapse = ", "),
       crayon::red("\n\nPlease choose a different set of variables.\n"),
@@ -1068,6 +1068,30 @@ print.summary.generalizeR_stratify <- function(x, ...) {
   }
 
   assertthat::assert_that(is_empty(na_variables))
+
+  data_subset <- data %>%
+    dplyr::select(tidyselect::all_of(variables))
+
+  list_single <- c()
+
+  for (name in colnames(data_subset)) {
+    if (length(unique(data_subset[[name]])) == 1) {
+      list_single <- append(list_single, name)
+    }
+  }
+
+
+  assertthat::on_failure(is_empty) <- function(call, env) {
+
+    paste0(
+      crayon::red("The following variables have only one value:\n\n"),
+      paste(crayon::blue$bold(list_single), collapse = ", "),
+      crayon::red("\n\nPlease choose covariates with more than one value\n\n"),
+      sep = ""
+        )
+  }
+
+  assertthat::assert_that(is_empty(list_single))
 
   output <- .stratify.calculate(
     data = data,
@@ -1209,6 +1233,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
                 next
               }
 
+              # will never run as of now
               cat(crayon::red("\nERROR: The variables:"))
               for (name in names(lin_dep)) {
                 cat(names)
