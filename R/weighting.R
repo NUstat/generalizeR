@@ -483,11 +483,11 @@ print.summary.generalizeR_weighting <- function(x, ...) {
 
   print(x$weights_hist)
 
-  cat("\nSummary of Unweighted Regresssion Model: \n")
+  cat("\nSummary of Unweighted Regression Model: \n")
 
   summary(x$unweighted_model) %>% print()
 
-  cat("\nSummary of Weighted Regresssion Model: \n")
+  cat("\nSummary of Weighted Regression Model: \n")
 
   summary(x$weighted_model) %>% print()
 

@@ -435,7 +435,7 @@ assess <- function(data,
   cat("\n")
 
   repeat {
-    cat("Please select the method that will be used to estimate the probability of sample membership.\n")
+    cat("Please select the method that will be used to estimate the probability of sample membership (the default is Logistic Regression).\n")
 
     cat("", options, "", sep = "\n")
 

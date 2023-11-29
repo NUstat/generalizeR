@@ -1182,11 +1182,10 @@ print.summary.generalizeR_stratify <- function(x, ...) {
               data_subset <- data %>%
                 dplyr::select(tidyselect::all_of(variables))
 
-              #lin_dep <- plm::detect.lindep(data_subset)
-              lin_dep <- NULL
+              data_rank <- qr(data_subset %>% drop_na())$rank
 
-              # Verify that user didn't choose any linearly dependent variables - currently not checking for this due to difficulty finding a linear matrix
-              if (is.null(lin_dep)) {
+              # Verify that user didn't choose any linearly dependent variables
+              if (data_rank == ncol(data_subset)) {
 
                 num_single <- 0
                 list_single <- c()
@@ -1226,20 +1225,14 @@ print.summary.generalizeR_stratify <- function(x, ...) {
 
                 }
 
-                cat(crayon::red("ERROR: The variable(s),"),
+                cat(crayon::red("ERROR: The variable(s),\n\n"),
                     paste(crayon::blue$bold(list_single), collapse = ", "),
-                    crayon::red("have only one value. Please make sure none of your chosen covariates have only one value\n\n"))
+                    crayon::red("\n\nhave only one value. Please make sure none of your chosen covariates have only one value\n\n"))
 
                 next
               }
 
-              # will never run as of now
-              cat(crayon::red("\nERROR: The variables:"))
-              for (name in names(lin_dep)) {
-                cat(names)
-                cat(" ")
-              }
-              cat("are linearly dependent. Please make sure none of your chosen covariates are independent \n\n")
+              cat(crayon::red("\nERROR: These variables are linearly dependent. Please make sure to choose covariates that are linearly independent.\n\n"))
 
               next
             }
