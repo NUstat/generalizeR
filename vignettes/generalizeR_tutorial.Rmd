@@ -43,16 +43,17 @@ library(lazyeval)
 
 Welcome to the generalizeR! This package is designed to guide education researchers through:
 
-- Using important features of their inference population to stratify units 
-- Developing a recruitment plan for a future evaluation
-- Assessing the generalizability of a completed evaluation
-
+-   Using important features of their inference population to stratify units
+-   Developing a recruitment plan for a future evaluation
+-   Assessing the generalizability of a completed evaluation
 
 Note that it is possible to use the package at either end of the sampling process: you can start at the beginning and use the package to obtain a stratified sample, or you can start at the end with your previously obtained sample data and assess its generalizability.
 
 ## Step 1: Stratify
 
-The `stratify()` function defaults to 'guided' mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of http://thegeneralizer.org/ and in part because we intend for this R package to be as accessible as possible for people with limited R experience.
+### Guided
+
+The `stratify()` function defaults to 'guided' mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of <http://thegeneralizer.org/> and in part because we intend for this R package to be as accessible as possible for people with limited R experience.
 
 Users who are running `stratify()` multiple times, who are familiar with R, or who simply dislike the guided feature can turn it off by using the argument 'guided = FALSE'. If they do so, however, they must be sure to specify values for all the other function arguments, as those would otherwise be obtained from user input later.
 
@@ -89,12 +90,12 @@ inference_pop
 
 The size of our inference population has dropped from over 98,000 schools to about 350 schools. It now only includes Texas charter high schools (or schools that offer 10th grade).
 
-### Running the Function 
+### Running the Function
 
 We are now ready to run `stratify()` on our inference population. We enter:
 
 ```{r eval=FALSE}
-output <- stratify(data = inference_pop)
+strat_output <- stratify(data = inference_pop)
 ```
 
 We are greeted with the following:
@@ -103,7 +104,7 @@ We are greeted with the following:
 
 ### Selecting the ID Variable
 
-The above prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`. 
+The above prompt requires us to enter the name of the ID variable we wish to use. We enter the name of the column that contains the unique NCES school IDs in the CCD database -- `ncessch`.
 
 <img src="new_figures_091922/stratify_fig_2_v2.png" width="550"/>
 
@@ -133,7 +134,9 @@ var_overview %>%
 
 ### Selecting the Stratification Variables
 
-Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can't choose any factor variable containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit `stratify()` and re-code our desired factor levels from that variable as indicator variables within our data frame (the package `fastDummies` may be of use).
+Next we receive a prompt asking us to select our stratification variables and a menu showing us all the variables available in our dataset. We are also given a warning that we must select at least two variables and we can't choose any factor variables containing more than 4 levels. These restrictions are put in place to prevent errors and ensure the stratification process goes smoothly. If we wish to use a factor variable with more than 4 levels for stratification, we must first exit `stratify()` and re-code our desired factor levels from that variable as indicator variables within our data frame (the package `fastDummies` may be of use).
+
+When choosing covariates, we must ensure that we do not use columns that contain only one value. In this case, we cannot use `charter` as a covariate, as all the schools in our current dataset are charter schools and every value of `charter` is 1. Also we must ensure that we do not use columns that are linearly dependent. An example of this is if the sum of two columns is a column itself. `stratify()` will give an error if either of these cases happens.
 
 <img src="new_figures_091922/stratify_fig_3_v2.png" width="700"/>
 
@@ -232,7 +235,8 @@ The process of stratifying can take some time. If the function were to run silen
 
 ### Understanding the Results
 
-#### Stratification Review 
+#### Stratification Review
+
 The results begin with a brief review of the stratification process. We are informed of the stratification variables, the observations dropped due to missing data, the population size (after missing observations have been dropped), the number of strata, and the proportion of variation in the population explained by the strata. In this case, that proportion was about 66%. Increasing the number of strata would increase the percentage explained and result in more homogeneous strata but would also require more resources during study implementation.
 
 <img src="new_figures_091922/stratify_fig_9_v2.png" width="550"/>
@@ -261,29 +265,34 @@ The function also prints a heat map:
 strat_output$heat_plot
 ```
 
-
 Each column of the heat map corresponds to a stratum. We can read the map by going down the columns, assessing each stratum in relation to the population. Remember that the goal is to sample independently within each stratum in order to obtain a sample that is representative of the population as a whole. To that end, each stratum has been made as homogeneous as possible within itself (i.e. the within-stratum variances have been minimized) while also maintaining as much heterogeneity as possible across strata (i.e. the between-stratum variance has been maximized).
 
-Looking at the first column, we see that Stratum 1 contains 161 Texas charter high schools. These schools are: 
+Looking at the first column, we see that Stratum 2 contains 161 Texas charter high schools. These schools are:
 
-- close to the population mean in number of students (about 430), 
-- above the population mean in the percentage of students on free or reduced lunch (80%), 
-- close to the population mean in percentage of female students (50%), 
-- and below the population mean in percentage of black students (10%).
+-   close to the population mean in number of students (about 430),
+-   above the population mean in the percentage of students on free or reduced lunch (80%),
+-   close to the population mean in percentage of female students (50%),
+-   and below the population mean in percentage of black students (10%).
 
-The other columns may be interpreted in exactly the same manner. 
+The other columns may be interpreted in exactly the same manner.
 
 (Users may wonder why the shade of red for the bottom left and bottom right cells differs when both seem to have a mean of 10%. This is because of the scale of the variable, the size of the population mean, and rounding.)
 
+After reading the results, we have the opportunity to try out different numbers of strata, as seen in the prompt below.
+
+<img src="stratify_try_again.png" width="550"/>
+
+If we wish to try different strata, we enter 1, as seen in the image, then enter the number of strata we wish to try. All of the same statistics will be printed again for the different number of strata. We may try as many different strata as we like. Only the last strata will be saved in the `strat_output` object. In this case, I will stick with four strata.
+
 #### Summary and Print
 
-If we wish to look at the results of `stratify()` again, we can run the following code: 
+If we wish to look at the results of `stratify()` again, we can run the following code:
 
 ```{r eval=FALSE}
 summary(strat_output)
 ```
 
-Note that `output` is the name we have assigned to our `stratify_object` in this example; users should replace it with their own name they have chosen. 
+Note that `strat_output` is the name we have assigned to our `stratify_object` in this example; users should replace it with their own name they have chosen.
 
 There is also an option to print our `stratify_object`. Doing so yields:
 
@@ -291,9 +300,15 @@ There is also an option to print our `stratify_object`. Doing so yields:
 
 <img src="stratify_fig_12.png" width="550"/>
 
-We have finished the stratifying process! 
+We have finished the stratifying process!
+
+### Unguided
+
+We highly suggest that you only use the unguided version after you have used the guided version multiple times and feel that you have a clear understanding of what the function does. If you want to use the guided version, but are uncertain about what each argument is supposed to be, please run `?stratify` in the console, or check the reference page for the function.
 
 ## Step 2: Recruit
+
+### Guided
 
 Now that we have separated our inference population into 4 strata, our next goal is to sample units from each stratum in such a way that the overall sample will be representative of the entire population. We can accomplish this task using the `recruit()` function.
 
@@ -313,7 +328,7 @@ We are immediately greeted with the following welcome message:
 
 <img src="new_figures_091922/recruit_fig_1_v2.png" width="550"/>
 
-After pressing the return key, we see: 
+After pressing the return key, we see:
 
 <img src="new_figures_091922/recruit_fig_2_v2.png" width="550"/>
 
@@ -323,190 +338,157 @@ Our desired sample size is 40 schools, so we enter '40' for the number of units 
 
 Next, the function prints a recruitment table that tells us how many units we should recruit from each stratum. It arrives at these numbers by multiplying the sampling proportion (which is equal to the ratio of the stratum size to the total population size) for each stratum by the desired sample size, in this case 40.
 
-<img src="new_figures_091922/recruit_fig_4_v2.png" width="550"/>
+Here is what the recruitment table looks like in the Viewer pane.
 
-<!--Here is what the recruitment table looks like in the Viewer pane:-->
-
-<!--**TODO: Restore recruitment_kable?**-->
-
-```{r echo = FALSE}
-#rec_output$recruitment_kable
-```
+<img src="recruit_table.png" width="550"/>
 
 This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.
 
-The function then asks us if we want to save the recruitment lists as csv files. 
-<img src="new_figures_091922/recruit_fig_5_v2.png" width="550"/>
+If a strata is very small (e.g. has only one or two units), then it is possible for `recruit` to choose zero units from that strata. If this happens, then your chosen strata are likely not ideal, and you should go through the stratification process again.
 
-Upon entering '1' to indicate 'Yes', a folder selection widget will appear that will allow us to choose a location on our computer in which to save the lists. Note that this only occurs when using the guided version of the function; in the non-guided version, the lists are automatically saved to our working directory if we set `save_as_csv = TRUE`.
+The function then asks us if we want to save the recruitment lists as csv files.
+
+<img src="recruit_fig_01.png" width="550"/>
+
+Upon entering '1' to indicate 'Yes', the lists are automatically saved to your working directory. This also happens in the unguided function if we set `save_as_csv = TRUE`.
 
 <img src="new_figures_091922/recruit_fig_6_v2.png" width="550"/>
 
-Lastly, the function reminds us that the recruitment lists can also be accessed from its output, provided that it has been stored in an object.
+Lastly, the function reminds us that the recruitment lists can also be accessed from its output, provided that it has been stored in an object. You can also see the table showing the strata and the number of units recruited any time by running `print(rec_output)`.
 
 We have finished the recruitment process!
 
+### Unguided
+
+We highly suggest that you only use the unguided version after you have used the guided version multiple times and feel that you have a clear understanding of what the function does. If you want to use the guided version, but are uncertain about what each argument is supposed to be, please run `?recruit` in the console or check the reference page for `recruit`.
+
 ## Step 3: Assess
 
-### assess()
+### Guided
 
-We are now ready to take the results we obtained from `stratify()` and `recruit()` and use them to `assess()` the generalizability of our sample data to the population.
+The `assess()` function reports generalizability for your sample. A generalizability index (between 0 and 1) is a global measure of similarity between the sample and population for a defined set of covariates. You can multiply by 100 to get a percentage value: for instance, a generalizability index of 0.8 means the sample is 80% similar to the population on the selected covariates. We highly suggest running `assess()` **before** beginning any research studies so that you can be confident you have a representative sample.
 
-The generalizer index is a global measure of similarity between the sample and population for a defined set of covariates (between 0 and 1). Can multiply by 100: 0.8 -> 80% similar.
+Here are some rules of thumb for interpreting the generalizability index:
+
+-   Very High: 1.00 ≥ B ≥ 0.90;
+
+-   High: 0.90 \> B ≥ 0.80;
+
+-   Medium: 0.80 \> B ≥ 0.50;
+
+-   Low: B \< 0.50.
+
+From Tipton (2014):
+
+> Here "very high" generalizability means that the experimental sample is "like" a random sample from the population of interest. When the sample is not like the population, however, reweighting can be used to estimate a useful result when the sample has "high" generalizability. This means that the reweighted estimate of PATE is likely to be close to conditionally unbiased (assuming that the ignorability condition has been met) and that the sample is sufficiently similar to the population that this reweighting will result in only a small increase in standard errors. In contrast, when a sample is considered to have "medium" generalizability, while reweighting is possible, as a result of coverage errors or overlap problems, the reweighted estimator will contain bias and/or the inflation to the standard errors could be large. This means that results may not be quite as useful. Finally, for those with "low" generalizability, the sample and population are considered sufficiently different that no amount of reweighting will produce a useful estimate of the average treatment effect for the population. In some cases, this is because the amount of bias that can be removed is very small, and/or (though typically both) the resulting standard errors will be so large as to deem the reweighted estimate "useless."
+
+Tipton, E. (2014). How Generalizable Is Your Experiment? An Index for Comparing Experimental Samples and Populations. Journal of Educational and Behavioral Statistics, 39(6), 521--546. <https://doi.org/10.3102/1076998614558486>
 
 
-### assess_wrap()
 
-We have taken our four recruitment lists and successfully recruited the desired number of units from each stratum: 20, 4, 5, and 11 units from strata 1, 2, 3, and 4, respectively. We have completed their study and are now interested in whether our results are generalizable to other states in the US.
+Before using `assess()`, you first must pick a final sample based on the results from `recruit()`. After choosing your sample, you are ready to take the results you obtained from `stratify()` and `recruit()` and use them to `assess()` the generalizability of your sample data to the population. Unlike the previous two functions, you cannot take the output of recruit and plug it directly into `assess()`. Instead, `assess()` requires the inference population dataset given to `stratify()` at the beginning of this process, with an additional variable indicating whether each unit is in the sample. 
 
-Recall that our inference population consisted of Texas charter high schools. Therefore, it is reasonable to wonder whether our sample can generalize to other charter high schools in the US.
+If you did not use the `stratify()` and `recruit()` functions to pick your sample, then you will need to give `assess()` a dataset of the population that you chose your sample from, which must include your covariates and a sample indicator variable.
 
-First we must specify the variables that we hope are generalizable. These are the same variables we first used to stratify the population.
+Returning to our example, recall that our inference population consists of Texas charter high schools. Therefore, `assess()` will provide a generalizability index that shows to what extent the results from the the chosen sample will generalize to all Texas charter high schools. If you would like to see how the sample may generalize to data beyond this inference population (e.g. charter schools across the US), then you may include these additional observations in the population dataset you give `assess()` - just be sure that these added units are marked as **not** in the sample.
 
-```{r}
-selection_vars <- c("pct_female", "pct_black_or_african_american", "pct_free_and_reduced_lunch", "total")
-```
-
-Then we must read in our sample. There are multiple ways to accomplish this, but the important thing is to create a data frame consisting only of the units we have recruited from the population with a column containing the sample IDs. In this example, we will build the data frame from the four recruitment lists we generated earlier.
-
-```{r, echo=FALSE, include=FALSE}
-output <- test
-```
-
-```{r eval=FALSE}
-sample <- tibble(ncessch = c(rec_output$recruitment_lists[[1]]$ncessch[1:20],
-                rec_output$recruitment_lists[[2]]$ncessch[1:4],
-                rec_output$recruitment_lists[[3]]$ncessch[1:5],
-                rec_output$recruitment_lists[[4]]$ncessch[1:11]))
-```
-
-They specify their inference population again -- this time a data frame including all states with and without charter high schools. The data frame should include unit IDs, variables of interest, and (if applicable) a grouping variable; since the researcher wants to generalize to US states, the grouping variable is 'st' (state).
+We can use the recruitment lists stored in `rec_output` and the number of units per strata to add a `sample` variable to `inference_pop`. The list for strata `n` can be found by running `rec_output$recruitment_lists[[n]]`. You will likely add this `sample` variable manually over time as you coordinate with each school, but since this is an example, we will pretend that recruitment was entirely successful.
 
 ```{r}
-inference_pop <- cc %>% 
-  filter(charter == 1) %>%
-  filter(g_10_offered == "Yes") %>%
-  select(ncessch, all_of(selection_vars), st)
+sample_list <- c(rec_output$recruitment_lists[[1]]$ncessch[1:5],
+  rec_output$recruitment_lists[[2]]$ncessch[1:20],
+  rec_output$recruitment_lists[[3]]$ncessch[1:11], 
+  rec_output$recruitment_lists[[4]]$ncessch[1:4])
+
+inference_pop_sample <- inference_pop %>% 
+  mutate(sample = if_else(ncessch %in% sample_list,
+                          1,
+                          0))
 ```
 
-Finally, they feed their sample and populatiuon data frames, the name of the ID variable, and the name of the grouping variable to 'assess_wrap()' -- a wrapper of the included 'assess()' function for ease of use.
+Now we are ready to give the data to the guided `assess()` function.
 
-```{r eval=FALSE, include=FALSE}
-gen_results <- assess_wrap(sample = sample, population = inference_pop,
-            join_var = "ncessch", grouping_var = "st")
-```
-  
-They can view a table of their results across states. This code extracts the 'st' variable as a factor and retains unique values, one row per state:
-
-```{r eval=FALSE, include=FALSE}
-state <- inference_pop %>% 
-  na.omit() %>% 
-  select(st) %>% 
-  transmute(state = factor(st)) %>% 
-  unique()
-g_indexes <- gen_results[[2]]
+```{r, eval=F}
+assess_output <- assess(inference_pop_sample)
 ```
 
-Then that information is bound together with the generalizability indexes:
-
-```{r eval=FALSE, include=FALSE}
-g_overview <- tibble(state, g_index = g_indexes)
-g_overview
+```{r, include=F}
+selection_covariates <- c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch")
+assess_output <- assess(inference_pop_sample, sample_indicator = "sample", covariates = selection_covariates, disjoint_data = FALSE, trim_pop = TRUE, guided = F)
 ```
 
-However, the information is easier to assess in the form of a map. There are many mapping tools in R. First, we use the tidyverse to turn the generalizability index values into a categorical variable representing the three levels of generalizability.
+First, we will receive this welcome message and be prompted to indicate the binary variable that encodes sample membership.
 
-```{r eval=FALSE, include=FALSE}
-g_overview <- g_overview %>% mutate(g_index = case_when(
-  g_index >= 0.90 ~ "Very High Generalizability",
-  (g_index < 0.90 & g_index >= 0.70) ~ "High Generalizability",
-  (g_index < 0.70 & g_index >= 0.50) ~ "Medium Generalizability",
-  g_index < 0.50 ~ "Ungeneralizable",
-  is.na(g_index) ~ "NA"
-) %>% 
-  factor(levels = c("Very High Generalizability", "High Generalizability", "Medium Generalizability", "Ungeneralizable", "NA")))
+<img src="assess_fig_1.png" width="550"/>
+
+We will enter 44 to indicate `sample`. We see the same list of variables, except with `sample` missing, and we are asked to select covariations. We must specify the variables that we hope are generalizable. These are the same variables we first used to stratify the population. In this case, we will enter 30 33 39 43, the same variables we used for stratifying (these are different numbers from stratify because `stratify()` removes the id variable `ncessch`).
+
+<img src="assess_fig_2.png" width="550"/>
+
+After entering this information, you will be asked two questions: first, if the sample data is disjoint from the population, and second, if the population data should be trimmed.
+
+<img src="assess_fig_3.png" width="550"/>
+
+For this first question, the data is **not** disjoint only if the sample is **not** a direct subset of the population. For example, this sample would be disjoint with the population if the sample only included schools in Texas, but the target population includes schools in New Hampshire. Also, every unit in the sample must have come from the population. If that is untrue for even one unit, then the data is disjoint. In our example, the sample is an exact subset of the population, and is **not** disjoint from the population.
+
+The second question relates to how well your chosen sample represents the population. Since the nature of research studies makes it impossible to do a simple random sample (SRS), you will invariably find that the units in the population have unequal probabilities of being in the sample. Sometimes there are units in the population with zero probability of being in the sample. This results in coverage error (Tipton, 2014), where the sample only represents a portion of the population. As a default, you should trim the population. When you do so, the final result of `assess()` will include the number of units trimmed from the population, and a generalizability index based only on the portion of the population represented in the sample. There is no solution to coverage error. The best route to avoid it is by choosing your sample carefully with the same methods used in `stratify()` and `recruit()`, and then `assess()` any possible samples to find coverage error early on.
+
+After answering these questions, the function will ask for the method for estimating the generalizability index.
+
+<img src="assess_fig_4.png" width="550"/>
+
+Logistic Regression is the default method. Unless you have specific technical reasons for choosing the other two options, we highly suggest you stick with the default.
+
+After this, the function ends with providing the generalizability index. You can see this index and more details when you `print()` the generalizer object.
+
+<img src="assess_fig_5.png" width="550"/>
+
+To interpret the generalizeR index, please refer to the information at the beginning of the `assess()` tutorial.
+
+If you run `summary(assess_output)`, you will see the following tables in the console and Plots pane.
+
+<img src="assess_fig_6.png" width="550"/>
+
+<img src="assess_fig_7.png" width="550"/>
+
+You can also see a nicer version of the covariate table by running `assess_output$covariate_kable`.
+
+<img src="assess_fig_11.png" width="550"/>
+
+The summary reminds us of which covariates we used, our estimation method, and how much of the population was trimmed, if any. It also compares the distribution of the propensity scores (the logistic regression probabilities of a unit being in the sample) for units in the sample vs. the population. The trimmed units are the units in the population that are not represented in the sample; in this case, the units with propensity scores less than roughly -2.05. Additionally, it provides a comparison for each covariate. Ideally, we would like to see the ASMD < 0.25.
+
+### Unguided
+
+We highly suggest that you only use the unguided version after you have used the guided version multiple times and feel that you have a clear understanding of what the function does. If you want to use the guided version, but are uncertain about what each argument is supposed to be, please run `?assess` in the console or check the reference page.
+
+## Step 4: Weighting
+
+The main purpose of this function is to weight the sample so it can provide an unbiased estimate of the total average treatment effect (TATE). If the data is disjoint, then the weighting method is inverse odds; if the data is **not** disjoint, then the weighting method is inverse probability. There is no guided version for this function. Check the function documentation to see which arguments `weighting()` takes - they are the same arguments that `assess()` takes for the most part.
+
+I will run `weighting()` with the `inference_pop`, which I created for `assess()`. You also have the option to add in an `outcome` and `treatment_indicator` variable, in which case, weighting will also calculate the weighted and unweighted TATE. You must include those variables if you want the weighted TATE. Note that you can only include those variables after the study has finished.
+
+```{r}
+selection_covariates <- c("total", "pct_black_or_african_american", "pct_white", "pct_female", "pct_free_and_reduced_lunch")
+weighting_output <- weighting(inference_pop_sample, sample_indicator = "sample",covariates = selection_covariates, disjoint_data = F)
 ```
 
-A G-index above 0.90 means that the sample is equivalent to a randomized trial. A G-index between 0.50 and 0.90 means that the sample is not quite a miniature of the population, but statistical adjustments to reweight the sample may make generalization possible. Finally, a G-index below 0.50 means that generalization (based upon the selected covariates) is completely unwarranted, and statistical adjustment cannot help.
+If you do not include `outcome` and `treatment` variables, then running `summary(weighting_output)` will look like the following.
 
-```{r eval=FALSE, fig.height=5, fig.width=7.5, message=FALSE, warning=FALSE, include=FALSE}
-plot_usmap(data = g_overview, values = "g_index", labels = TRUE) +
-   labs(title = "US States",
-       subtitle = "Generalizability Index") +
-  theme(panel.background = element_rect(color = "black"), 
-        legend.position = "right") + 
-  scale_fill_viridis(discrete = TRUE)
-```
+<img src="assess_fig_8.png" width="550"/>
 
-This map tells the researcher a few things. 
+<img src="assess_fig_9.png" width="550"/>
 
-Their results are equivalent to a randomized controlled trial for generalizations to charter high schools in California and Texas. Texas is to be expected here, since their entire sample came from Texas. California most likely has a charter high school population that is very similar to Texas in terms of the stratifying variables (pct_female, pct_black_or_african_american, pct_free_and_reduced_lunch, and total number of students). 
+<img src="assess_fig_10.png" width="550"/>
 
-With statistical adjustments, they could make generalizations to the populations of charter high schools in: Washington, Nevada, Utah, Arizona, Colorado, Kansas, Oklahoma, Minnesota, Indiana, Wisconsin, Michigan, Ohio, Pennsylvania, New York, Connecticut, North and South Carolina, Georgia, Florida, and Arkansas. 
+As you can see, these results are similar to the results of `assess()`, with the addition of the histogram describing the distribution of the weights for each unit.
 
-Generalizations to the remaining states would be completely unwarranted; in some cases this is because there are no charter high schools in the state (labeled 'NA').
+If you do include the `outcome` and `treatment` variables, then you will also get the following tables instead of `NULL` values.
 
-This researcher had a sample size of only 40, but based on careful, stratified sampling (and with some adjustment), they should be able to generalize their intervention results to the populations of 22 US states.
+<img src="weighting_fig_4.png" width="550"/>
 
-<!-- ### Example Two -->
+Here, we can see that the weighted TATE is larger than the unweighted TATE. Their confidence intervals overlap, so we cannot conclude that there is a significant difference. We can, however, be confident that the weighted TATE has less bias than the unweighted TATE.
 
-<!-- The researcher in this example conducted a survey of higher education institutions in California, New York, and Florida. They intended to have a sample size of 500. They ended up having more resources than originally expected, so they recruited a larger sample from one of the strata; instead of 74 units from cluster 4, they recruited 200, for a total sample size of 626. -->
+Lastly, you can see a nicer version of the covariate table by running `weighting_output$covariate_kable`.
 
-<!-- ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE} -->
-<!-- inference_pop <- ipeds %>%  -->
-<!--   filter(state == "CA" | state == "FL" | state == "NY") -->
-<!-- output <- stratify(inference_pop, guided = FALSE, n_strata = 6,  -->
-<!--                    variables = c("control_level", "pct_female", -->
-<!--                                  "remedial_services"),  -->
-<!--                    idvar = "unitid") -->
-<!-- ``` -->
+<img src="weighting_fig_5.png" width="550"/>
 
-<!-- Most of their assessment process is the same as the previous example; they specify the variables that they want to generalize on, read in their sample data, and create their inference population: -->
-
-<!-- ```{r, warning=FALSE, message=FALSE} -->
-<!-- selection_vars <- c("control_level", "remedial_services", "pct_female") -->
-<!-- sample <- tibble(unitid = c(output$recruitment_lists[[1]]$unitid[1:16], -->
-<!--                 output$recruitment_lists[[2]]$unitid[1:160], -->
-<!--                 output$recruitment_lists[[3]]$unitid[1:74], -->
-<!--                 output$recruitment_lists[[4]]$unitid[1:200], -->
-<!--                 output$recruitment_lists[[5]]$unitid[1:64], -->
-<!--                 output$recruitment_lists[[6]]$unitid[1:112])) -->
-
-<!-- inference_pop <- ipeds %>%  -->
-<!--   select(unitid, all_of(selection_vars), state) -->
-<!-- ``` -->
-
-<!-- They feed their sample and population to 'assess_wrap()' and prepare the generalizability indexes for mapping: -->
-
-<!-- ```{r, warning=FALSE, message=FALSE} -->
-<!-- gen_results <- assess_wrap(sample = sample, population = inference_pop, -->
-<!--             join_var = "unitid", grouping_var = "state") -->
-
-<!-- state <- inference_pop %>%  -->
-<!--   na.omit() %>%  -->
-<!--   select(state) %>%  -->
-<!--   unique() -->
-<!-- g_indexes <- gen_results[[2]] -->
-<!-- g_overview <- tibble(state, g_index = g_indexes) -->
-<!-- g_overview -->
-<!-- g_overview <- g_overview %>% mutate(g_index = case_when( -->
-<!--   g_index >= 0.90 ~ "best", -->
-<!--   (g_index < 0.90 & g_index >= 0.50) ~ "okay", -->
-<!--   g_index < 0.50 ~ "worst", -->
-<!--   is.na(g_index) ~ "worst" -->
-<!-- )) -->
-<!-- ``` -->
-
-<!-- Then they map it. -->
-
-<!-- ```{r, fig.height = 5, fig.width = 7.5, warning=FALSE, message=FALSE} -->
-<!-- plot_usmap(data = g_overview, values = "g_index", labels = TRUE) + -->
-<!--    labs(title = "US States", -->
-<!--        subtitle = "Generalizability Index") + -->
-<!--   theme(panel.background = element_rect(color = "black"),  -->
-<!--         legend.position = "right") +  -->
-<!--   scale_fill_grey() -->
-<!-- ``` -->
-
-
-# Step 4: Weighting
