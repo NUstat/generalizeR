@@ -3,6 +3,7 @@
 #' This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.
 #'
 #' @param sample_indicator variable name denoting sample membership (1 = in sample, 0 = out of sample)
+#' @param guided logical. Default is TRUE. If FALSE, then user must enter all arguments in function to bypass guided mode
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param data data frame comprised of "stacked" sample and target population data
 #' @param estimation_method method to estimate the probability of sample membership (propensity scores). Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")

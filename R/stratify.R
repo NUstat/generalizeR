@@ -48,14 +48,16 @@
 #' @examples
 #' \donttest{
 #' \dontrun{
-#' # To get sample data; must first be installed using devtools::install_github("NUstat/generalizeRdata")
+#' # To get sample data; must first be installed using
+#' # devtools::install_github("NUstat/generalizeRdata")
 #' library(generalizeRdata)
 #'
 #' # Guided:
 #' stratify(ipeds)
 #'
 #' # Not guided:
-#' stratify(ipeds, guided = FALSE, n_strata = 4, variables = c("pct_female", "pct_white"), idvar= "unitid")
+#' stratify(ipeds, guided = FALSE, n_strata = 4,
+#'          variables = c("pct_female", "pct_white"), idvar= "unitid")
 #' }
 #' }
 #' @md
@@ -552,9 +554,9 @@ print.generalizeR_stratify <- function(x, ...) {
 #' @export summary.generalizeR_stratify
 #' @export
 
-summary.generalizeR_stratify <- function(object, ...) {
+summary.generalizeR_stratify <- function(x, ...) {
 
-  out <- object
+  out <- x
 
   class(out) <- "summary.generalizeR_stratify"
 

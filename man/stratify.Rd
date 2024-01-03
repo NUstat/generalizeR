@@ -42,14 +42,16 @@ The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset},
 \examples{
 \donttest{
 \dontrun{
-# To get sample data; must first be installed using devtools::install_github("NUstat/generalizeRdata")
+# To get sample data; must first be installed using
+# devtools::install_github("NUstat/generalizeRdata")
 library(generalizeRdata)
 
 # Guided:
 stratify(ipeds)
 
 # Not guided:
-stratify(ipeds, guided = FALSE, n_strata = 4, variables = c("pct_female", "pct_white"), idvar= "unitid")
+stratify(ipeds, guided = FALSE, n_strata = 4,
+         variables = c("pct_female", "pct_white"), idvar= "unitid")
 }
 }
 }

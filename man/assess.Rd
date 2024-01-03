@@ -17,6 +17,8 @@ assess(
 \arguments{
 \item{data}{data frame comprised of "stacked" sample and target population data}
 
+\item{guided}{logical. Default is TRUE. If FALSE, then user must enter all arguments in function to bypass guided mode}
+
 \item{sample_indicator}{variable name denoting sample membership (1 = in sample, 0 = out of sample)}
 
 \item{covariates}{vector of covariate names in data set that predict sample membership}
