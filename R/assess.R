@@ -682,31 +682,31 @@ print.generalizeR_assess <- function(x, ...) {
 
 #' Summary method for "generalizeR_assess" class
 #'
-#' @param x An object of class "generalizeR_assess"
+#' @param object An object of class "generalizeR_assess"
 #' @param ... Other arguments passed to or from other methods
 #'
 #' @export summary.generalizeR_assess
 #' @export
 
-summary.generalizeR_assess <- function(x, ...) {
-  estimation_method <- switch(x$estimation_method,
+summary.generalizeR_assess <- function(object, ...) {
+  estimation_method <- switch(object$estimation_method,
     "lr" = "Logistic Regression",
     "rf" = "Random Forest",
     "lasso" = "Lasso"
   )
 
-  if (x$disjoint_data) {
+  if (oject$disjoint_data) {
     prop_score_dist_table <- rbind(
-      summary(x$propensity_scores$in_sample),
-      summary(x$propensity_scores$population)
+      summary(oject$propensity_scores$in_sample),
+      summary(oject$propensity_scores$population)
     )
 
-    row.names(prop_score_dist_table) <- paste0(c("Sample", "Population"), " (n = ", c(x$n_sample, x$n_pop), ")")
+    row.names(prop_score_dist_table) <- paste0(c("Sample", "Population"), " (n = ", c(object$n_sample, object$n_pop), ")")
 
-    sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
+    sample_prop_scores <- data.frame(prop_scores = object$propensity_scores$in_sample) %>%
       mutate(sample_indicator = 1)
 
-    pop_prop_scores <- data.frame(prop_scores = x$propensity_scores$population) %>%
+    pop_prop_scores <- data.frame(prop_scores = object$propensity_scores$population) %>%
       mutate(sample_indicator = 0)
 
     prop_scores <- rbind(sample_prop_scores, pop_prop_scores)
@@ -736,16 +736,16 @@ summary.generalizeR_assess <- function(x, ...) {
       )
   } else {
     prop_score_dist_table <- rbind(
-      summary(x$propensity_scores$in_sample),
-      summary(x$propensity_scores$not_in_sample)
+      summary(object$propensity_scores$in_sample),
+      summary(object$propensity_scores$not_in_sample)
     )
 
-    row.names(prop_score_dist_table) <- paste0(c("In Sample", "Not In Sample"), " (n = ", c(x$n_sample, x$n_pop), ")")
+    row.names(prop_score_dist_table) <- paste0(c("In Sample", "Not In Sample"), " (n = ", c(object$n_sample, object$n_pop), ")")
 
-    in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$in_sample) %>%
+    in_sample_prop_scores <- data.frame(prop_scores = object$propensity_scores$in_sample) %>%
       mutate(sample_indicator = 1)
 
-    not_in_sample_prop_scores <- data.frame(prop_scores = x$propensity_scores$not_in_sample) %>%
+    not_in_sample_prop_scores <- data.frame(prop_scores = object$propensity_scores$not_in_sample) %>%
       mutate(sample_indicator = 0)
 
     prop_scores <- rbind(in_sample_prop_scores, not_in_sample_prop_scores)
@@ -784,11 +784,11 @@ summary.generalizeR_assess <- function(x, ...) {
 
   out <- list(
     estimation_method = estimation_method,
-    gen_index = x$gen_index,
+    gen_index = object$gen_index,
     prop_score_dist_table = prop_score_dist_table,
     prop_score_dist_plot = prop_score_dist_plot,
-    covariate_table = x$covariate_table,
-    n_excluded = x$n_excluded
+    covariate_table = object$covariate_table,
+    n_excluded = object$n_excluded
   )
 
   class(out) <- "summary.generalizeR_assess"

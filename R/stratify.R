@@ -548,15 +548,15 @@ print.generalizeR_stratify <- function(x, ...) {
 
 #' Summary method for "generalizeR_stratify" class
 #'
-#' @param x An object of class "generalizeR_stratify"
+#' @param object An object of class "generalizeR_stratify"
 #' @param ... Other arguments passed to or from other methods
 #'
 #' @export summary.generalizeR_stratify
 #' @export
 
-summary.generalizeR_stratify <- function(x, ...) {
+summary.generalizeR_stratify <- function(object, ...) {
 
-  out <- x
+  out <- object
 
   class(out) <- "summary.generalizeR_stratify"
 

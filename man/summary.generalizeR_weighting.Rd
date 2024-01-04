@@ -4,10 +4,10 @@
 \alias{summary.generalizeR_weighting}
 \title{Summary method for "generalizeR_weighting" class}
 \usage{
-\method{summary}{generalizeR_weighting}(x, ...)
+\method{summary}{generalizeR_weighting}(object, ...)
 }
 \arguments{
-\item{x}{An object of class "generalizeR_weighting"}
+\item{object}{An object of class "generalizeR_weighting"}
 
 \item{...}{Other arguments passed to or from other methods}
 }

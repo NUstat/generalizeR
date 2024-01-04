@@ -4,10 +4,10 @@
 \alias{summary.generalizeR_stratify}
 \title{Summary method for "generalizeR_stratify" class}
 \usage{
-\method{summary}{generalizeR_stratify}(x, ...)
+\method{summary}{generalizeR_stratify}(object, ...)
 }
 \arguments{
-\item{x}{An object of class "generalizeR_stratify"}
+\item{object}{An object of class "generalizeR_stratify"}
 
 \item{...}{Other arguments passed to or from other methods}
 }
