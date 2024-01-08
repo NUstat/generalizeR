@@ -10,6 +10,7 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom randomForest randomForest
 #' @importFrom stats as.formula glm lm predict quantile
+#'
 
 .generate.ps <- function(data,
                          sample_indicator,
@@ -188,7 +189,7 @@
     dplyr::mutate(pop_sd = sqrt(pop_var),
                   ASMD_unweighted = abs((sample_mean_unweighted - pop_mean) / pop_sd),
                   ASMD_weighted = abs((sample_mean_weighted - pop_mean) / pop_sd)) %>%
-    dplyr::mutate(dplyr::across(where(is.numeric), round, digits = 3))
+    dplyr::mutate(dplyr::across(tidyselect::where(is.numeric), round, digits = 3))
 
   if (!is.null(sample_weights)) {
 
@@ -310,3 +311,6 @@
 
   return(invisible(out))
 }
+
+# adding ggplot arguments in .make.covariate.table as global variables since they aren't recognized
+if(getRversion() >= "2.15.1")  utils::globalVariables(c(":=", "name", "statistic", "value", "across", "pop_var", "sample_mean_unweighted", "pop_mean", "pop_sd", "sample_mean_weighted", "ASMD_unweighted", "ASMD_weighted", "ASMD", "sample_mean", "facet_wrap", "geom_density", "scale_x_continuous", "scale_fill_discrete", "ggtitle", "theme_minimal", "element_line"))

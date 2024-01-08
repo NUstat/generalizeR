@@ -13,7 +13,7 @@
 #' @return The function returns a list of class "generalizeR_stratify" that can be provided as input to \code{recruit()}. More information on the components of this list can be found above under "Details."
 #' @details The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset}, \code{n_strata}, \code{solution}, \code{pop_data_by_stratum}, \code{summary_stats}, \code{data_omitted}, \code{cont_data_stats}, \code{cat_data_levels}, \code{heat_data}, \code{heat_data_simple}, \code{heat_data_kable}, and \code{heat_plot}.
 #'
-#' \itemize{
+#' \describe{
 #' \item{\code{pop_data_by_stratum}: }{a tibble with number of rows equal to the number of rows in the inference population (\code{data}) and number of columns equal to the number of stratifying variables (dummy-coded if applicable) plus the ID column (\code{idvar}) and a column representing stratum membership, \code{Stratum}}
 #' }
 #' @export
@@ -21,6 +21,7 @@
 #' @importFrom assertthat assert_that not_empty on_failure is.count
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu
+#' @importFrom utils tail
 #' @importFrom crayon red yellow blue bold
 #' @importFrom janitor clean_names
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_col geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
@@ -82,7 +83,7 @@ stratify <- function(data = NULL,
 
   # Immediately convert all character variables to factors
   data <- data %>%
-    dplyr::mutate(dplyr::across(where(rlang::is_character), forcats::as_factor))
+    dplyr::mutate(dplyr::across(tidyselect::where(rlang::is_character), forcats::as_factor))
 
   # Call guided version ------------------------------------------------------
   if (guided) {
@@ -394,7 +395,7 @@ stratify <- function(data = NULL,
     append(paste0(
       "Population\n",
       "n = ",
-      counts_tab$n %>% tail(n = 1)
+      counts_tab$n %>% utils::tail(n = 1)
     ))
 
   heat_data_kable <- heat_data_simple %>%
@@ -1184,7 +1185,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
               data_subset <- data %>%
                 dplyr::select(tidyselect::all_of(variables))
 
-              data_rank <- qr(data_subset %>% drop_na())$rank
+              data_rank <- qr(data_subset %>% tidyr::drop_na())$rank
 
               # Verify that user didn't choose any linearly dependent variables
               if (data_rank == ncol(data_subset)) {
@@ -1400,7 +1401,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
 #' @order 3
 #'
 #' @param n_strata integer, a number of strata in which to divide to cluster population
-#' @param data data.frame, a data.frame object with the population of interest (rows are observations)
+#' @param data_interest data.frame, a data.frame object with the population of interest (rows are observations)
 #' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
 #' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
 #' @return The function returns a boolean value indicating whether the number of observations with non-missing variables of interests exceeds 1 plus the number of strata requested
@@ -1413,3 +1414,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
     tidyr::drop_na() %>%
     nrow() - 1 > n_strata
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "variable", "Variable", "data_name", "Variable", "Stratum",
+                                                         "n", "mn", "deviation", "values", "mn_or_sd", "guides", "guide_legend",
+                                                         "ordered_factor", "theme_minimal"))

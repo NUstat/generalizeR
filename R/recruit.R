@@ -12,6 +12,7 @@
 #' @export
 #' @importFrom readr write_csv
 #' @importFrom easycsv choose_dir
+#' @importFrom utils tail
 #' @references
 #' Tipton, E. (2014). Stratified sampling using cluster analysis: A sample selection strategy for improved generalizations from experiments. *Evaluation Review*, *37*(2), 109-139.
 #'
@@ -27,7 +28,6 @@
 #' }
 #' }
 #' @md
-
 
 recruit <- function(stratify_output,
                     guided = TRUE,
@@ -358,7 +358,10 @@ print.generalizeR_recruit <- function(x, ...) {
   up <- 10^digits
   x <- x * up
   y <- floor(x)
-  indices <- tail(order(x - y), round(sum(x)) - sum(y))
+  indices <- utils::tail(order(x - y), round(sum(x)) - sum(y))
   y[indices] <- y[indices] + 1
   return(y / up)
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("Stratum", "distance", "Rank", "n", "Proportion", "Population_Units",
+                                                         "Recruit_Number", " "))

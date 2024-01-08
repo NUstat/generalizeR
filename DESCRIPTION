@@ -1,5 +1,5 @@
 Package: generalizeR
-Title: Design a Sample Recruitment Plan and Assess its Generalizability to
+Title: Design a Sample Recruitment Plan and Assess Its Generalizability to
     Broader Populations
 Version: 0.0.0.9000
 Authors@R: c(
@@ -65,8 +65,6 @@ Suggests:
     viridisLite
 VignetteBuilder: 
     knitr
-Remotes: 
-    NUstat/generalizeRdata
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

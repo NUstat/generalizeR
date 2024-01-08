@@ -13,7 +13,6 @@
 #' @importFrom rlang is_empty
 #' @importFrom dplyr pull
 
-
 assess <- function(data,
                    guided = TRUE,
                    sample_indicator,
@@ -695,10 +694,10 @@ summary.generalizeR_assess <- function(object, ...) {
     "lasso" = "Lasso"
   )
 
-  if (oject$disjoint_data) {
+  if (object$disjoint_data) {
     prop_score_dist_table <- rbind(
-      summary(oject$propensity_scores$in_sample),
-      summary(oject$propensity_scores$population)
+      summary(object$propensity_scores$in_sample),
+      summary(object$propensity_scores$population)
     )
 
     row.names(prop_score_dist_table) <- paste0(c("Sample", "Population"), " (n = ", c(object$n_sample, object$n_pop), ")")
@@ -835,3 +834,7 @@ print.summary.generalizeR_assess <- function(x, ...) {
 
   print(x$covariate_table)
 }
+
+if(getRversion() >= "2.15.1") utils::globalVariables(c("test", "data_name", "covariate", ".", "object", "geom_density",
+                                                         "sample_indicator", "scale_x_continuous", "scale_y_continuous",
+                                                         "scale_fill_discrete", "theme_minimal", "element_line"))

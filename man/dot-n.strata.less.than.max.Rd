@@ -9,11 +9,11 @@
 \arguments{
 \item{n_strata}{integer, a number of strata in which to divide to cluster population}
 
+\item{data_interest}{data.frame, a data.frame object with the population of interest (rows are observations)}
+
 \item{variables}{character, provide a character vector of the names of stratifying variables (from population data frame)}
 
 \item{idvar}{character, provide a character vector of the name of the ID variable (from population data frame)}
-
-\item{data}{data.frame, a data.frame object with the population of interest (rows are observations)}
 }
 \value{
 The function returns a boolean value indicating whether the number of observations with non-missing variables of interests exceeds 1 plus the number of strata requested
