@@ -10,7 +10,6 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom randomForest randomForest
 #' @importFrom stats as.formula glm lm predict quantile
-#' @importFrom utils globalVariables
 #'
 
 .generate.ps <- function(data,
@@ -314,4 +313,4 @@
 }
 
 # adding ggplot arguments in .make.covariate.table as global variables since they aren't recognized
-if(getRversion() >= "2.15.1")  utils::globalVariables(c(":=", "name", "statistic", "value", "across", "pop_var", "sample_mean_unweighted", "pop_mean", "pop_sd", "sample_mean_weighted", "ASMD_unweighted", "ASMD_weighted", "ASMD", "sample_mean", "facet_wrap", "geom_density", "scale_x_continuous", "scale_fill_discrete", "ggtitle", "theme_minimal", "element_line"))
+#if(getRversion() >= "2.15.1")  utils::globalVariables(c(":=", "name", "statistic", "value", "across", "pop_var", "sample_mean_unweighted", "pop_mean", "pop_sd", "sample_mean_weighted", "ASMD_unweighted", "ASMD_weighted", "ASMD", "sample_mean", "facet_wrap", "geom_density", "scale_x_continuous", "scale_fill_discrete", "ggtitle", "theme_minimal", "element_line"))

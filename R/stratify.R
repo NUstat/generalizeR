@@ -22,7 +22,6 @@
 #' @importFrom stats mahalanobis median na.omit sd var
 #' @importFrom utils menu
 #' @importFrom utils tail
-#' @importFrom utils globalVariables
 #' @importFrom crayon red yellow blue bold
 #' @importFrom janitor clean_names
 #' @importFrom ggplot2 ggplot aes geom_bar xlab labs geom_histogram geom_text geom_col geom_label geom_hline scale_fill_gradientn scale_x_discrete expand_limits geom_tile element_blank element_text theme
@@ -1416,6 +1415,6 @@ print.summary.generalizeR_stratify <- function(x, ...) {
     nrow() - 1 > n_strata
 }
 
-if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "variable", "Variable", "data_name", "Variable", "Stratum",
-                                                         "n", "mn", "deviation", "values", "mn_or_sd", "guides", "guide_legend",
-                                                         "ordered_factor", "theme_minimal"))
+# if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "variable", "Variable", "data_name", "Variable", "Stratum",
+#                                                          "n", "mn", "deviation", "values", "mn_or_sd", "guides", "guide_legend",
+#                                                          "ordered_factor", "theme_minimal"))

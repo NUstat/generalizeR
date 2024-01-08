@@ -12,7 +12,6 @@
 #' @export
 #' @importFrom rlang is_empty
 #' @importFrom dplyr pull
-#' @importFrom utils globalVariables
 
 assess <- function(data,
                    guided = TRUE,
@@ -836,6 +835,6 @@ print.summary.generalizeR_assess <- function(x, ...) {
   print(x$covariate_table)
 }
 
-if(getRversion() >= "2.15.1") utils::globalVariables(c("test", "data_name", "covariate", ".", "object", "geom_density",
-                                                         "sample_indicator", "scale_x_continuous", "scale_y_continuous",
-                                                         "scale_fill_discrete", "theme_minimal", "element_line"))
+# if(getRversion() >= "2.15.1") utils::globalVariables(c("test", "data_name", "covariate", ".", "object", "geom_density",
+#                                                          "sample_indicator", "scale_x_continuous", "scale_y_continuous",
+#                                                          "scale_fill_discrete", "theme_minimal", "element_line"))
