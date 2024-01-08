@@ -65,6 +65,8 @@ Suggests:
     viridisLite
 VignetteBuilder: 
     knitr
+Remotes: 
+    NUstat/generalizeRdata
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
