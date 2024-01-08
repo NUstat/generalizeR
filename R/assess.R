@@ -12,6 +12,7 @@
 #' @export
 #' @importFrom rlang is_empty
 #' @importFrom dplyr pull
+#' @importFrom utils globalVariables
 
 assess <- function(data,
                    guided = TRUE,

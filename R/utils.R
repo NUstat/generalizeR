@@ -10,6 +10,7 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom randomForest randomForest
 #' @importFrom stats as.formula glm lm predict quantile
+#' @importFrom utils globalVariables
 #'
 
 .generate.ps <- function(data,

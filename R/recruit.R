@@ -13,6 +13,7 @@
 #' @importFrom readr write_csv
 #' @importFrom easycsv choose_dir
 #' @importFrom utils tail
+#' @importFrom utils globalVariables
 #' @references
 #' Tipton, E. (2014). Stratified sampling using cluster analysis: A sample selection strategy for improved generalizations from experiments. *Evaluation Review*, *37*(2), 109-139.
 #'

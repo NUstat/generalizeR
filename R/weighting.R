@@ -11,6 +11,7 @@
 #' @importFrom stats quantile
 #' @importFrom crayon bold blue
 #' @importFrom rlang is_empty
+#' @importFrom utils globalVariables
 
 
 weighting <- function(data,
