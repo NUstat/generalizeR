@@ -281,7 +281,7 @@ weighting <- function(data,
                        CI = TATE_CI_unadj)
 
     # Summarize results in table
-    TATE_table = data.frame(TATE = c(TATE$estimate, TATE_unadj$estimate),
+    TATE_table <- data.frame(TATE = c(TATE$estimate, TATE_unadj$estimate),
                             SE = c(TATE$SE, TATE_unadj$SE),
                             "95% CI" = c(paste0("(", TATE$CI[1], ", ", TATE$CI[2], ")"),
                                          paste0("(", TATE_unadj$CI[1], ", ", TATE_unadj$CI[2], ")")),
