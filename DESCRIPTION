@@ -31,7 +31,6 @@ Imports:
     easycsv (>= 1.0.8),
     fastDummies (>= 1.6.1),
     forcats (>= 1.0.0),
-    generalizeRdata (>= 0.1.0),
     ggnewscale,
     ggrepel,
     ggthemes (>= 4.2.0),
@@ -54,6 +53,7 @@ Imports:
 Suggests: 
     BayesTree,
     devtools (>= 2.3.0),
+    generalizeRdata (>= 0.1.0),
     gridExtra,
     knitr,
     patchwork (>= 1.1.1),
