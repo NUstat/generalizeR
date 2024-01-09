@@ -78,8 +78,10 @@ stratify <- function(data = NULL,
   assertthat::assert_that(is.data.frame(data))
 
   # Store name of data as global variable so it can be accessed by .stratify.calculate(). Must be done before function argument 'data' is evaluated for the first time.
-  data_name <<- data %>%
-    lazyeval::expr_text()
+  options("data_name" = data %>% lazyeval::expr_text())
+
+  #data_name <<- data %>%
+   # lazyeval::expr_text()
 
   # Immediately convert all character variables to factors
   data <- data %>%
@@ -104,10 +106,10 @@ stratify <- function(data = NULL,
     )
   }
 
-  rm(
-    list = deparse(substitute(data_name)),
-    envir = .GlobalEnv
-  ) # delete object data_name from global environment
+  # rm(
+  #   list = deparse(substitute(data_name)),
+  #   envir = .GlobalEnv
+  # ) # delete object data_name from global environment
 
   class(output) <- "generalizeR_stratify"
 
@@ -505,7 +507,7 @@ stratify <- function(data = NULL,
   out <- list(
     idvar = idvar,
     variables = var_names,
-    dataset = data_name,
+    dataset = getOption("data_name"),
     n_strata = n_strata,
     solution = solution,
     pop_data_by_stratum = pop_data_by_stratum,
@@ -641,7 +643,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
   cat("Given a sampling frame, this function can tell you how to stratify your population of \ninterest so as to draw samples from it with maximal generalizability.\n\n")
 
   cat("You have chosen the '",
-    data_name,
+    getOption("data_name"),
     "' dataframe to represent your population of interest.\n\n",
     sep = ""
   )
@@ -662,7 +664,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
     }
 
     cat(crayon::red("\nERROR: We could not find that variable. Your ID variable must be one of the variables \nin the '"),
-        crayon::red(data_name),
+        crayon::red(getOption("data_name")),
         crayon::red("' dataframe.\n\n"),
         sep = ""
     )
@@ -680,7 +682,7 @@ print.summary.generalizeR_stratify <- function(x, ...) {
     .make.var.overview()
 
   cat("\nIn the Viewer pane to the right you will find a table that displays each variable in \nthe '",
-    data_name,
+    getOption("data_name"),
     "' dataframe along with its data type and number of levels (only \nrelevant for factor variables).\n\n",
     sep = ""
   )
@@ -1415,6 +1417,6 @@ print.summary.generalizeR_stratify <- function(x, ...) {
     nrow() - 1 > n_strata
 }
 
-# if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "variable", "Variable", "data_name", "Variable", "Stratum",
-#                                                          "n", "mn", "deviation", "values", "mn_or_sd", "guides", "guide_legend",
-#                                                          "ordered_factor", "theme_minimal"))
+if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "variable", "Variable", "data_name", "Variable", "Stratum",
+                                                         "n", "mn", "deviation", "values", "mn_or_sd", "guides", "guide_legend",
+                                                         "ordered_factor", "theme_minimal"))

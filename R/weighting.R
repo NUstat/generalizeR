@@ -497,9 +497,9 @@ print.summary.generalizeR_weighting <- function(x, ...) {
   print(x$TATE_table)
 }
 
-# if(getRversion() >= "2.15.1") utils::globalVariables(c("covariate", ".", "geom_density",
-#                                                        "sample_indicator", "scale_x_continuous", "scale_y_continuous",
-#                                                        "scale_fill_discrete", "theme_minimal", "element_line", ".", "sym", "ps",
-#                                                        "sample_weights", "term", "estimate", "std.error"))
+if(getRversion() >= "2.15.1") utils::globalVariables(c("covariate", ".", "geom_density",
+                                                       "sample_indicator", "scale_x_continuous", "scale_y_continuous",
+                                                       "scale_fill_discrete", "theme_minimal", "element_line", ".", "sym", "ps",
+                                                       "sample_weights", "term", "estimate", "std.error"))
 
 

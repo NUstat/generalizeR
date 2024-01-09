@@ -28,8 +28,10 @@ assess <- function(data,
 
   assertthat::assert_that(is.data.frame(data))
 
-  data_name <<- data %>%
-    lazyeval::expr_text()
+  options("data_name" = data %>% lazyeval::expr_text())
+
+  #data_name <<- data %>%
+   # lazyeval::expr_text()
 
   # GUIDED VERSION
 
@@ -169,13 +171,13 @@ assess <- function(data,
     cov_dist_facet_plot = cov_tab_out$cov_dist_facet_plot,
     cov_dist_plots = cov_tab_out$cov_dist_plots,
     data = data_output,
-    data_name = data_name
+    data_name = getOption("data_name")
   )
 
-  rm(
-    list = deparse(substitute(data_name)),
-    envir = .GlobalEnv
-  ) # delete object data_name from global environment
+  #rm(
+   # list = deparse(substitute(data_name)),
+    #envir = .GlobalEnv
+  #) # delete object data_name from global environment
 
   class(out) <- "generalizeR_assess"
 
@@ -228,7 +230,7 @@ assess <- function(data,
   repeat {
     cat(paste0(
       "Here is a list of the variables in the '",
-      data_name,
+      getOption("data_name"),
       "' dataframe.\n"
     ))
 
@@ -313,7 +315,7 @@ assess <- function(data,
   repeat {
     cat(paste0(
       "Here are the remaining variables in the '",
-      data_name,
+      getOption("data_name"),
       "' dataframe.\n"
     ))
 
@@ -835,6 +837,6 @@ print.summary.generalizeR_assess <- function(x, ...) {
   print(x$covariate_table)
 }
 
-# if(getRversion() >= "2.15.1") utils::globalVariables(c("test", "data_name", "covariate", ".", "object", "geom_density",
-#                                                          "sample_indicator", "scale_x_continuous", "scale_y_continuous",
-#                                                          "scale_fill_discrete", "theme_minimal", "element_line"))
+if(getRversion() >= "2.15.1") utils::globalVariables(c("test", "data_name", "covariate", ".", "object", "geom_density",
+                                                         "sample_indicator", "scale_x_continuous", "scale_y_continuous",
+                                                         "scale_fill_discrete", "theme_minimal", "element_line"))

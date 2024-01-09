@@ -363,5 +363,5 @@ print.generalizeR_recruit <- function(x, ...) {
   return(y / up)
 }
 
-# if(getRversion() >= "2.15.1")  utils::globalVariables(c("Stratum", "distance", "Rank", "n", "Proportion", "Population_Units",
-#                                                          "Recruit_Number", " "))
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("Stratum", "distance", "Rank", "n", "Proportion", "Population_Units",
+                                                         "Recruit_Number", " "))
