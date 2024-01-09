@@ -1,7 +1,7 @@
 Package: generalizeR
 Title: Design a Sample Recruitment Plan and Assess Its Generalizability to
     Broader Populations
-Version: 0.0.9000
+Version: 0.0.1
 Authors@R: c(
     person("Nicole", "Nixon", , "nicolenixon2023@u.northwestern.edu", role = c("aut", "cre")),
     person("Tim", "Ruel", , "timothyruel2024@u.northwestern.edu", role = c("aut"),
