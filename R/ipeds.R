@@ -1,0 +1,94 @@
+#' IPEDS (Integrated Postsecondary Education Data System) data, 2017
+#'
+#' A dataset formed by extracting information from the surveys conducted by the Institute of Education Sciences in 2017 (link provided as a source). These surveys are conducted annually by NCES () to gather information from every postsecondary institution that participates in federal student financial aid programs.
+#'
+#' This dataset represents a population of both degree-granting and non-degree-granting active post-secondary institutions of all levels and sectors. It includes public, private for-profit, and private not-for-profit institutions. The vast majority of institutions in the dataset are Title IV institutions (which participate in federal financial aid programs), although some non-Title IV institutions participate as well.
+#'
+#' @format A data frame with 6,440 rows and 60 columns. Each row corresponds to an institution.
+#'
+#' \describe{
+#' \item{unitid}{(character) unique ID number assigned to postsecondary institutions surveyed through IPEDS}
+#' \item{instnm}{(character) institution name}
+#' \item{state}{(factor) US Postal Service state abbreviation}
+#' \item{addr}{(character) street address or post office box}
+#' \item{zip}{(factor) 5-digit ZIP code}
+#' \item{gentele}{(character) ten-digit telephone number}
+#' \item{webaddr}{(character) Internet website address}
+#' \item{longitud}{(double) longitude of location}
+#' \item{latitude}{(double) latitude of location}
+#' \item{urbanicity}{(factor) whether the location of the institution is \code{rural} or in a \code{town}, \code{city}, or \code{suburb}}
+#' \item{degree_level}{(factor) highest level of degree offered; \code{1} = four or more years, \code{2} = at least two but less than four years, \code{3} = less than two years}
+#' \item{control_level}{(factor) whether the institution is publicly or privately run; \code{1} = public, \code{2} = private and not-for-profit, \code{3} = private and for-profit}
+#' \item{graduate}{(factor) whether the institution offers graduate degrees or certificates; \code{0} - no, \code{1} = yes}
+#' \item{hs_remedial_services}{(factor) whether the institution offers adult basic or remedial instruction or high school equivalency courses; \code{0} = no, \code{1} = yes}
+#' \item{remedial_services}{(factor) whether the institution offers remedial services -- instructional activities designed for students deficient in the general competencies necessary for a regular postsecondary curriculum and educational setting; \code{0} = no, \code{1} = yes}
+#' \item{multisystem_status}{(factor) whether the institution is part of a multi-institution or multi-campus organization that owns, governs, or controls the institution. A multi-institution or multi-campus organization includes organizations with two or more institutions or campuses. Non-postsecondary education agencies that govern or control institutions include, but are not limited to, public school districts, art organizations, hospitals and other medical/health organizations. The following are not included: coordinating systems, single institution owner, single institution corporate name, single institution governing board, consortia, associations, or religious affiliations. \code{0} = no, \code{1} =  yes}
+#' \item{parentsystem}{(character) \code{NA} if multisystem_status is \code{0}; otherwise, name of the multi-institution or multi-campus organization}
+#' \item{pct_female}{(double) proportion of women enrolled for credit during the 12-month reporting period}
+#' \item{pct_nat_aa}{(double) proportion of American Indian or Alaska Native men and women enrolled for credit during the 12-month period.
+#'
+#' American Indian or Alaska Native - A person having origins in any of the original peoples of North and South America (including Central America) who maintains cultural identification through tribal affiliation or community attachment.}
+#' \item{pct_asian}{(double) proportion of Asian men and women enrolled for credit during the 12-month period.
+#'
+#' Asian - A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian Subcontinent, including, for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippine Islands, Thailand, and Vietnam.}
+#' \item{pct_black}{(double) proportion of Black or African American men and women enrolled for credit during the 12-month period.
+#'
+#' Black or African American - A person having origins in any of the black racial groups of Africa.}
+#' \item{pct_hispanic}{(double) proportion of Hispanic or Latino men and women enrolled for credit during the 12-month period.
+#'
+#' Hispanic or Latino - A person of Cuban, Mexican, Puerto Rican, South or Central American, or other Spanish culture or origin, regardless of race.}
+#' \item{pct_nat_hpi}{(double) proportion of Native Hawaiian or Other Pacific Islanders men and women enrolled for credit during the 12-month period.
+#'
+#' Native Hawaiian or Other Pacific Islanders - A person having origins in any of the original peoples of Hawaii, Guam, Samoa, or other Pacific Islands.}
+#' \item{pct_white}{(double) proportion of White men and women enrolled for credit during the 12-month period.
+#'
+#' White - A person having origins in any of the original peoples of Europe, the Middle East, or North Africa.}
+#' \item{pct_2more}{(double) proportion of men and women of two or more races enrolled for credit during the 12-month period.
+#'
+#' Two or more races - Category used by institutions to report persons who selected more than one race.}
+#' \item{pct_unknown}{(double) proportion of race/ethnicity unknown men and women enrolled for credit during the 12-month period.
+#'
+#' This category is used ONLY if the student did not select a racial/ethnic designation, AND the postsecondary institution finds it impossible to place the student in one of the aforementioned racial/ethnic categories during established enrollment procedures or in any post-enrollment identification or verification process.}
+#' \item{pct_foreign}{(double) proportion of nonresident alien men and women enrolled for credit during the 12-month reporting period.
+#'
+#' Nonresident alien - A person who is not a citizen or national of the United States and who is in this country on a visa or temporary basis and does not have the right to remain indefinitely.
+#'
+#' NOTE - Nonresident aliens are included here, rather than in any of the five racial/ethnic categories. Resident aliens and other eligible (for financial aid purposes) non-citizens who are not citizens or nationals of the United States and who have been admitted as legal immigrants for the purpose of obtaining permanent resident alien status (and who hold either an alien registration card (Form I-551 or I-151), a Temporary Resident Card (Form I-688), or an Arrival-Departure Record (Form I-94) with a notation that conveys legal immigrant status such as Section 207 Refugee, Section 208 Asylee, Conditional Entrant Parolee or Cuban-Haitian) are to be reported in the appropriate racial/ethnic categories along with United States citizens.}
+#' \item{pct_over25_total}{(double) proportion of full time students over the age of 25 enrolled for credit}
+#' \item{pct_parttime}{(double) proportion of part time students enrolled for credit}
+#' \item{admit_rate}{(double) proportion of first-time, degree/certificate-seeking undergraduate students who applied, were admitted, and enrolled (full or part time) for the most recent fall period available, out of the total number of applicants}
+#' \item{sat}{(double) SAT I 50th percentile score for the institution (across verbal and math). Provided ONLY IF test scores are required for admission for first-time, degree/certificate-seeking undergraduate students. (This is applicable to institutions that have no open admission policy for entering first-time undergraduate students).
+#'
+#' SAT (Scholastic Aptitude Test) - An examination administered by the Educational Testing Service and used to predict the facility with which an individual will progress in learning college-level academic subjects.}
+#' \item{act}{(double) ACT Composite 50th percentile score for the institution. Provided ONLY IF test scores are required for admission for first-time, degree/certificate-seeking undergraduate students. (This is applicable to institutions that have no open admission policy for entering first-time undergraduate students).
+#'
+#' ACT (American College Testing Program) - The ACT measures educational development and readiness to pursue college-level coursework in English, mathematics, natural science, and social studies.}
+#' \item{total_undergrad_lg}{(double) grand total number of men and women enrolled for credit during the 12-month reporting period. Log-transformed to reduce extreme positive skew.}
+#' \item{title_iv_status}{(factor) whether the institution has a written agreement with the Secretary of Education that allows the institution to participate in any of the Title IV federal student financial assistance programs (other than the State Student Incentive Grant (SSIG) and the National Early Intervention Scholarship and Partnership (NEISP) programs). \code{0} if no, \code{1} if yes}
+#' \item{pct_grant_aid}{(double) proportion of undergraduate students awarded grant aid.
+#'
+#' Grant aid includes any grant or scholarship aid awarded, from the federal government, a state or local government, the institution, and other sources known by the institution.}
+#' \item{pct_pell}{(double) proportion of undergraduate students awarded Pell grants.
+#'
+#' Pell Grant program (Higher Education Act of 1965, Title IV, Part A, Subpart I, as amended) provides grant assistance to eligible undergraduate postsecondary students with demonstrated financial need to help meet education expenses.}
+#' \item{pct_fed_loans}{(double) proportion of undergraduate students awarded federal student loans.
+#'
+#' Loans to students - Any monies that must be repaid to the lending institution for which the student is the designated borrower. Includes all Title IV subsidized and unsubsidized loans. Does not include PLUS and other loans made directly to parents.}
+#' \item{pct_any_aid}{(double) proportion  of all full-time, first-time degree/certificate-seeking undergraduate students awarded any financial aid.
+#'
+#' Financial aid - Grants, loans, assistantships, scholarships, fellowships, tuition waivers, tuition discounts, veteran's benefits, employer aid (tuition reimbursement) and other monies (other than from relatives/friends) provided to students to meet expenses. This includes Title IV subsidized and unsubsidized loans made directly to students.}
+#' \item{pct_low_inc}{(double) percentage of students in income level 0-30,000}
+#' \item{pct_low_mid_inc}{(double) percentage of students in income level 30,001-48,000}
+#' \item{pct_mid_inc}{(double) percentage of students in income level 48,001-75,000}
+#' \item{pct_mid_high_inc}{(double) percentage of students in income level 75,001-110,000}
+#' \item{pct_high_inc}{(double) percentage of students in income level 110,001 or more}
+#' \item{public}{(factor) from \code{control_level}; \code{1} for public institutions, \code{0} otherwise}
+#' \item{private_profit}{(factor) from \code{control_level}; \code{1} for private for-profit institutions, \code{0} otherwise}
+#' \item{private_notforprofit}{(factor) from \code{control_level}; \code{1} for private not-for-profit institutions, \code{0} otherwise}
+#' \item{city}{(factor) from \code{urbanicity}; \code{1} for institutions in cities, \code{0} otherwise}
+#' \item{suburb}{(factor) from \code{urbanicity}; \code{1} for institutions in suburbs, \code{0} otherwise}
+#' \item{town}{(factor) from \code{urbanicity}; \code{1} for institutions in towns, \code{0} otherwise}
+#' \item{rural}{(factor) from \code{urbanicity}; \code{1} for institutions in rural areas, \code{0} otherwise}
+#' }
+#' @source \url{https://nces.ed.gov/ipeds/datacenter/DataFiles.aspx}
+"ipeds"

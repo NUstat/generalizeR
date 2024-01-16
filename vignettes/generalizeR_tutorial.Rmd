@@ -5,7 +5,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{generalizeR Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteDepends{crayon, generalizeRdata, gridExtra, usmap, devtools, tidyverse, gridExtra}
+  %\VignetteDepends{crayon, gridExtra, usmap, devtools, tidyverse, gridExtra}
   \usepackage[utf8]{inputenc}
 ---
 
@@ -19,9 +19,6 @@ library(crayon)
 # install.packages('devtools')
 library(devtools)
 library(tidyverse)
-# install_github("katiecoburn/generalizeRdata")
-# install_github("NUstat/generalizeR")
-library(generalizeRdata)
 library(generalizeR)
 library(ggthemes)
 # install_github("eliocamp/ggnewscale")
@@ -63,7 +60,7 @@ This tutorial will follow a hypothetical example.
 
 Suppose we are a team of education researchers who want to test the effect of an intervention on SAT scores. We have somewhat limited resources, so we plan on using a sample size of 40 schools. We want to estimate the average effect of our intervention in Texas charter high schools. Thus, our **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so we select a few **stratifying variables** -- *percentage female*, *percentage black*, and *percentage free and reduced lunch*. We also think school size might result in treatment differences, so we include the *total school size* as well.
 
-Since we are working with high schools, we can use the Common Core database provided in 'generalizeRdata'. For information on each of the columns and the source of the data, run `?cc`.
+Since we are working with high schools, we can use the Common Core database provided in this package. For information on each of the columns and the source of the data, run `?cc`.
 
 ```{r}
 cc
