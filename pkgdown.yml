@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   generalizeR_tutorial: generalizeR_tutorial.html
-last_built: 2024-01-09T18:30Z
+last_built: 2024-01-16T22:33Z
 urls:
   reference: https://nustat.github.io/generalizeR/reference
   article: https://nustat.github.io/generalizeR/articles
