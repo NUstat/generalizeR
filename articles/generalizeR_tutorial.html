@@ -131,51 +131,16 @@ achievement, so we select a few <strong>stratifying variables</strong> –
 might result in treatment differences, so we include the <em>total
 school size</em> as well.</p>
 <p>Since we are working with high schools, we can use the Common Core
-database provided in this package. For information on each of the
-columns and the source of the data, run <code><a href="../reference/cc.html">?cc</a></code>.</p>
+database provided in the <code>generalizeRdata</code> package. For
+information on each of the columns and the source of the data, run
+<code>?cc</code>. Since the <code>cc</code> dataset is in a separate
+package, we will be using a small subset of the data called
+<code>inference_pop</code>, specifically Texas charter high schools. To
+find this subset, we found schools where the variable <code>st</code>
+was Texas, <code>charter</code> was 1, and the grade indicator variable
+<code>g_10_offered</code> was “Yes”.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cc</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 98,563 × 43</span></span></span>
-<span><span class="co">##        ncessch sch_name     st    mstreet1 mcity phone website lea_name sch_type</span></span>
-<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>870 Ala Avenue … AL    600 E A… Albe… (256… http:/… Albertv…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>871 Albertville… AL    402 E M… Albe… (256… http:/… Albertv…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>879 Evans Elem … AL    901 W M… Albe… (256… http:/… Albertv…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">500</span>889 Albertville… AL    1100 Ho… Albe… (256… http:/… Albertv…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">501</span>616 Big Spring … AL    257 Cou… Albe… (256… http:/… Albertv…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">502</span>150 Albertville… AL    1100 Ho… Albe… (256… http:/… Albertv…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>193 Kate Duncan… AL    6077 Ma… Grant (256… http:/… Marshal…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>872 Asbury Sch   AL    1990 As… Albe… (256… http:/… Marshal…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>876 Claysville … AL    140 Cla… Gunt… (256… http:/… Marshal…        1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span> <span style="text-decoration: underline;">10</span>000<span style="text-decoration: underline;">600</span>877 Douglas Ele… AL    P O Box… Doug… (256… http:/… Marshal…        1</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 98,553 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 34 more variables: g_pk_offered &lt;chr&gt;, g_kg_offered &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   g_1_offered &lt;chr&gt;, g_2_offered &lt;chr&gt;, g_3_offered &lt;chr&gt;, g_4_offered &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   g_5_offered &lt;chr&gt;, g_6_offered &lt;chr&gt;, g_7_offered &lt;chr&gt;, g_8_offered &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   g_9_offered &lt;chr&gt;, g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   g_12_offered &lt;chr&gt;, level &lt;chr&gt;, leaid &lt;int&gt;, charter &lt;dbl&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;, nslp_status &lt;chr&gt;, …</span></span></span></code></pre>
-<p>By looking at the <code>st</code> column, we can already see a
-problem here. The data frame contains schools from all states in the US,
-but we are interested in a much narrower inference population.
-Therefore, there is some filtering we must do first.</p>
-<p>To identify Texas schools, we can select those rows with
-<code>st</code> equal to <code>TX</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span></span></code></pre></div>
-<p>To filter out the non-charter schools, we can use the variable in our
-data frame called <code>charter</code> that takes on the value of 0 for
-non-charter schools and 1 for charter schools. Finally, to select high
-schools (which almost always include grades 9 to 12), we can use one of
-the grade indicator variables, say <code>g_10_offered</code>. After
-combining all of these filters, we get:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span></span>
-<span><span class="va">inference_pop</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">inference_pop</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 330 × 43</span></span></span>
 <span><span class="co">##         ncessch sch_name    st    mstreet1 mcity phone website lea_name sch_type</span></span>
 <span><span class="co">##           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
@@ -196,16 +161,13 @@ combining all of these filters, we get:</p>
 <span><span class="co">## <span style="color: #949494;">#   g_9_offered &lt;chr&gt;, g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   g_12_offered &lt;chr&gt;, level &lt;chr&gt;, leaid &lt;int&gt;, charter &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;, nslp_status &lt;chr&gt;, …</span></span></span></code></pre>
-<p>The size of our inference population has dropped from over 98,000
-schools to about 350 schools. It now only includes Texas charter high
-schools (or schools that offer 10th grade).</p>
 </div>
 <div class="section level3">
 <h3 id="running-the-function">Running the Function<a class="anchor" aria-label="anchor" href="#running-the-function"></a>
 </h3>
 <p>We are now ready to run <code><a href="../reference/stratify.html">stratify()</a></code> on our inference
 population. We enter:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">strat_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stratify.html">stratify</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">inference_pop</span><span class="op">)</span></span></code></pre></div>
 <p>We are greeted with the following:</p>
 <p><img src="new_figures_091922/stratify_fig_1_v2.png" width="550"></p>
@@ -366,7 +328,7 @@ this case, all the variables are continuous. Plots of the variables –
 histograms or bar charts, as appropriate – are generated and displayed
 one at a time.</p>
 <p><img src="new_figures_091922/stratify_fig_6_v2.png" width="550"></p>
-<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="1458.33333333333"></p>
+<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-10-1.png" width="1458.33333333333"></p>
 </div>
 <div class="section level3">
 <h3 id="choosing-the-number-of-strata">Choosing the Number of Strata<a class="anchor" aria-label="anchor" href="#choosing-the-number-of-strata"></a>
@@ -632,7 +594,7 @@ pct_free_and_reduced_lunch
 <h4 id="heat-map">Heat Map<a class="anchor" aria-label="anchor" href="#heat-map"></a>
 </h4>
 <p>The function also prints a heat map:</p>
-<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-15-1.png" width="768"></p>
+<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-13-1.png" width="768"></p>
 <p>Each column of the heat map corresponds to a stratum. We can read the
 map by going down the columns, assessing each stratum in relation to the
 population. Remember that the goal is to sample independently within
@@ -673,7 +635,7 @@ stick with four strata.</p>
 </h4>
 <p>If we wish to look at the results of <code><a href="../reference/stratify.html">stratify()</a></code> again,
 we can run the following code:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>Note that <code>strat_output</code> is the name we have assigned to
 our <code>stratify_object</code> in this example; users should replace
@@ -713,7 +675,7 @@ function arguments instead.</p>
 <p>Since we assigned the results of <code><a href="../reference/stratify.html">stratify()</a></code> to an
 object, that object can then be passed directly into
 <code><a href="../reference/recruit.html">recruit()</a></code>, like so:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rec_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recruit.html">recruit</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>We are immediately greeted with the following welcome message:</p>
 <p><img src="new_figures_091922/recruit_fig_1_v2.png" width="550"></p>
@@ -847,7 +809,7 @@ found by running <code>rec_output$recruitment_lists[[n]]</code>. You
 will likely add this <code>sample</code> variable manually over time as
 you coordinate with each school, but since this is an example, we will
 pretend that recruitment was entirely successful.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,</span>
 <span>  <span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>,</span>
 <span>  <span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">]</span>, </span>
@@ -859,7 +821,7 @@ pretend that recruitment was entirely successful.</p>
 <span>                          <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now we are ready to give the data to the guided <code><a href="../reference/assess.html">assess()</a></code>
 function.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">assess_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assess.html">assess</a></span><span class="op">(</span><span class="va">inference_pop_sample</span><span class="op">)</span></span></code></pre></div>
 <p>First, we will receive this welcome message and be prompted to
 indicate the binary variable that encodes sample membership.</p>
@@ -960,7 +922,7 @@ You also have the option to add in an <code>outcome</code> and
 also calculate the weighted and unweighted TATE. You must include those
 variables if you want the weighted TATE. Note that you can only include
 those variables after the study has finished.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">selection_covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"total"</span>, <span class="st">"pct_black_or_african_american"</span>, <span class="st">"pct_white"</span>, <span class="st">"pct_female"</span>, <span class="st">"pct_free_and_reduced_lunch"</span><span class="op">)</span></span>
 <span><span class="va">weighting_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weighting.html">weighting</a></span><span class="op">(</span><span class="va">inference_pop_sample</span>, sample_indicator <span class="op">=</span> <span class="st">"sample"</span>,covariates <span class="op">=</span> <span class="va">selection_covariates</span>, disjoint_data <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p>If you do not include <code>outcome</code> and <code>treatment</code>
