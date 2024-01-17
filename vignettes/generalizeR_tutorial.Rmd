@@ -34,6 +34,7 @@ library(viridis)
 # install.packages("patchwork")
 library(patchwork)
 library(lazyeval)
+devtools::load_all()
 ```
 
 ## Introduction
@@ -60,15 +61,11 @@ This tutorial will follow a hypothetical example.
 
 Suppose we are a team of education researchers who want to test the effect of an intervention on SAT scores. We have somewhat limited resources, so we plan on using a sample size of 40 schools. We want to estimate the average effect of our intervention in Texas charter high schools. Thus, our **inference population** consists of *all Texas charter high schools*. Previous literature suggests that gender, minority status, and social class might affect gaps in achievement, so we select a few **stratifying variables** -- *percentage female*, *percentage black*, and *percentage free and reduced lunch*. We also think school size might result in treatment differences, so we include the *total school size* as well.
 
-Since we are working with high schools, we can use the Common Core database provided in the `generalizeRdata` package. For information on each of the columns and the source of the data, run `?cc`. Since this dataset is in a separate package, we will be using a small subset of the data, specifically Texas charter high schools. To find this subset, we found schools where the variable `st` was Texas, `charter` was 1, and the grade indicator variable `g_10_offered` was "Yes".
-
-By looking at the `st` column, we can already see a problem here. The data frame contains schools from all states in the US, but we are interested in a much narrower inference population. Therefore, there is some filtering we must do first.
+Since we are working with high schools, we can use the Common Core database provided in the `generalizeRdata` package. For information on each of the columns and the source of the data, run `?cc`. Since the `cc` dataset is in a separate package, we will be using a small subset of the data called `inference_pop`, specifically Texas charter high schools. To find this subset, we found schools where the variable `st` was Texas, `charter` was 1, and the grade indicator variable `g_10_offered` was "Yes".
 
 ```{r}
 inference_pop
 ```
-
-The size of our inference population has dropped from over 98,000 schools to about 350 schools. It now only includes Texas charter high schools (or schools that offer 10th grade).
 
 ### Running the Function
 

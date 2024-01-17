@@ -19,7 +19,8 @@ URL: https://nustat.github.io/generalizeR,
     https://github.com/NUstat/generalizeR
 BugReports: https://github.com/NUstat/generalizeR/issues
 Depends: 
-    ggplot2
+    ggplot2,
+    R (>= 2.10)
 Imports: 
     assertthat,
     broom,
