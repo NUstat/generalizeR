@@ -622,7 +622,7 @@ because of the scale of the variable, the size of the population mean,
 and rounding.)</p>
 <p>After reading the results, we have the opportunity to try out
 different numbers of strata, as seen in the prompt below.</p>
-<p><img src="stratify_try_again.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_try_again.png" width="550"></p>
 <p>If we wish to try different strata, we enter 1, as seen in the image,
 then enter the number of strata we wish to try. All of the same
 statistics will be printed again for the different number of strata. We
@@ -643,7 +643,7 @@ it with their own name they have chosen.</p>
 <p>There is also an option to print our <code>stratify_object</code>.
 Doing so yields:</p>
 <!--**TODO: Fix `stratify_object` `print()` method**-->
-<p><img src="stratify_fig_12.png" width="550"></p>
+<p><img src="new_figures_091922/stratify_fig_12.png" width="550"></p>
 <p>We have finished the stratifying process!</p>
 </div>
 </div>
@@ -697,7 +697,7 @@ by multiplying the sampling proportion (which is equal to the ratio of
 the stratum size to the total population size) for each stratum by the
 desired sample size, in this case 40.</p>
 <p>Here is what the recruitment table looks like in the Viewer pane.</p>
-<p><img src="recruit_table.png" width="550"></p>
+<p><img src="new_figures_091922/recruit_table.png" width="550"></p>
 <p>This means that our recruitment plan should be to recruit 20 schools
 from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum
 4.</p>
@@ -707,7 +707,7 @@ strata. If this happens, then your chosen strata are likely not ideal,
 and you should go through the stratification process again.</p>
 <p>The function then asks us if we want to save the recruitment lists as
 csv files.</p>
-<p><img src="recruit_fig_01.png" width="550"></p>
+<p><img src="new_figures_091922/recruit_fig_01.png" width="550"></p>
 <p>Upon entering ‘1’ to indicate ‘Yes’, the lists are automatically
 saved to your working directory. This also happens in the unguided
 function if we set <code>save_as_csv = TRUE</code>.</p>
@@ -825,7 +825,7 @@ function.</p>
 <code class="sourceCode R"><span><span class="va">assess_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assess.html">assess</a></span><span class="op">(</span><span class="va">inference_pop_sample</span><span class="op">)</span></span></code></pre></div>
 <p>First, we will receive this welcome message and be prompted to
 indicate the binary variable that encodes sample membership.</p>
-<p><img src="assess_fig_1.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_1.png" width="550"></p>
 <p>We will enter 44 to indicate <code>sample</code>. We see the same
 list of variables, except with <code>sample</code> missing, and we are
 asked to select covariations. We must specify the variables that we hope
@@ -834,11 +834,11 @@ stratify the population. In this case, we will enter 30 33 39 43, the
 same variables we used for stratifying (these are different numbers from
 stratify because <code><a href="../reference/stratify.html">stratify()</a></code> removes the id variable
 <code>ncessch</code>).</p>
-<p><img src="assess_fig_2.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_2.png" width="550"></p>
 <p>After entering this information, you will be asked two questions:
 first, if the sample data is disjoint from the population, and second,
 if the population data should be trimmed.</p>
-<p><img src="assess_fig_3.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_3.png" width="550"></p>
 <p>For this first question, the data is <strong>not</strong> disjoint
 only if the sample is <strong>not</strong> a direct subset of the
 population. For example, this sample would be disjoint with the
@@ -866,23 +866,23 @@ choosing your sample carefully with the same methods used in
 on.</p>
 <p>After answering these questions, the function will ask for the method
 for estimating the generalizability index.</p>
-<p><img src="assess_fig_4.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_4.png" width="550"></p>
 <p>Logistic Regression is the default method. Unless you have specific
 technical reasons for choosing the other two options, we highly suggest
 you stick with the default.</p>
 <p>After this, the function ends with providing the generalizability
 index. You can see this index and more details when you
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> the generalizer object.</p>
-<p><img src="assess_fig_5.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_5.png" width="550"></p>
 <p>To interpret the generalizeR index, please refer to the information
 at the beginning of the <code><a href="../reference/assess.html">assess()</a></code> tutorial.</p>
 <p>If you run <code>summary(assess_output)</code>, you will see the
 following tables in the console and Plots pane.</p>
-<p><img src="assess_fig_6.png" width="550"></p>
-<p><img src="assess_fig_7.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_6.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_7.png" width="550"></p>
 <p>You can also see a nicer version of the covariate table by running
 <code>assess_output$covariate_kable</code>.</p>
-<p><img src="assess_fig_11.png" width="550"></p>
+<p><img src="new_figures_091922/assess_fig_8.png" width="550"></p>
 <p>The summary reminds us of which covariates we used, our estimation
 method, and how much of the population was trimmed, if any. It also
 compares the distribution of the propensity scores (the logistic
@@ -928,23 +928,23 @@ those variables after the study has finished.</p>
 <p>If you do not include <code>outcome</code> and <code>treatment</code>
 variables, then running <code>summary(weighting_output)</code> will look
 like the following.</p>
-<p><img src="assess_fig_8.png" width="550"></p>
-<p><img src="assess_fig_9.png" width="550"></p>
-<p><img src="assess_fig_10.png" width="550"></p>
+<p><img src="new_figures_091922/weighting_fig_1.png" width="550"></p>
+<p><img src="new_figures_091922/weighting_fig_2.png" width="550"></p>
+<p><img src="new_figures_091922/weighting_fig_3.png" width="550"></p>
 <p>As you can see, these results are similar to the results of
 <code><a href="../reference/assess.html">assess()</a></code>, with the addition of the histogram describing the
 distribution of the weights for each unit.</p>
 <p>If you do include the <code>outcome</code> and <code>treatment</code>
 variables, then you will also get the following tables instead of
 <code>NULL</code> values.</p>
-<p><img src="weighting_fig_4.png" width="550"></p>
+<p><img src="new_figures_091922/weighting_fig_4.png" width="550"></p>
 <p>Here, we can see that the weighted TATE is larger than the unweighted
 TATE. Their confidence intervals overlap, so we cannot conclude that
 there is a significant difference. We can, however, be confident that
 the weighted TATE has less bias than the unweighted TATE.</p>
 <p>Lastly, you can see a nicer version of the covariate table by running
 <code>weighting_output$covariate_kable</code>.</p>
-<p><img src="weighting_fig_5.png" width="550"></p>
+<p><img src="new_figures_091922/weighting_fig_5.png" width="550"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
