@@ -257,7 +257,7 @@ The other columns may be interpreted in exactly the same manner.
 
 After reading the results, we have the opportunity to try out different numbers of strata, as seen in the prompt below.
 
-<img src="stratify_try_again.png" width="550"/>
+<img src="new_figures_091922/stratify_try_again.png" width="550"/>
 
 If we wish to try different strata, we enter 1, as seen in the image, then enter the number of strata we wish to try. All of the same statistics will be printed again for the different number of strata. We may try as many different strata as we like. Only the last strata will be saved in the `strat_output` object. In this case, I will stick with four strata.
 
@@ -275,7 +275,7 @@ There is also an option to print our `stratify_object`. Doing so yields:
 
 <!--**TODO: Fix `stratify_object` `print()` method**-->
 
-<img src="stratify_fig_12.png" width="550"/>
+<img src="new_figures_091922/stratify_fig_12.png" width="550"/>
 
 We have finished the stratifying process!
 
@@ -317,7 +317,7 @@ Next, the function prints a recruitment table that tells us how many units we sh
 
 Here is what the recruitment table looks like in the Viewer pane.
 
-<img src="recruit_table.png" width="550"/>
+<img src="new_figures_091922/recruit_table.png" width="550"/>
 
 This means that our recruitment plan should be to recruit 20 schools from Stratum 1, 4 from Stratum 2, 5 from Stratum 3, and 11 from Stratum 4.
 
@@ -325,7 +325,7 @@ If a strata is very small (e.g. has only one or two units), then it is possible 
 
 The function then asks us if we want to save the recruitment lists as csv files.
 
-<img src="recruit_fig_01.png" width="550"/>
+<img src="new_figures_091922/recruit_fig_01.png" width="550"/>
 
 Upon entering '1' to indicate 'Yes', the lists are automatically saved to your working directory. This also happens in the unguided function if we set `save_as_csv = TRUE`.
 
@@ -396,15 +396,15 @@ assess_output <- assess(inference_pop_sample, sample_indicator = "sample", covar
 
 First, we will receive this welcome message and be prompted to indicate the binary variable that encodes sample membership.
 
-<img src="assess_fig_1.png" width="550"/>
+<img src="new_figures_091922/assess_fig_1.png" width="550"/>
 
 We will enter 44 to indicate `sample`. We see the same list of variables, except with `sample` missing, and we are asked to select covariations. We must specify the variables that we hope are generalizable. These are the same variables we first used to stratify the population. In this case, we will enter 30 33 39 43, the same variables we used for stratifying (these are different numbers from stratify because `stratify()` removes the id variable `ncessch`).
 
-<img src="assess_fig_2.png" width="550"/>
+<img src="new_figures_091922/assess_fig_2.png" width="550"/>
 
 After entering this information, you will be asked two questions: first, if the sample data is disjoint from the population, and second, if the population data should be trimmed.
 
-<img src="assess_fig_3.png" width="550"/>
+<img src="new_figures_091922/assess_fig_3.png" width="550"/>
 
 For this first question, the data is **not** disjoint only if the sample is **not** a direct subset of the population. For example, this sample would be disjoint with the population if the sample only included schools in Texas, but the target population includes schools in New Hampshire. Also, every unit in the sample must have come from the population. If that is untrue for even one unit, then the data is disjoint. In our example, the sample is an exact subset of the population, and is **not** disjoint from the population.
 
@@ -412,25 +412,25 @@ The second question relates to how well your chosen sample represents the popula
 
 After answering these questions, the function will ask for the method for estimating the generalizability index.
 
-<img src="assess_fig_4.png" width="550"/>
+<img src="new_figures_091922/assess_fig_4.png" width="550"/>
 
 Logistic Regression is the default method. Unless you have specific technical reasons for choosing the other two options, we highly suggest you stick with the default.
 
 After this, the function ends with providing the generalizability index. You can see this index and more details when you `print()` the generalizer object.
 
-<img src="assess_fig_5.png" width="550"/>
+<img src="new_figures_091922/assess_fig_5.png" width="550"/>
 
 To interpret the generalizeR index, please refer to the information at the beginning of the `assess()` tutorial.
 
 If you run `summary(assess_output)`, you will see the following tables in the console and Plots pane.
 
-<img src="assess_fig_6.png" width="550"/>
+<img src="new_figures_091922/assess_fig_6.png" width="550"/>
 
-<img src="assess_fig_7.png" width="550"/>
+<img src="new_figures_091922/assess_fig_7.png" width="550"/>
 
 You can also see a nicer version of the covariate table by running `assess_output$covariate_kable`.
 
-<img src="assess_fig_11.png" width="550"/>
+<img src="new_figures_091922/assess_fig_8.png" width="550"/>
 
 The summary reminds us of which covariates we used, our estimation method, and how much of the population was trimmed, if any. It also compares the distribution of the propensity scores (the logistic regression probabilities of a unit being in the sample) for units in the sample vs. the population. The trimmed units are the units in the population that are not represented in the sample; in this case, the units with propensity scores less than roughly -2.05. Additionally, it provides a comparison for each covariate. Ideally, we would like to see the ASMD < 0.25.
 
@@ -451,21 +451,21 @@ weighting_output <- weighting(inference_pop_sample, sample_indicator = "sample",
 
 If you do not include `outcome` and `treatment` variables, then running `summary(weighting_output)` will look like the following.
 
-<img src="assess_fig_8.png" width="550"/>
+<img src="new_figures_091922/weighting_fig_1.png" width="550"/>
 
-<img src="assess_fig_9.png" width="550"/>
+<img src="new_figures_091922/weighting_fig_2.png" width="550"/>
 
-<img src="assess_fig_10.png" width="550"/>
+<img src="new_figures_091922/weighting_fig_3.png" width="550"/>
 
 As you can see, these results are similar to the results of `assess()`, with the addition of the histogram describing the distribution of the weights for each unit.
 
 If you do include the `outcome` and `treatment` variables, then you will also get the following tables instead of `NULL` values.
 
-<img src="weighting_fig_4.png" width="550"/>
+<img src="new_figures_091922/weighting_fig_4.png" width="550"/>
 
 Here, we can see that the weighted TATE is larger than the unweighted TATE. Their confidence intervals overlap, so we cannot conclude that there is a significant difference. We can, however, be confident that the weighted TATE has less bias than the unweighted TATE.
 
 Lastly, you can see a nicer version of the covariate table by running `weighting_output$covariate_kable`.
 
-<img src="weighting_fig_5.png" width="550"/>
+<img src="new_figures_091922/weighting_fig_5.png" width="550"/>
 
