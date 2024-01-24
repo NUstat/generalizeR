@@ -51,7 +51,7 @@ Note that it is possible to use the package at either end of the sampling proces
 
 ### Guided
 
-The `stratify()` function defaults to 'guided' mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of <http://thegeneralizer.org/> and in part because we intend for this R package to be as accessible as possible for people with limited R experience.
+The `stratify()` function defaults to 'guided' mode, meaning that it prints text throughout and prompts the user to enter information with a question-and-answer format. This is intentional, in part to mimic the nature of <https://thegeneralizer.org/> and in part because we intend for this R package to be as accessible as possible for people with limited R experience.
 
 Users who are running `stratify()` multiple times, who are familiar with R, or who simply dislike the guided feature can turn it off by using the argument 'guided = FALSE'. If they do so, however, they must be sure to specify values for all the other function arguments, as those would otherwise be obtained from user input later.
 

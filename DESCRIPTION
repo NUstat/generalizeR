@@ -1,5 +1,5 @@
 Package: generalizeR
-Title: Design a Sample Recruitment Plan and Assess Its Generalizability to
+Title: Design a Sample Recruitment Plan and Assess Its 'Generalizability' to
     Broader Populations
 Version: 0.0.1
 Authors@R: c(
@@ -11,12 +11,11 @@ Authors@R: c(
     person("Beatrice", "Chao", role = "aut"),
     person("Beth", "Tipton", , "tipton@northwestern.edu", role = "aut")
   )
-Description: The goal of generalizeR is to guide K-12 researchers through the process of 
+Description: The goal of this package is to guide K-12 researchers through the process of 
             (1) designing a sample recruitment plan with generalization in mind and (2) reporting 
             where the results of a study may (or may not) generalize well.
 License: GPL-3
-URL: https://nustat.github.io/generalizeR,
-    https://github.com/NUstat/generalizeR
+URL: https://nustat.github.io/generalizeR/, https://github.com/NUstat/generalizeR
 BugReports: https://github.com/NUstat/generalizeR/issues
 Depends: 
     ggplot2,
