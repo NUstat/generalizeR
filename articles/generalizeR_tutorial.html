@@ -161,13 +161,20 @@ was Texas, <code>charter</code> was 1, and the grade indicator variable
 <span><span class="co">## <span style="color: #949494;">#   g_9_offered &lt;chr&gt;, g_10_offered &lt;chr&gt;, g_11_offered &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   g_12_offered &lt;chr&gt;, level &lt;chr&gt;, leaid &lt;int&gt;, charter &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   titlei_status_text &lt;chr&gt;, magnet_text &lt;chr&gt;, nslp_status &lt;chr&gt;, …</span></span></span></code></pre>
+<p>To follow along with this tutorial, download the
+<code>generalizeRdata</code> package and run the following code:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">inference_pop</span> <span class="op">&lt;-</span> <span class="va">cc</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">st</span> <span class="op">==</span> <span class="st">"TX"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">charter</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">g_10_offered</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="running-the-function">Running the Function<a class="anchor" aria-label="anchor" href="#running-the-function"></a>
 </h3>
 <p>We are now ready to run <code><a href="../reference/stratify.html">stratify()</a></code> on our inference
 population. We enter:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">strat_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stratify.html">stratify</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">inference_pop</span><span class="op">)</span></span></code></pre></div>
 <p>We are greeted with the following:</p>
 <p><img src="new_figures_091922/stratify_fig_1_v2.png" width="550"></p>
@@ -328,7 +335,7 @@ this case, all the variables are continuous. Plots of the variables –
 histograms or bar charts, as appropriate – are generated and displayed
 one at a time.</p>
 <p><img src="new_figures_091922/stratify_fig_6_v2.png" width="550"></p>
-<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-10-1.png" width="1458.33333333333"></p>
+<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-11-1.png" width="1458.33333333333"></p>
 </div>
 <div class="section level3">
 <h3 id="choosing-the-number-of-strata">Choosing the Number of Strata<a class="anchor" aria-label="anchor" href="#choosing-the-number-of-strata"></a>
@@ -594,7 +601,7 @@ pct_free_and_reduced_lunch
 <h4 id="heat-map">Heat Map<a class="anchor" aria-label="anchor" href="#heat-map"></a>
 </h4>
 <p>The function also prints a heat map:</p>
-<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-13-1.png" width="768"></p>
+<p><img src="generalizeR_tutorial_files/figure-html/unnamed-chunk-14-1.png" width="768"></p>
 <p>Each column of the heat map corresponds to a stratum. We can read the
 map by going down the columns, assessing each stratum in relation to the
 population. Remember that the goal is to sample independently within
@@ -635,7 +642,7 @@ stick with four strata.</p>
 </h4>
 <p>If we wish to look at the results of <code><a href="../reference/stratify.html">stratify()</a></code> again,
 we can run the following code:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>Note that <code>strat_output</code> is the name we have assigned to
 our <code>stratify_object</code> in this example; users should replace
@@ -675,7 +682,7 @@ function arguments instead.</p>
 <p>Since we assigned the results of <code><a href="../reference/stratify.html">stratify()</a></code> to an
 object, that object can then be passed directly into
 <code><a href="../reference/recruit.html">recruit()</a></code>, like so:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rec_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recruit.html">recruit</a></span><span class="op">(</span><span class="va">strat_output</span><span class="op">)</span></span></code></pre></div>
 <p>We are immediately greeted with the following welcome message:</p>
 <p><img src="new_figures_091922/recruit_fig_1_v2.png" width="550"></p>
@@ -809,19 +816,19 @@ found by running <code>rec_output$recruitment_lists[[n]]</code>. You
 will likely add this <code>sample</code> variable manually over time as
 you coordinate with each school, but since this is an example, we will
 pretend that recruitment was entirely successful.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,</span>
 <span>  <span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>,</span>
 <span>  <span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">]</span>, </span>
 <span>  <span class="va">rec_output</span><span class="op">$</span><span class="va">recruitment_lists</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncessch</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">inference_pop_sample</span> <span class="op">&lt;-</span> <span class="va">inference_pop</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>sample <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">ncessch</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">sample_list</span>,</span>
+<span><span class="va">inference_pop_sample</span> <span class="op">&lt;-</span> <span class="va">inference_pop</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>sample <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">ncessch</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">sample_list</span>,</span>
 <span>                          <span class="fl">1</span>,</span>
 <span>                          <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now we are ready to give the data to the guided <code><a href="../reference/assess.html">assess()</a></code>
 function.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">assess_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assess.html">assess</a></span><span class="op">(</span><span class="va">inference_pop_sample</span><span class="op">)</span></span></code></pre></div>
 <p>First, we will receive this welcome message and be prompted to
 indicate the binary variable that encodes sample membership.</p>
@@ -922,7 +929,7 @@ You also have the option to add in an <code>outcome</code> and
 also calculate the weighted and unweighted TATE. You must include those
 variables if you want the weighted TATE. Note that you can only include
 those variables after the study has finished.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">selection_covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"total"</span>, <span class="st">"pct_black_or_african_american"</span>, <span class="st">"pct_white"</span>, <span class="st">"pct_female"</span>, <span class="st">"pct_free_and_reduced_lunch"</span><span class="op">)</span></span>
 <span><span class="va">weighting_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weighting.html">weighting</a></span><span class="op">(</span><span class="va">inference_pop_sample</span>, sample_indicator <span class="op">=</span> <span class="st">"sample"</span>,covariates <span class="op">=</span> <span class="va">selection_covariates</span>, disjoint_data <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p>If you do not include <code>outcome</code> and <code>treatment</code>
