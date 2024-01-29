@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+A summary of the covariates used to stratify that compare them to the general population
+}
 \description{
 Print method for "summary.generalizeR_stratify" class
 }

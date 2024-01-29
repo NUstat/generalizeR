@@ -9,6 +9,29 @@
 #' @param estimation_method method to estimate the probability of sample membership (propensity scores). Default is logistic regression ("lr"). Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
 #' @param trim_pop logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.
+#' @returns returns generalizeR_assess object that includes the generalizability index, propensity scores, and a covariate table
+#' @examples
+#'
+#' library(tidyverse)
+#'
+#' # creating a stratified sample and recruiting from the sample to prepare for assess
+#' selection_covariates <- c("total", "pct_black_or_african_american", "pct_white", "pct_female", "pct_free_and_reduced_lunch")
+#' strat_output <- stratify(generalizeR:::inference_pop, guided = FALSE, n_strata = 4, variables = selection_covariates, idvar = "ncessch")
+#' rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
+#'
+#' # creating the sample dataset from the output of recruit
+#' sample_list <- c(rec_output$recruitment_lists[[1]]$ncessch[1:5],
+#'                  rec_output$recruitment_lists[[2]]$ncessch[1:20],
+#'                  rec_output$recruitment_lists[[3]]$ncessch[1:11],
+#'                  rec_output$recruitment_lists[[4]]$ncessch[1:4])
+#' inference_pop_sample <- mutate(generalizeR:::inference_pop, sample = if_else(ncessch %in% sample_list, 1, 0))
+#'
+#' # assessing the generalizability of the sample with the given covariates
+#' selection_covariates <- c("total", "pct_black_or_african_american", "pct_female", "pct_free_and_reduced_lunch")
+#' assess_output <- assess(inference_pop_sample, sample_indicator = "sample", covariates = selection_covariates,
+#'                         disjoint_data = FALSE, trim_pop = TRUE, guided = FALSE)
+#' }
+#' }
 #' @export
 #' @importFrom rlang is_empty
 #' @importFrom dplyr pull
@@ -636,6 +659,7 @@ assess <- function(data,
 #'
 #' @param x An object of class "generalizeR_assess"
 #' @param ... Other arguments passed to or from other methods
+#' @return The generalizability index for the sample along with details about the sample
 #'
 #' @export print.generalizeR_assess
 #' @export
@@ -685,6 +709,7 @@ print.generalizeR_assess <- function(x, ...) {
 #'
 #' @param object An object of class "generalizeR_assess"
 #' @param ... Other arguments passed to or from other methods
+#' @return The generalizability index for the sample, the distribution of propensity scores, and a summary of the given covariates
 #'
 #' @export summary.generalizeR_assess
 #' @export
@@ -801,6 +826,7 @@ summary.generalizeR_assess <- function(object, ...) {
 #'
 #' @param x An object of class "summary.generalizeR_assess"
 #' @param ... Other arguments passed to or from other methods
+#' @return The generalizability index for the sample, the distribution of propensity scores, and a summary of the given covariates
 #'
 #' @export print.summary.generalizeR_assess
 #' @export

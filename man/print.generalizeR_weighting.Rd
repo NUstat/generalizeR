@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+A summary of the weighted dataset
+}
 \description{
 Print method for "generalizeR_weighting" class
 }

@@ -40,20 +40,13 @@ The list contains 14 components: \code{idvar}, \code{variables}, \code{dataset},
 }
 }
 \examples{
-\donttest{
-\dontrun{
-# To get sample data; must first be installed using
-# devtools::install_github("NUstat/generalizeRdata")
-library(generalizeRdata)
+library(tidyverse)
 
-# Guided:
-stratify(ipeds)
+selection_covariates <- c("total", "pct_black_or_african_american",
+                          "pct_white", "pct_female", "pct_free_and_reduced_lunch")
+stratify(generalizeR:::inference_pop, guided = FALSE, n_strata = 4,
+         variables = selection_covariates, idvar= "ncessch")
 
-# Not guided:
-stratify(ipeds, guided = FALSE, n_strata = 4,
-         variables = c("pct_female", "pct_white"), idvar= "unitid")
-}
-}
 }
 \references{
 Tipton, E. (2014). Stratified sampling using cluster analysis: A sample selection strategy for improved generalizations from experiments. \emph{Evaluation Review}, \emph{37}(2), 109-139.

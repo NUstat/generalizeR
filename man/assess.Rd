@@ -29,6 +29,9 @@ assess(
 
 \item{trim_pop}{logical. If TRUE, then population data are subset to exclude individuals with covariates outside bounds of sample covariates.}
 }
+\value{
+returns generalizeR_assess object that includes the generalizability index, propensity scores, and a covariate table
+}
 \description{
 This function, given a stacked data frame containing both sample and population data, assesses the generalizability of the sample to the population on given covariates.
 }

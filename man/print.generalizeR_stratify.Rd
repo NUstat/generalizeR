@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+A list of the covariates used to stratify, the number of strata, and the number of observations dropped due to missing data
+}
 \description{
 Print method for "generalizeR_stratify" class
 }

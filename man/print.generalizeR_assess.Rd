@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+The generalizability index for the sample along with details about the sample
+}
 \description{
 Print method for "generalizeR_assess" class
 }

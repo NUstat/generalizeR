@@ -47,20 +47,13 @@
 #'
 #' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.
 #' @examples
-#' \donttest{
-#' \dontrun{
-#' # To get sample data; must first be installed using
-#' # devtools::install_github("NUstat/generalizeRdata")
-#' library(generalizeRdata)
+#' library(tidyverse)
 #'
-#' # Guided:
-#' stratify(ipeds)
+#' selection_covariates <- c("total", "pct_black_or_african_american",
+#'                           "pct_white", "pct_female", "pct_free_and_reduced_lunch")
+#' stratify(generalizeR:::inference_pop, guided = FALSE, n_strata = 4,
+#'          variables = selection_covariates, idvar= "ncessch")
 #'
-#' # Not guided:
-#' stratify(ipeds, guided = FALSE, n_strata = 4,
-#'          variables = c("pct_female", "pct_white"), idvar= "unitid")
-#' }
-#' }
 #' @md
 
 stratify <- function(data = NULL,
@@ -79,6 +72,7 @@ stratify <- function(data = NULL,
 
   # Store name of data as global variable so it can be accessed by .stratify.calculate(). Must be done before function argument 'data' is evaluated for the first time.
   options("data_name" = data %>% lazyeval::expr_text())
+  on.exit(.Options$demo.ask <- NULL)
 
   #data_name <<- data %>%
    # lazyeval::expr_text()
@@ -530,6 +524,7 @@ stratify <- function(data = NULL,
 #'
 #' @param x An object of class "generalizeR_stratify"
 #' @param ... Other arguments passed to or from other methods
+#' @return A list of the covariates used to stratify, the number of strata, and the number of observations dropped due to missing data
 #'
 #' @export print.generalizeR_stratify
 #' @export
@@ -553,6 +548,7 @@ print.generalizeR_stratify <- function(x, ...) {
 #'
 #' @param object An object of class "generalizeR_stratify"
 #' @param ... Other arguments passed to or from other methods
+#' @return A summary of the covariates used to stratify that compare them to the general population
 #'
 #' @export summary.generalizeR_stratify
 #' @export
@@ -570,6 +566,7 @@ summary.generalizeR_stratify <- function(object, ...) {
 #'
 #' @param x An object of class "generalizeR_stratify"
 #' @param ... Other arguments passed to or from other methods
+#' @return A summary of the covariates used to stratify that compare them to the general population
 #'
 #' @export print.summary.generalizeR_stratify
 #' @export
@@ -1407,7 +1404,6 @@ print.summary.generalizeR_stratify <- function(x, ...) {
 #' @param variables character, provide a character vector of the names of stratifying variables (from population data frame)
 #' @param idvar character, provide a character vector of the name of the ID variable (from population data frame)
 #' @return The function returns a boolean value indicating whether the number of observations with non-missing variables of interests exceeds 1 plus the number of strata requested
-#'
 #' @md
 
 .n.strata.less.than.max <- function(n_strata, data_interest, variables, idvar){

@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+The generalizability index for the sample, the distribution of propensity scores, and a summary of the given covariates
+}
 \description{
 Summary method for "generalizeR_assess" class
 }

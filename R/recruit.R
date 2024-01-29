@@ -18,15 +18,15 @@
 #'
 #' Tipton, E. (2014). How generalizable is your experiment? An index for comparing experimental samples and populations. *Journal of Educational and Behavioral Statistics*, *39*(6), 478-501.
 #' @examples
-#' \donttest{
-#' \dontrun{
-#' # Guided:
-#' recruit(ipeds_stratify_output_obj)
+#' library(tidyverse)
 #'
-#' # Not guided:
-#' recruit(ipeds_stratify_output_obj, guided = FALSE, sample_size = 72, save_as_csv = TRUE)
-#' }
-#' }
+#' selection_covariates <- c("total", "pct_black_or_african_american", "pct_white",
+#'                           "pct_female", "pct_free_and_reduced_lunch")
+#' strat_output <- stratify(generalizeR:::inference_pop, guided = FALSE, n_strata = 4,
+#'                          variables = selection_covariates, idvar = "ncessch")
+#'
+#' recruit(strat_output, guided = FALSE, sample_size = 72, save_as_csv = FALSE)
+#'
 #' @md
 
 recruit <- function(stratify_output,
@@ -178,6 +178,7 @@ recruit <- function(stratify_output,
 #'
 #' @param x An object of class "generalizeR_recruit"
 #' @param ... Other arguments passed to or from other methods
+#' @return A summary of the recruitment tables
 #'
 #' @export print.generalizeR_recruit
 #' @export

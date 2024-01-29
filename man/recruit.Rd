@@ -30,15 +30,15 @@ This function works with the output of 'stratify()'. The user provides the numbe
 This function, and the others in this package, are designed to mimic the website https://www.thegeneralizer.org/ based on the papers referenced below.
 }
 \examples{
-\donttest{
-\dontrun{
-# Guided:
-recruit(ipeds_stratify_output_obj)
+library(tidyverse)
 
-# Not guided:
-recruit(ipeds_stratify_output_obj, guided = FALSE, sample_size = 72, save_as_csv = TRUE)
-}
-}
+selection_covariates <- c("total", "pct_black_or_african_american", "pct_white",
+                          "pct_female", "pct_free_and_reduced_lunch")
+strat_output <- stratify(generalizeR:::inference_pop, guided = FALSE, n_strata = 4,
+                         variables = selection_covariates, idvar = "ncessch")
+
+recruit(strat_output, guided = FALSE, sample_size = 72, save_as_csv = FALSE)
+
 }
 \references{
 Tipton, E. (2014). Stratified sampling using cluster analysis: A sample selection strategy for improved generalizations from experiments. \emph{Evaluation Review}, \emph{37}(2), 109-139.

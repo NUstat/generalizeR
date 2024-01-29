@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+A summary of the recruitment tables
+}
 \description{
 Print method for "generalizeR_recruit" class
 }

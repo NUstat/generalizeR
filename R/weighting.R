@@ -7,6 +7,32 @@
 #' @param covariates vector of covariate names in data set that predict sample membership
 #' @param estimation_method method to estimate the probability of sample membership (propensity scores). Default is logistic regression ("lr").Other methods supported are Random Forests ("rf") and Lasso ("lasso")
 #' @param disjoint_data logical. If TRUE, then sample and population data are considered disjoint. This affects calculation of the weights - see details for more information.
+#' @return A summary of propensity scores, covariates, and ASMD for both weighted and unweighted data, as well as a summary of the weights. Also weighted and unweighted TATE if outcome and treatment are given
+#' @examples
+#' library(tidyverse)
+#'
+#' # creating a stratified sample and recruiting from the sample to prepare for assess
+#' selection_covariates <- c("total", "pct_black_or_african_american", "pct_white",
+#'                           "pct_female", "pct_free_and_reduced_lunch")
+#'
+#' strat_output <- stratify(generalizeR:::inference_pop, guided = FALSE, n_strata = 4,
+#'                          variables = selection_covariates, idvar = "ncessch")
+#' rec_output <- recruit(strat_output, guided = FALSE, sample_size = 40)
+#'
+#' # creating the sample dataset from the output of recruit
+#' sample_list <- c(rec_output$recruitment_lists[[1]]$ncessch[1:5],
+#'                   rec_output$recruitment_lists[[2]]$ncessch[1:20],
+#'                   rec_output$recruitment_lists[[3]]$ncessch[1:11],
+#'                   rec_output$recruitment_lists[[4]]$ncessch[1:4])
+#' inference_pop_sample <- mutate(generalizeR:::inference_pop,
+#'                                sample = if_else(ncessch %in% sample_list, 1, 0))
+#'
+#' # weighting the sample with the given covariates
+#' weighting_output <- weighting(inference_pop_sample, sample_indicator = "sample",
+#'                               covariates = selection_covariates, disjoint_data = FALSE)
+#'
+#'
+#'
 #' @export
 #' @importFrom stats quantile
 #' @importFrom crayon bold blue
@@ -308,6 +334,7 @@ weighting <- function(data,
 #'
 #' @param x An object of class "generalizeR_weighting"
 #' @param ... Other arguments passed to or from other methods
+#' @return A summary of the weighted dataset
 #'
 #' @export print.generalizeR_weighting
 #' @export
@@ -354,6 +381,7 @@ print.generalizeR_weighting <- function(x, ...) {
 #'
 #' @param object An object of class "generalizeR_weighting"
 #' @param ... Other arguments passed to or from other methods
+#' @return A summary of the weighted and unweighted dataset for propensity scores, covariates and (optionally) TATE
 #'
 #' @export summary.generalizeR_weighting
 #' @export
@@ -456,6 +484,7 @@ summary.generalizeR_weighting <- function(object, ...) {
 #'
 #' @param x An object of class "summary.generalizeR_weighting"
 #' @param ... Other arguments passed to or from other methods
+#' @return A summary of the weighted and unweighted dataset for propensity scores, covariates and (optionally) TATE
 #'
 #' @export print.summary.generalizeR_weighting
 #' @export

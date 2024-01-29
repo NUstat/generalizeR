@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to or from other methods}
 }
+\value{
+A summary of the weighted and unweighted dataset for propensity scores, covariates and (optionally) TATE
+}
 \description{
 Summary method for "generalizeR_weighting" class
 }

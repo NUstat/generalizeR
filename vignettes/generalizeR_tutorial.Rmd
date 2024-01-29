@@ -67,6 +67,16 @@ Since we are working with high schools, we can use the Common Core database prov
 inference_pop
 ```
 
+To follow along with this tutorial, download the `generalizeRdata` package and run the following code:
+
+```{r, eval=FALSE}
+inference_pop <- cc %>% 
+  filter(st == "TX") %>% 
+  filter(charter == 1) %>% 
+  filter(g_10_offered == "Yes")
+```
+
+
 ### Running the Function
 
 We are now ready to run `stratify()` on our inference population. We enter:
